@@ -1,0 +1,1 @@
+CREATE DATABASE market_tracker_portfolio_dev;
