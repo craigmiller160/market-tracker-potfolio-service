@@ -8,6 +8,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5432/market_tracker_portfolio_dev
+    username: postgres
+    password: password
 
 jwt:
   auth:
