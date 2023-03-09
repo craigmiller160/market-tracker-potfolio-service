@@ -13,7 +13,7 @@ class WebSecurityConfig(private val jwtAuthConverter: JwtAuthConverter) {
   @Bean
   fun securityFilterChain(http: HttpSecurity): SecurityFilterChain =
       http
-          .authorizeHttpRequests {}
+          .authorizeHttpRequests { it.requestMatchers("/**").fullyAuthenticated() }
           .oauth2ResourceServer { it.jwt().jwtAuthenticationConverter(jwtAuthConverter) }
           .build()
 }
