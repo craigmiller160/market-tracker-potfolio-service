@@ -43,16 +43,16 @@ resource "keycloak_role" "market_tracker_all_access_dev" {
   realm_id = data.keycloak_realm.apps_dev.id
   name = "market_tracker_all_access"
   composite_roles = [
-    data.keycloak_role.market_tracker_api_access_role_dev,
-    keycloak_role.market_tracker_portfolio_service_access_role_dev
+    data.keycloak_role.market_tracker_api_access_role_dev.id,
+    keycloak_role.market_tracker_portfolio_service_access_role_dev.id
   ]
 }
 
-resource "keycloak_role" "market_tracker_all_access_dev" {
+resource "keycloak_role" "market_tracker_all_access_prod" {
   realm_id = data.keycloak_realm.apps_prod.id
   name = "market_tracker_all_access"
   composite_roles = [
-    data.keycloak_role.market_tracker_api_access_role_prod,
-    keycloak_role.market_tracker_portfolio_service_access_role_prod
+    data.keycloak_role.market_tracker_api_access_role_prod.id,
+    keycloak_role.market_tracker_portfolio_service_access_role_prod.id
   ]
 }
