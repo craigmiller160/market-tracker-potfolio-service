@@ -1,4 +1,4 @@
-package io.craigmiller160.markettracker.profileservice.controller
+package io.craigmiller160.markettracker.portfolio.controller
 
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
