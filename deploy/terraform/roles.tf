@@ -16,11 +16,13 @@ data "keycloak_openid_client" "market_tracker_api_prod" {
 
 data "keycloak_role" "market_tracker_api_access_role_dev" {
   realm_id  = data.keycloak_realm.apps_dev.id
+  client_id = data.keycloak_openid_client.market_tracker_api_dev
   name = local.access_role_common.name
 }
 
 data "keycloak_role" "market_tracker_api_access_role_prod" {
   realm_id  = data.keycloak_realm.apps_prod.id
+  client_id = data.keycloak_openid_client.market_tracker_api_prod
   name = local.access_role_common.name
 }
 
