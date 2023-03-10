@@ -1,5 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.web.controllers
 
+import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
 import io.craigmiller160.testcontainers.common.TestcontainersExtension
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -15,12 +16,15 @@ import org.springframework.test.web.servlet.get
 @ExtendWith(TestcontainersExtension::class, SpringExtension::class)
 @AutoConfigureWebTestClient
 @ActiveProfiles("test")
-class PracticeController2Test @Autowired constructor(private val webTestClient: WebTestClient) {
+class PracticeController2Test
+@Autowired
+constructor(private val webTestClient: WebTestClient, private val defaultUsers: DefaultUsers) {
   @Test
   fun practice() {
     webTestClient
         .get()
         .uri("/practice2")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
         .is2xxSuccessful
