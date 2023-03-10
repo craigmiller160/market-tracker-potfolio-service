@@ -16,4 +16,3 @@ jwt:
     converter:
       resource-id: market-tracker-portfolio-service
       principal-attribute: preferred_username
-
