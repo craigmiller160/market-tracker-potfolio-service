@@ -41,7 +41,7 @@ dependencies {
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.craigmiller160:testcontainers-common:1.1.1")
-//    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-core")
 }
 
 tasks.withType<KotlinCompile> {
