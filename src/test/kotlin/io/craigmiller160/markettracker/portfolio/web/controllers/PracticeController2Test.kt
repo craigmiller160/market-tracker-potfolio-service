@@ -29,6 +29,6 @@ constructor(private val webTestClient: WebTestClient, private val defaultUsers: 
         .expectStatus()
         .is2xxSuccessful
         .expectBody()
-        .json("""{"message": "Hello World"}""")
+        .json("""{"message": "Hello World 2"}""")
   }
 }
