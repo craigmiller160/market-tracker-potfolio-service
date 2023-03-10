@@ -11,11 +11,18 @@ import org.springframework.security.web.server.context.NoOpServerSecurityContext
 @Configuration
 @EnableWebFluxSecurity
 class WebSecurityConfig(private val jwtAuthConverter: JwtAuthConverter) {
+
+  // .antMatchers("/actuator/health", "/v3/api-docs", "/v3/api-docs/*", "/swagger-ui/*")
   @Bean
   fun securityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain =
       http
           .oauth2ResourceServer { it.jwt().jwtAuthenticationConverter(jwtAuthConverter) }
-          .authorizeExchange { it.pathMatchers("/**").hasRole("access") }
+          .authorizeExchange {
+            it.pathMatchers("/actuator/health", "/v3/api-docs", "/v3/api-docs/*", "/swagger-ui/*")
+                .permitAll()
+                .pathMatchers("/**")
+                .hasRole("access")
+          }
           .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
           .build()
 }
