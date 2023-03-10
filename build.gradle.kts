@@ -14,12 +14,18 @@ plugins {
     `maven-publish`
 }
 
+dependencyManagement {
+    imports {
+        mavenBom("org.springdoc:springdoc-openapi:2.0.3")
+    }
+}
+
 group = projectGroup
 version = projectVersion
 java.sourceCompatibility = JavaVersion.VERSION_19
 
 dependencies {
-    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.0.3")
+    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui")
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-security")
