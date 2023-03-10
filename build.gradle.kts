@@ -26,7 +26,6 @@ java.sourceCompatibility = JavaVersion.VERSION_19
 
 dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui")
-    implementation("org.springdoc:springdoc-openapi-kotlin")
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-security")
