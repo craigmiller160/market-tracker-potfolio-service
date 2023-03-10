@@ -1,4 +1,4 @@
-package io.craigmiller160.markettracker.portfolio.web
+package io.craigmiller160.markettracker.portfolio.web.controllers
 
 import io.craigmiller160.markettracker.portfolio.web.types.PracticeResponse
 import org.springframework.web.bind.annotation.GetMapping
