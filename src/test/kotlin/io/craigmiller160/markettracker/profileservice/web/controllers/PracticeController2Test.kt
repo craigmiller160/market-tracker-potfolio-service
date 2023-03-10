@@ -6,6 +6,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.get
 
 @SpringBootTest
 @ExtendWith(SpringExtension::class)
@@ -13,6 +14,9 @@ import org.springframework.test.web.servlet.MockMvc
 class PracticeController2Test(private val mockMvc: MockMvc) {
   @Test
   fun practice() {
-    TODO()
+    mockMvc.get("/practice2").andExpect {
+      status { isOk() }
+      content { json("""{"message": "Hello World"}""") }
+    }
   }
 }
