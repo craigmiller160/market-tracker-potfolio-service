@@ -11,6 +11,12 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${testcontainers.common.keycloak.url}/realms/apps-dev
+
+jwt:
+  auth:
+    converter:
+      resource-id: ${testcontainers.common.keycloak.client.id}
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
