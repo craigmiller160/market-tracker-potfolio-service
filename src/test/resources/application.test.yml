@@ -1,0 +1,21 @@
+spring:
+  profiles:
+    active: test
+  r2dbc:
+    url: ${testcontainers.common.postgres.url}
+    username: ${testcontainers.common.postgres.user}
+    password: ${testcontainers.common.postgres.password}
+  flyway:
+    default-schema: ${testcontainers.common.postgres.schema}
+    init-sqls: SET schema '${testcontainers.common.postgres.schema}'
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${testcontainers.common.keycloak.url}/realms/apps-dev
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: DEBUG
+    org.springframework.jdbc.core: TRACE
+    org.springframework.web.client.RestTemplate: DEBUG
