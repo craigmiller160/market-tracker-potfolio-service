@@ -3,19 +3,19 @@ package io.craigmiller160.markettracker.portfolio.config
 import io.craigmiller160.markettracker.portfolio.security.JwtAuthConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
+import org.springframework.security.config.web.server.ServerHttpSecurity
+import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository
 
 @Configuration
-@EnableWebSecurity
+@EnableWebFluxSecurity
 class WebSecurityConfig(private val jwtAuthConverter: JwtAuthConverter) {
   @Bean
-  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain =
+  fun securityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain =
       http
-          .authorizeHttpRequests { it.requestMatchers("/**").fullyAuthenticated() }
           .oauth2ResourceServer { it.jwt().jwtAuthenticationConverter(jwtAuthConverter) }
-          .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+          .authorizeExchange { it.pathMatchers("/**").hasRole("access") }
+          .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
           .build()
 }

@@ -9,12 +9,13 @@ import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtClaimNames
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Mono
 
 @Component
 class JwtAuthConverter(private val config: JwtAuthConverterConfig) :
-    Converter<Jwt, AbstractAuthenticationToken> {
-  override fun convert(jwt: Jwt): AbstractAuthenticationToken =
-      JwtAuthenticationToken(jwt, getRoles(jwt), getPrincipalName(jwt))
+    Converter<Jwt, Mono<AbstractAuthenticationToken>> {
+  override fun convert(jwt: Jwt): Mono<AbstractAuthenticationToken> =
+      JwtAuthenticationToken(jwt, getRoles(jwt), getPrincipalName(jwt)).let { Mono.just(it) }
 
   private fun getPrincipalName(jwt: Jwt): String =
       jwt.getClaim<String>(config.principalAttribute ?: JwtClaimNames.SUB)
