@@ -40,7 +40,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("io.craigmiller160:testcontainers-common:1.2.0-SNAPSHOT")
+    testImplementation("io.craigmiller160:testcontainers-common:1.1.0")
 //    implementation("org.flywaydb:flyway-core")
 }
 
