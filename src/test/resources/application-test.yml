@@ -1,8 +1,6 @@
 spring:
-  profiles:
-    active: test
   r2dbc:
-    url: ${testcontainers.common.postgres.url}
+    url: ${testcontainers.common.postgres.r2dbcUrl}
     username: ${testcontainers.common.postgres.user}
     password: ${testcontainers.common.postgres.password}
   flyway:
