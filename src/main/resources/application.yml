@@ -6,8 +6,8 @@ spring:
           issuer-uri: https://auth-craigmiller160.ddns.net/realms/apps-dev
           jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
 
-  datasource:
-    url: jdbc:postgresql://localhost:5432/market_tracker_portfolio_dev
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/market_tracker_portfolio_dev
     username: postgres
     password: password
 
