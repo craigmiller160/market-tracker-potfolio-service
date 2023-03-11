@@ -1,7 +1,7 @@
-package io.craigmiller160.markettracker.portfolio.domain.typedid.jackson
+package io.craigmiller160.markettracker.portfolio.common.typedid.jackson
 
 import com.fasterxml.jackson.databind.module.SimpleModule
-import io.craigmiller160.markettracker.portfolio.domain.typedid.TypedId
+import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import org.springframework.stereotype.Component
 
 @Component

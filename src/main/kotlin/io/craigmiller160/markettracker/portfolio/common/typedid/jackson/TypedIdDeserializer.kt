@@ -1,10 +1,10 @@
-package io.craigmiller160.markettracker.portfolio.domain.typedid.jackson
+package io.craigmiller160.markettracker.portfolio.common.typedid.jackson
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.deser.std.UUIDDeserializer
-import io.craigmiller160.markettracker.portfolio.domain.typedid.TypedId
+import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 
 class TypedIdDeserializer : StdDeserializer<TypedId<*>>(TypedId::class.java) {
   private val delegate = UUIDDeserializer()

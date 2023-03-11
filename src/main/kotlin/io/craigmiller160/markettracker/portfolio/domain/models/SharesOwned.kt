@@ -1,9 +1,9 @@
 package io.craigmiller160.markettracker.portfolio.domain.models
 
-import io.craigmiller160.markettracker.portfolio.domain.typedid.PortfolioId
-import io.craigmiller160.markettracker.portfolio.domain.typedid.SharesOwnedId
-import io.craigmiller160.markettracker.portfolio.domain.typedid.TypedId
-import io.craigmiller160.markettracker.portfolio.domain.typedid.UserId
+import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
+import io.craigmiller160.markettracker.portfolio.common.typedid.SharesOwnedId
+import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
+import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import java.time.ZonedDateTime
 
 data class SharesOwned(
