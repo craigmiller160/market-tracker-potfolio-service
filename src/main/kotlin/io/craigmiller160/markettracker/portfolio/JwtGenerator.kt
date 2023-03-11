@@ -24,7 +24,6 @@ fun main() {
   val objectMapper =
       jacksonObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
   val account = objectMapper.readValue(accountPath.readText(), Account::class.java)
-  println(account)
 
   val nowUtc = ZonedDateTime.now(ZoneId.of("UTC"))
 
