@@ -7,6 +7,7 @@ import org.springdoc.core.annotations.RouterOperations
 import org.springdoc.webflux.core.fn.SpringdocRouteBuilder.route
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
+import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.ServerRequest
@@ -20,7 +21,11 @@ class PracticeRoutesHolder(private val handler: PracticeHandler) {
       value =
           [
               RouterOperation(beanClass = PracticeHandler::class, beanMethod = "helloUniverse"),
-              RouterOperation(beanClass = PracticeHandler::class, beanMethod = "helloName")])
+              RouterOperation(
+                  beanClass = PracticeHandler::class,
+                  beanMethod = "helloName",
+                  path = "/router/practice3/{name}",
+                  method = [RequestMethod.GET])])
   fun practiceRoutes(handler: PracticeHandler): RouterFunction<ServerResponse> = coRouter {
     GET("/router/practice", handler::helloUniverse)
     GET("/router/practice3/{name}", ::helloName)
