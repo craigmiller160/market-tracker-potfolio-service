@@ -15,7 +15,7 @@ class PracticeRoutesHolder {
   fun practiceRoutes3(handler: PracticeHandler): RouterFunction<ServerResponse> = coSwaggerRouter {
     GET("/swagger-router/practice/{param}", handler::helloUniverse) { builder ->
       builder
-          .operationId("operation")
+          .operationId("practice3")
           .parameter(SwaggerBuilders.pathParamBuilder().name("param"))
           .parameter(SwaggerBuilders.queryParamBuilder().name("queryParam"))
           .response(
