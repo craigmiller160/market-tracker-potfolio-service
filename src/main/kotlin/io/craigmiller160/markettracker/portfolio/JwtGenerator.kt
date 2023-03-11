@@ -2,8 +2,11 @@ package io.craigmiller160.markettracker.portfolio
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.nimbusds.jose.JWSAlgorithm
+import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.crypto.RSASSASigner
 import com.nimbusds.jwt.JWTClaimsSet
+import com.nimbusds.jwt.SignedJWT
 import java.nio.file.Paths
 import java.security.KeyFactory
 import java.security.spec.PKCS8EncodedKeySpec
@@ -11,6 +14,7 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Base64
 import kotlin.io.path.readText
+import kotlin.math.sign
 
 fun main() {
   // https://developers.google.com/identity/protocols/oauth2/service-account#httprest
@@ -34,6 +38,7 @@ fun main() {
           "exp" to nowUtc.plusMinutes(30).toEpochSecond())
 
   val claimsSet = JWTClaimsSet.parse(claims)
+  val header = JWSHeader.Builder(JWSAlgorithm.RS256).keyID(account.privateKeyId).build()
 
   val privateKeyBytes =
       account.privateKey
@@ -45,6 +50,9 @@ fun main() {
   val privateKey = KeyFactory.getInstance("RSA").generatePrivate(keySpec)
 
   val signer = RSASSASigner(privateKey)
+  val signedJwt = SignedJWT(header, claimsSet)
+  signedJwt.sign(signer)
+  println(signedJwt.serialize())
 }
 
 data class Account(
