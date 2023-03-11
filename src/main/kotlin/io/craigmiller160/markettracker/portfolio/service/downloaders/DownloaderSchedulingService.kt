@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 class DownloaderSchedulingService(
     private val craigMillerDownloaderService: CraigMillerDownloaderService
 ) {
-  @Scheduled(cron = "\${downloaders.interval-hours}")
+  @Scheduled(cron = "\${downloaders.interval-cron}")
   fun executeDownloads() {
     GlobalScope.launch { craigMillerDownloaderService.download() }
   }
