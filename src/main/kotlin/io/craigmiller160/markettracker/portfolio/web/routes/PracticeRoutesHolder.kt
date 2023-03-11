@@ -48,4 +48,9 @@ class PracticeRoutesHolder(private val handler: PracticeHandler) {
         }
         .build()
   }
+
+  @Bean
+  fun practiceRoutes3(handler: PracticeHandler): RouterFunction<ServerResponse> = coSwaggerRouter {
+    GET("/swagger-router/practice", handler::helloUniverse)
+  }
 }
