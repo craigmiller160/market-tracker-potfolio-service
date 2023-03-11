@@ -8,7 +8,7 @@ import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.coRouter
 
 @Component
-class PracticeRoutes {
+class PracticeRoutesHolder {
   @Bean
   fun practiceRoutes(handler: PracticeHandler): RouterFunction<ServerResponse> = coRouter {
     GET("/router/practice", handler::helloUniverse)
