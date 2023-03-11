@@ -7,15 +7,18 @@ import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import reactor.core.publisher.Mono
 
-class RoutesFunctionDsl(private val builder: SpringdocRouteBuilder) {
+fun suspendToMonoHandler(
+    handler: suspend (ServerRequest) -> ServerResponse
+): (ServerRequest) -> Mono<ServerResponse> = { request -> mono { handler(request) } }
+
+class SwaggerRouterDsl(private val builder: SpringdocRouteBuilder) {
   fun GET(path: String, handler: suspend (ServerRequest) -> ServerResponse) {
-    val monoHandler: (ServerRequest) -> Mono<ServerResponse> = { req -> mono { handler(req) } }
-    builder.GET(path, monoHandler) {}
+    builder.GET(path, suspendToMonoHandler(handler)) {}
   }
 }
 
-fun coSwaggerRouter(init: RoutesFunctionDsl.() -> Unit): RouterFunction<ServerResponse> {
+fun coSwaggerRouter(init: SwaggerRouterDsl.() -> Unit): RouterFunction<ServerResponse> {
   val builder = SpringdocRouteBuilder.route()
-  val routesDsl = RoutesFunctionDsl(builder).also { it.init() }
+  val routesDsl = SwaggerRouterDsl(builder).also { it.init() }
   return builder.build()
 }
