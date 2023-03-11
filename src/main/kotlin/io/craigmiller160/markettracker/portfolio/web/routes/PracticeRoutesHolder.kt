@@ -1,6 +1,7 @@
 package io.craigmiller160.markettracker.portfolio.web.routes
 
 import io.craigmiller160.markettracker.portfolio.web.handlers.PracticeHandler
+import io.craigmiller160.markettracker.portfolio.web.types.PracticeResponse
 import io.swagger.v3.oas.annotations.enums.ParameterIn
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springdoc.core.annotations.RouterOperation
@@ -51,11 +52,20 @@ class PracticeRoutesHolder(private val handler: PracticeHandler) {
 
   @Bean
   fun practiceRoutes3(handler: PracticeHandler): RouterFunction<ServerResponse> = coSwaggerRouter {
-    GET("/swagger-router/practice/{param}", handler::helloUniverse) {
-      parameters {
-        path("param")
-        query("hello")
-      }
+    GET("/swagger-router/practice/{param}", handler::helloUniverse) { builder ->
+      builder
+          .operationId("operation")
+          .parameter(SwaggerBuilders.pathParamBuilder().name("param"))
+          .parameter(SwaggerBuilders.queryParamBuilder().name("queryParam"))
+          .response(
+              SwaggerBuilders.responseBuilder()
+                  .responseCode("200")
+                  .content(
+                      SwaggerBuilders.contentBuilder()
+                          .mediaType("application/json")
+                          .schema(
+                              SwaggerBuilders.schemaBuilder()
+                                  .implementation(PracticeResponse::class.java))))
     }
   }
 }
