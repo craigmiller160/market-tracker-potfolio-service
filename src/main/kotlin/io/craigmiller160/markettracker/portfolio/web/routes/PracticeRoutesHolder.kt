@@ -1,9 +1,11 @@
 package io.craigmiller160.markettracker.portfolio.web.routes
 
 import io.craigmiller160.markettracker.portfolio.web.handlers.PracticeHandler
+import io.swagger.v3.oas.annotations.enums.ParameterIn
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springdoc.core.annotations.RouterOperation
 import org.springdoc.core.annotations.RouterOperations
+import org.springdoc.core.fn.builders.parameter.Builder
 import org.springdoc.webflux.core.fn.SpringdocRouteBuilder.route
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
@@ -39,10 +41,10 @@ class PracticeRoutesHolder(private val handler: PracticeHandler) {
   @Bean
   fun practiceRoutes2(handler: PracticeHandler): RouterFunction<ServerResponse> {
     return route()
-        .GET("/router/practice2", handler::helloUniverseMono) { ops ->
+        .GET("/router/practice2/{param}", handler::helloUniverseMono) { ops ->
           ops.operationId("getPractice2")
-              .beanClass(PracticeHandler::class.java)
-              .beanMethod("helloUniverseMono")
+              .parameter(Builder.parameterBuilder().name("param").`in`(ParameterIn.PATH))
+              .parameter(Builder.parameterBuilder().name("queryParam").`in`(ParameterIn.QUERY))
         }
         .build()
   }
