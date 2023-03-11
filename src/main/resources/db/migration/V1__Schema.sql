@@ -1,4 +1,6 @@
+-- https://www.postgresql.org/docs/current/rangetypes.html
 CREATE EXTENSION pgcrypto;
+CREATE EXTENSION btree_gist;
 
 CREATE TABLE portfolios (
     id UUID NOT NULL,
