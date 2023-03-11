@@ -1,6 +1,7 @@
 package io.craigmiller160.markettracker.portfolio.web.routes
 
 import io.craigmiller160.markettracker.portfolio.web.handlers.PracticeHandler
+import io.craigmiller160.markettracker.portfolio.web.swagger.SwaggerBuilders
 import io.craigmiller160.markettracker.portfolio.web.types.PracticeResponse
 import io.swagger.v3.oas.annotations.enums.ParameterIn
 import kotlinx.coroutines.reactor.awaitSingle
