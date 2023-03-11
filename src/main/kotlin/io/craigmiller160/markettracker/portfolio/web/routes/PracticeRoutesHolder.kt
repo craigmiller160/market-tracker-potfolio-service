@@ -3,6 +3,7 @@ package io.craigmiller160.markettracker.portfolio.web.routes
 import io.craigmiller160.markettracker.portfolio.web.handlers.PracticeHandler
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springdoc.core.annotations.RouterOperation
+import org.springdoc.core.annotations.RouterOperations
 import org.springdoc.webflux.core.fn.SpringdocRouteBuilder.route
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
@@ -15,7 +16,11 @@ import org.springframework.web.reactive.function.server.coRouter
 @Component
 class PracticeRoutesHolder(private val handler: PracticeHandler) {
   @Bean
-  @RouterOperation(beanClass = PracticeHandler::class, beanMethod = "helloUniverse")
+  @RouterOperations(
+      value =
+          [
+              RouterOperation(beanClass = PracticeHandler::class, beanMethod = "helloUniverse"),
+              RouterOperation(beanClass = PracticeHandler::class, beanMethod = "helloName")])
   fun practiceRoutes(handler: PracticeHandler): RouterFunction<ServerResponse> = coRouter {
     GET("/router/practice", handler::helloUniverse)
     GET("/router/practice3/{name}", ::helloName)
