@@ -36,3 +36,5 @@ out/
 ### VS Code ###
 .vscode/
 .terraform/
+
+market-tracker-380317-fdda285edeac.json
