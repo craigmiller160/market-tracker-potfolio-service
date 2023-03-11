@@ -2,7 +2,10 @@ package io.craigmiller160.markettracker.portfolio
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.nimbusds.jwt.JWTClaimsSet
 import java.nio.file.Paths
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import kotlin.io.path.readText
 
 fun main() {
@@ -14,13 +17,18 @@ fun main() {
   val account = objectMapper.readValue(accountPath.readText(), Account::class.java)
   println(account)
 
+  val nowUtc = ZonedDateTime.now(ZoneId.of("UTC"))
+
   val claims =
       mapOf(
+          "sub" to account.clientEmail,
           "iss" to account.clientEmail,
           "scope" to "https://www.googleapis.com/auth/spreadsheets.readonly",
           "aud" to account.tokenUri,
-          "iat" to null,
-          "exp" to null)
+          "iat" to nowUtc.toEpochSecond(),
+          "exp" to nowUtc.plusMinutes(30).toEpochSecond())
+
+  val claimsSet = JWTClaimsSet.parse(claims)
 }
 
 data class Account(
