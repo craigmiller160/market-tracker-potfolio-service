@@ -18,7 +18,8 @@ CREATE TABLE shares_owned (
     symbol VARCHAR(10) NOT NULL,
     total_shares DECIMAL NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (portfolio_id) REFERENCES portfolios (id)
+    FOREIGN KEY (portfolio_id) REFERENCES portfolios (id),
+    EXCLUDE USING GIST (user_id WITH =, portfolio_id WITH =, date WITH &&)
 );
 CREATE INDEX ON shares_owned (user_id);
 CREATE INDEX ON shares_owned (portfolio_id);
