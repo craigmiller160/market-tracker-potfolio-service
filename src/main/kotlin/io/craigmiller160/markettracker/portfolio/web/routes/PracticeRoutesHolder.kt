@@ -2,6 +2,7 @@ package io.craigmiller160.markettracker.portfolio.web.routes
 
 import io.craigmiller160.markettracker.portfolio.web.handlers.PracticeHandler
 import io.craigmiller160.markettracker.portfolio.web.swagger.SwaggerBuilders
+import io.craigmiller160.markettracker.portfolio.web.swagger.coSwaggerRouter
 import io.craigmiller160.markettracker.portfolio.web.types.PracticeResponse
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component

@@ -1,6 +1,5 @@
-package io.craigmiller160.markettracker.portfolio.web.routes
+package io.craigmiller160.markettracker.portfolio.web.swagger
 
-import io.craigmiller160.markettracker.portfolio.web.swagger.SwaggerOperationBuilder
 import java.util.function.Consumer
 import kotlinx.coroutines.reactor.mono
 import org.springdoc.webflux.core.fn.SpringdocRouteBuilder
