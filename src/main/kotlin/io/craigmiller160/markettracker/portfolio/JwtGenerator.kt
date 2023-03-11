@@ -13,6 +13,14 @@ fun main() {
       jacksonObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
   val account = objectMapper.readValue(accountPath.readText(), Account::class.java)
   println(account)
+
+  val claims =
+      mapOf(
+          "iss" to account.clientEmail,
+          "scope" to "https://www.googleapis.com/auth/spreadsheets.readonly",
+          "aud" to account.tokenUri,
+          "iat" to null,
+          "exp" to null)
 }
 
 data class Account(
