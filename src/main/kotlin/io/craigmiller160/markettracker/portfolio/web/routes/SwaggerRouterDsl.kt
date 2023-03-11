@@ -44,6 +44,7 @@ class SwaggerRouterDsl(private val builder: SpringdocRouteBuilder) {
       swagger: SwaggerDsl.() -> Unit = {}
   ) {
     builder.GET(path, suspendToMonoHandler(handler)) { builder ->
+      builder.operationId("operation")
       val swaggerDsl = SwaggerDsl(builder)
       swaggerDsl.swagger()
     }
