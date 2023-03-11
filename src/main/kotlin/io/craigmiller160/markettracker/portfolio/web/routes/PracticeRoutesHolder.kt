@@ -61,12 +61,7 @@ class PracticeRoutesHolder(private val handler: PracticeHandler) {
           .response(
               SwaggerBuilders.responseBuilder()
                   .responseCode("200")
-                  .content(
-                      SwaggerBuilders.contentBuilder()
-                          .mediaType("application/json")
-                          .schema(
-                              SwaggerBuilders.schemaBuilder()
-                                  .implementation(PracticeResponse::class.java))))
+                  .implementation(PracticeResponse::class.java))
     }
   }
 }
