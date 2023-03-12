@@ -1,5 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders
 
+import io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller.CraigMillerDownloaderService
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.springframework.scheduling.annotation.Scheduled
