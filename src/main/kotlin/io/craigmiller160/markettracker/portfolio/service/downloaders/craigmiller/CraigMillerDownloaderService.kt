@@ -19,9 +19,13 @@ import java.util.Base64
 import kotlin.math.sign
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import org.springframework.stereotype.Service
+import org.springframework.util.LinkedMultiValueMap
+import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitExchange
 
 @Service
 class CraigMillerDownloaderService(
@@ -30,15 +34,30 @@ class CraigMillerDownloaderService(
 ) : DownloaderService {
   companion object {
     const val SPREADSHEET_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly"
+    const val TOKEN_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:jwt-bearer"
+    const val GRANT_TYPE_KEY = "grant_type"
+    const val ASSERTION_KEY = "assertion"
   }
 
-  private val webClient = WebClient.create(craigMillerDownloaderConfig.googleSheetsApiBaseUrl)
+  private val webClient = WebClient.create()
   private val dataUri =
       "/spreadsheets/${craigMillerDownloaderConfig.spreadsheetId}/values/${craigMillerDownloaderConfig.valuesRange}"
   override suspend fun download(): Flow<SharesOwned> {
     val serviceAccount = readServiceAccount()
     val jwt = createJwt(serviceAccount)
-    TODO("Not yet implemented")
+
+    val tokenBody =
+        LinkedMultiValueMap<String, String>().apply {
+          add(GRANT_TYPE_KEY, TOKEN_GRANT_TYPE)
+          add(ASSERTION_KEY, jwt)
+        }
+
+    webClient
+        .post()
+        .uri(serviceAccount.tokenUri)
+        .body(BodyInserters.fromFormData(tokenBody))
+        .awaitExchange { response -> println("Status: ${response.statusCode()}") }
+    return flow {}
   }
 
   private suspend fun readServiceAccount(): GoogleApiServiceAccount =
