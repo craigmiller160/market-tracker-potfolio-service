@@ -12,6 +12,8 @@ class CraigMillerDownloaderService(
 ) : DownloaderService {
 
   private val webClient = WebClient.create(craigMillerDownloaderConfig.googleSheetsApiBaseUrl)
+  private val dataUri =
+      "/spreadsheets/${craigMillerDownloaderConfig.spreadsheetId}/values/${craigMillerDownloaderConfig.valuesRange}"
   override suspend fun download(): Flow<SharesOwned> {
     TODO("Not yet implemented")
   }
