@@ -31,6 +31,7 @@ import org.springframework.web.reactive.function.client.awaitExchange
 @Service
 class CraigMillerDownloaderService(
     private val craigMillerDownloaderConfig: CraigMillerDownloaderConfig,
+    private val webClient: WebClient,
     private val objectMapper: ObjectMapper
 ) : DownloaderService {
   companion object {
@@ -42,7 +43,6 @@ class CraigMillerDownloaderService(
 
   private val log = LoggerFactory.getLogger(javaClass)
 
-  private val webClient = WebClient.create()
   private val dataUri =
       "/spreadsheets/${craigMillerDownloaderConfig.spreadsheetId}/values/${craigMillerDownloaderConfig.valuesRange}"
   override suspend fun download(): Flow<SharesOwned> {
