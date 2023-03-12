@@ -27,3 +27,5 @@ jwt:
 
 downloaders:
   interval-cron: 0 0 */3 * * *
+  craigmiller:
+    service-account-json: ${user.dir}/market-tracker-service-account.json
