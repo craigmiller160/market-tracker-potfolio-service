@@ -1,6 +1,7 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders
 
 import io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller.CraigMillerDownloaderService
+import jakarta.annotation.PostConstruct
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.springframework.scheduling.annotation.Scheduled
@@ -12,6 +13,12 @@ class DownloaderSchedulingService(
 ) {
   @Scheduled(cron = "\${downloaders.interval-cron}")
   fun executeDownloads() {
+    GlobalScope.launch { craigMillerDownloaderService.download() }
+  }
+
+  // TODO delete this
+  @PostConstruct
+  fun forTestingOnly() {
     GlobalScope.launch { craigMillerDownloaderService.download() }
   }
 }
