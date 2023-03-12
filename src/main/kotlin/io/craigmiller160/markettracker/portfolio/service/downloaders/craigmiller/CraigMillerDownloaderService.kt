@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitExchange
+import org.springframework.web.reactive.function.client.awaitBody
 
 @Service
 class CraigMillerDownloaderService(
@@ -61,8 +61,11 @@ class CraigMillerDownloaderService(
         .post()
         .uri(serviceAccount.tokenUri + "2")
         .body(BodyInserters.fromFormData(tokenBody))
-        // TODO need to handle the error in here
-        .awaitExchange { response -> println("Status 2: ${response.statusCode()}") }
+        .retrieve()
+        .awaitBody<String>()
+    //        .exchange()
+    //         TODO need to handle the error in here
+    //        .awaitExchange { response -> println("Status 2: ${response.statusCode()}") }
     return flow {}
   }
 

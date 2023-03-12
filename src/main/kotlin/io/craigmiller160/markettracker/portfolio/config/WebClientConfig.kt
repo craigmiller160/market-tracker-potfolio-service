@@ -20,10 +20,11 @@ class WebClientConfig(@Value("\${http-client.timeout-millis}") private val timeo
   @Bean
   fun webClient(): WebClient =
       WebClient.builder()
-          .filter(errorFilter())
+          //          .filter(errorFilter())
           .clientConnector(ReactorClientHttpConnector(httpClient()))
           .build()
 
+  // TODO cleanup
   private fun errorFilter(): ExchangeFilterFunction =
       ExchangeFilterFunction.ofResponseProcessor { res ->
         if (res.statusCode().is4xxClientError || res.statusCode().is5xxServerError) {
