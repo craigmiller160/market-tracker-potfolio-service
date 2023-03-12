@@ -19,7 +19,7 @@ spring:
     password: ${spring.db.password}
 
 http-client:
-  timeout-millis: 5000
+  timeout-millis: 30000
 
 jwt:
   auth:
