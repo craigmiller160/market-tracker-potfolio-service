@@ -28,6 +28,7 @@ jwt:
 downloaders:
   interval-cron: 0 0 */3 * * *
   craigmiller:
-    service-account-json: ${user.dir}/market-tracker-service-account.json
+    google-sheets-api-base-url: https://sheets.googleapis.com/v4
+    service-account-json-path: ${user.dir}/market-tracker-service-account.json
     spreadsheet-id: 1E2U1DR7i3xG3Kvi_AH9Zp_uYRYR2sSobcjQ5Di1a_t0
     values-range: Transactions
