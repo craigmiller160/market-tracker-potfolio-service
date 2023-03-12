@@ -61,7 +61,8 @@ class CraigMillerDownloaderService(
         .post()
         .uri(serviceAccount.tokenUri)
         .body(BodyInserters.fromFormData(tokenBody))
-        .awaitExchange { response -> println("Status: ${response.statusCode()}") }
+        // TODO need to handle the error in here
+        .awaitExchange { response -> println("Status 2: ${response.statusCode()}") }
     return flow {}
   }
 

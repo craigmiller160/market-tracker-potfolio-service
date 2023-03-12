@@ -38,3 +38,4 @@ downloaders:
 logging:
   level:
     io.craigmiller160: DEBUG
+    reactor.netty.http.client: DEBUG
