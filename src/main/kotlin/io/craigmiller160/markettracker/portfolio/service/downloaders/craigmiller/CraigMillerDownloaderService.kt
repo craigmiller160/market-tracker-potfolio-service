@@ -21,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
@@ -39,11 +40,15 @@ class CraigMillerDownloaderService(
     const val ASSERTION_KEY = "assertion"
   }
 
+  private val log = LoggerFactory.getLogger(javaClass)
+
   private val webClient = WebClient.create()
   private val dataUri =
       "/spreadsheets/${craigMillerDownloaderConfig.spreadsheetId}/values/${craigMillerDownloaderConfig.valuesRange}"
   override suspend fun download(): Flow<SharesOwned> {
+    log.info("Beginning download of Craig Miller portfolio data")
     val serviceAccount = readServiceAccount()
+    log.debug("Authenticating for service account ${serviceAccount.clientEmail}")
     val jwt = createJwt(serviceAccount)
 
     val tokenBody =
