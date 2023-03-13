@@ -25,6 +25,8 @@ version = projectVersion
 java.sourceCompatibility = JavaVersion.VERSION_19
 
 dependencies {
+    val kotlinResultVersion: String by project
+
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui")
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
@@ -43,7 +45,8 @@ dependencies {
     testImplementation("io.craigmiller160:testcontainers-common:1.1.1")
     implementation("org.flywaydb:flyway-core")
     implementation("io.github.craigmiller160:spring-fp-result-kt:2.0.0-SNAPSHOT")
-    implementation("com.michael-bull.kotlin-result:kotlin-result-jvm:1.1.16")
+    implementation("com.michael-bull.kotlin-result:kotlin-result-jvm:$kotlinResultVersion")
+    implementation("com.michael-bull.kotlin-result:kotlin-result-coroutines:$kotlinResultVersion")
 }
 
 tasks.withType<KotlinCompile> {
