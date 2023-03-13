@@ -8,6 +8,7 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
+import io.craigmiller160.markettracker.portfolio.extensions.awaitBodyResult
 import io.craigmiller160.markettracker.portfolio.service.downloaders.DownloaderService
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -26,7 +27,6 @@ import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBody
 
 @Service
 class CraigMillerDownloaderService(
@@ -57,12 +57,13 @@ class CraigMillerDownloaderService(
           add(ASSERTION_KEY, jwt)
         }
 
-    webClient
-        .post()
-        .uri(serviceAccount.tokenUri + "2")
-        .body(BodyInserters.fromFormData(tokenBody))
-        .retrieve()
-        .awaitBody<String>()
+    val result =
+        webClient
+            .post()
+            .uri(serviceAccount.tokenUri + "2")
+            .body(BodyInserters.fromFormData(tokenBody))
+            .retrieve()
+            .awaitBodyResult<String>()
     return flow {}
   }
 
