@@ -24,6 +24,6 @@ class SwaggerRouterDsl(private val builder: SpringdocRouteBuilder) {
 
 fun coSwaggerRouter(init: SwaggerRouterDsl.() -> Unit): RouterFunction<ServerResponse> {
   val builder = SpringdocRouteBuilder.route()
-  val routesDsl = SwaggerRouterDsl(builder).also { it.init() }
+  SwaggerRouterDsl(builder).init()
   return builder.build()
 }

@@ -20,7 +20,7 @@ class JwtAuthConverter(private val config: JwtAuthConverterConfig) :
   private fun getPrincipalName(jwt: Jwt): String =
       jwt.getClaim<String>(config.principalAttribute ?: JwtClaimNames.SUB)
 
-  private fun getRoles(jwt: Jwt): Collection<out GrantedAuthority> =
+  private fun getRoles(jwt: Jwt): Collection<GrantedAuthority> =
       jwt.getClaim<Map<String, Map<String, Collection<String>>>>("resource_access")
           .entries
           .first { (key) -> key == config.resourceId }
