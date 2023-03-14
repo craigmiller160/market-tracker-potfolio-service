@@ -1,13 +1,19 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.combine
+import com.github.michaelbull.result.flatMap
 import com.github.michaelbull.result.map
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.crypto.RSASSASigner
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
+import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.extensions.KtResult
 import io.craigmiller160.markettracker.portfolio.extensions.awaitBodyResult
@@ -27,10 +33,11 @@ import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClient.ResponseSpec
 
 @Service
 class CraigMillerDownloaderService(
-    private val config: CraigMillerDownloaderConfig,
+    private val downloaderConfig: CraigMillerDownloaderConfig,
     private val webClient: WebClient,
     private val objectMapper: ObjectMapper
 ) : DownloaderService {
@@ -42,37 +49,52 @@ class CraigMillerDownloaderService(
   }
 
   private val log = LoggerFactory.getLogger(javaClass)
-
-  //  private val dataUri = "/spreadsheets/${config.spreadsheetId}/values/${config.valuesRange}"
   override suspend fun download(): KtResult<List<SharesOwned>> {
-    //    log.info("Beginning download of Craig Miller portfolio data")
-    //    val serviceAccount = readServiceAccount()
-    //    log.debug("Authenticating for service account ${serviceAccount.clientEmail}")
-    //    createJwt(serviceAccount)
-    //        .flatMap { jwt -> getAccessToken(serviceAccount, jwt) }
-    //        .flatMap { getTransactionDataFromSpreadsheet(it) }
-    //        .map { transformResponse(it) }
-    //        .onFailure { it.printStackTrace() }
-    //        .onSuccess { println(it) }
-    //    return Ok(listOf())
-    TODO()
+    log.info("Beginning download of Craig Miller portfolio data")
+    val serviceAccount = readServiceAccount()
+    log.debug("Authenticating for service account ${serviceAccount.clientEmail}")
+    createJwt(serviceAccount)
+        .flatMap { jwt -> getAccessToken(serviceAccount, jwt) }
+        .flatMap { token ->
+          downloaderConfig.portfolioSpreadsheets
+              .map { config -> getTransactionDataFromSpreadsheet(config, token) }
+              .map { it.awaitBodyResult<GoogleSpreadsheetValues>() }
+              .combine()
+        }
+        .map { results -> results.map { transformResponse(it) } }
+        .onFailure { it.printStackTrace() }
+        .onSuccess { println(it) }
+    return Ok(listOf())
   }
 
   private fun transformResponse(response: GoogleSpreadsheetValues): Any {
     TODO()
   }
 
-  private suspend fun getTransactionDataFromSpreadsheet(
+  private fun getTransactionDataFromSpreadsheet(
+      config: PortfolioConfig,
       accessToken: String
-  ): KtResult<GoogleSpreadsheetValues> = TODO()
-  //      webClient
-  //          .get()
-  //          .uri(
-  //
-  // "${config.googleSheetsApiBaseUrl}/spreadsheets/${config.spreadsheetId}/values/${config.valuesRange}")
-  //          .header("Authorization", "Bearer $accessToken")
-  //          .retrieve()
-  //          .awaitBodyResult()
+  ): ResponseSpec =
+      webClient
+          .get()
+          .uri(
+              "${downloaderConfig.googleSheetsApiBaseUrl}/spreadsheets/${config.sheetId}/values/${config.valuesRange}")
+          .header("Authorization", "Bearer $accessToken")
+          .retrieve()
+
+  // TODO delete this
+  private suspend fun getTransactionDataFromSpreadsheetOld(
+      config: PortfolioConfig,
+      accessToken: String
+  ): KtResult<Pair<String, GoogleSpreadsheetValues>> =
+      webClient
+          .get()
+          .uri(
+              "${downloaderConfig.googleSheetsApiBaseUrl}/spreadsheets/${config.sheetId}/values/${config.valuesRange}")
+          .header("Authorization", "Bearer $accessToken")
+          .retrieve()
+          .awaitBodyResult<GoogleSpreadsheetValues>()
+          .map { values -> config.name to values }
 
   private suspend fun getAccessToken(
       serviceAccount: GoogleApiServiceAccount,
@@ -95,7 +117,7 @@ class CraigMillerDownloaderService(
 
   private suspend fun readServiceAccount(): GoogleApiServiceAccount =
       withContext(Dispatchers.IO) {
-        Paths.get(config.serviceAccountJsonPath)
+        Paths.get(downloaderConfig.serviceAccountJsonPath)
             .let { Files.readString(it) }
             .let { objectMapper.readValue(it, GoogleApiServiceAccount::class.java) }
       }
