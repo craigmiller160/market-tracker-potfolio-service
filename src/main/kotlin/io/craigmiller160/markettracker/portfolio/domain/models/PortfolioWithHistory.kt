@@ -4,8 +4,9 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 
-interface Portfolio {
-  val id: TypedId<PortfolioId>
-  val userId: TypedId<UserId>
-  val name: String
-}
+data class PortfolioWithHistory(
+    override val id: TypedId<PortfolioId>,
+    override val userId: TypedId<UserId>,
+    override val name: String,
+    val ownershipHistory: List<SharesOwned>
+) : Portfolio

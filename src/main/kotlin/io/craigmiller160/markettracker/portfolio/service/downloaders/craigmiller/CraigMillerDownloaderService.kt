@@ -54,10 +54,15 @@ class CraigMillerDownloaderService(
     log.debug("Authenticating for service account ${serviceAccount.clientEmail}")
     createJwt(serviceAccount)
         .flatMap { jwt -> getAccessToken(serviceAccount, jwt) }
-        .flatMap { token -> getTransactionDataFromSpreadsheet(token) }
+        .flatMap { getTransactionDataFromSpreadsheet(it) }
+        .map { transformResponse(it) }
         .onFailure { it.printStackTrace() }
         .onSuccess { println(it) }
     return Ok(listOf())
+  }
+
+  private fun transformResponse(response: GoogleSpreadsheetValues): Any {
+    TODO()
   }
 
   private suspend fun getTransactionDataFromSpreadsheet(
