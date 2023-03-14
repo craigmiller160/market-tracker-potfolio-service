@@ -76,7 +76,7 @@ class CraigMillerDownloaderService(
     val portfolio =
         PortfolioWithHistory(
             id = TypedId(),
-            name = name,
+            name = portfolioName,
             userId = downloaderConfig.userId,
             ownershipHistory = listOf())
     TODO()
