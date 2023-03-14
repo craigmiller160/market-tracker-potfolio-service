@@ -3,6 +3,8 @@ package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmille
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.michaelbull.result.flatMap
 import com.github.michaelbull.result.map
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.crypto.RSASSASigner
@@ -64,11 +66,13 @@ class CraigMillerDownloaderService(
         .flatMap { tokenBody ->
           webClient
               .post()
-              .uri(serviceAccount.tokenUri + "2")
+              .uri(serviceAccount.tokenUri)
               .body(BodyInserters.fromFormData(tokenBody))
               .retrieve()
-              .awaitBodyResult<GoogleSpreadsheetValues>()
+              .awaitBodyResult<String>()
         }
+        .onFailure { it.printStackTrace() }
+        .onSuccess { println(it) }
     return flow {}
   }
 
