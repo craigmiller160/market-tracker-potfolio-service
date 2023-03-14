@@ -1,7 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.combine
 import com.github.michaelbull.result.flatMap
 import com.github.michaelbull.result.map
@@ -14,7 +13,7 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig
-import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
+import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.extensions.KtResult
 import io.craigmiller160.markettracker.portfolio.extensions.awaitBodyResult
 import io.craigmiller160.markettracker.portfolio.extensions.decodePrivateKeyPem
@@ -49,11 +48,12 @@ class CraigMillerDownloaderService(
   }
 
   private val log = LoggerFactory.getLogger(javaClass)
-  override suspend fun download(): KtResult<List<SharesOwned>> {
+  override suspend fun download(): KtResult<List<PortfolioWithHistory>> {
     log.info("Beginning download of Craig Miller portfolio data")
     val serviceAccount = readServiceAccount()
     log.debug("Authenticating for service account ${serviceAccount.clientEmail}")
-    createJwt(serviceAccount)
+
+    return createJwt(serviceAccount)
         .flatMap { jwt -> getAccessToken(serviceAccount, jwt) }
         .flatMap { token ->
           downloaderConfig.portfolioSpreadsheets
@@ -64,10 +64,9 @@ class CraigMillerDownloaderService(
         .map { results -> results.map { transformResponse(it) } }
         .onFailure { it.printStackTrace() }
         .onSuccess { println(it) }
-    return Ok(listOf())
   }
 
-  private fun transformResponse(response: GoogleSpreadsheetValues): Any {
+  private fun transformResponse(response: GoogleSpreadsheetValues): PortfolioWithHistory {
     TODO()
   }
 
