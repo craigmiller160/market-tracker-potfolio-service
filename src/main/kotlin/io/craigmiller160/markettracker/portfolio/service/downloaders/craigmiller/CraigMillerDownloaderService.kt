@@ -1,6 +1,8 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.github.michaelbull.result.flatMap
+import com.github.michaelbull.result.map
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.crypto.RSASSASigner
@@ -8,8 +10,10 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
+import io.craigmiller160.markettracker.portfolio.extensions.KtResult
 import io.craigmiller160.markettracker.portfolio.extensions.awaitBodyResult
 import io.craigmiller160.markettracker.portfolio.extensions.decodePrivateKeyPem
+import io.craigmiller160.markettracker.portfolio.extensions.ktRunCatching
 import io.craigmiller160.markettracker.portfolio.service.downloaders.DownloaderService
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -49,21 +53,21 @@ class CraigMillerDownloaderService(
     log.info("Beginning download of Craig Miller portfolio data")
     val serviceAccount = readServiceAccount()
     log.debug("Authenticating for service account ${serviceAccount.clientEmail}")
-    val jwt = createJwt(serviceAccount)
-
-    val tokenBody =
-        LinkedMultiValueMap<String, String>().apply {
-          add(GRANT_TYPE_KEY, TOKEN_GRANT_TYPE)
-          add(ASSERTION_KEY, jwt)
+    createJwt(serviceAccount)
+        .map { jwt ->
+          LinkedMultiValueMap<String, String>().apply {
+            add(GRANT_TYPE_KEY, TOKEN_GRANT_TYPE)
+            add(ASSERTION_KEY, jwt)
+          }
         }
-
-    val result =
-        webClient
-            .post()
-            .uri(serviceAccount.tokenUri + "2")
-            .body(BodyInserters.fromFormData(tokenBody))
-            .retrieve()
-            .awaitBodyResult<String>()
+        .flatMap { tokenBody ->
+          webClient
+              .post()
+              .uri(serviceAccount.tokenUri + "2")
+              .body(BodyInserters.fromFormData(tokenBody))
+              .retrieve()
+              .awaitBodyResult<String>()
+        }
     return flow {}
   }
 
@@ -74,7 +78,7 @@ class CraigMillerDownloaderService(
             .let { objectMapper.readValue(it, GoogleApiServiceAccount::class.java) }
       }
 
-  private fun createJwt(serviceAccount: GoogleApiServiceAccount): String {
+  private fun createJwt(serviceAccount: GoogleApiServiceAccount): KtResult<String> = ktRunCatching {
     val nowUtc = ZonedDateTime.now(ZoneId.of("UTC"))
     val header = JWSHeader.Builder(JWSAlgorithm.RS256).keyID(serviceAccount.privateKeyId).build()
     val claims =
@@ -94,6 +98,6 @@ class CraigMillerDownloaderService(
             .let { KeyFactory.getInstance("RSA").generatePrivate(it) }
             .let { RSASSASigner(it) }
 
-    return SignedJWT(header, claims).also { it.sign(signer) }.serialize()
+    SignedJWT(header, claims).also { it.sign(signer) }.serialize()
   }
 }
