@@ -9,6 +9,7 @@ import com.nimbusds.jwt.SignedJWT
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.extensions.awaitBodyResult
+import io.craigmiller160.markettracker.portfolio.extensions.decodePrivateKeyPem
 import io.craigmiller160.markettracker.portfolio.service.downloaders.DownloaderService
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -16,7 +17,6 @@ import java.security.KeyFactory
 import java.security.spec.PKCS8EncodedKeySpec
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.Base64
 import kotlin.math.sign
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -89,12 +89,7 @@ class CraigMillerDownloaderService(
 
     val signer =
         serviceAccount.privateKey
-            .let { key ->
-              key.replace("-----BEGIN PRIVATE KEY-----", "")
-                  .replace("-----END PRIVATE KEY-----", "")
-                  .replace(Regex("\\s+"), "")
-            }
-            .let { Base64.getDecoder().decode(it) }
+            .decodePrivateKeyPem()
             .let { PKCS8EncodedKeySpec(it) }
             .let { KeyFactory.getInstance("RSA").generatePrivate(it) }
             .let { RSASSASigner(it) }
