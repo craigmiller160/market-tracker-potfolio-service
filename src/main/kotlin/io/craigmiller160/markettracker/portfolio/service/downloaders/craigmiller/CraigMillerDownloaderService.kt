@@ -55,6 +55,7 @@ class CraigMillerDownloaderService(
     log.debug("Authenticating for service account ${serviceAccount.clientEmail}")
     createJwt(serviceAccount)
         .map { jwt ->
+          println("JWT: $jwt")
           LinkedMultiValueMap<String, String>().apply {
             add(GRANT_TYPE_KEY, TOKEN_GRANT_TYPE)
             add(ASSERTION_KEY, jwt)
@@ -66,7 +67,7 @@ class CraigMillerDownloaderService(
               .uri(serviceAccount.tokenUri + "2")
               .body(BodyInserters.fromFormData(tokenBody))
               .retrieve()
-              .awaitBodyResult<String>()
+              .awaitBodyResult<GoogleSpreadsheetValues>()
         }
     return flow {}
   }
