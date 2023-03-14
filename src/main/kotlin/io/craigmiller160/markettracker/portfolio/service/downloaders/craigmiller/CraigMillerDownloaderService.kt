@@ -57,16 +57,21 @@ class CraigMillerDownloaderService(
         .flatMap { jwt -> getAccessToken(serviceAccount, jwt) }
         .flatMap { token ->
           downloaderConfig.portfolioSpreadsheets
-              .map { config -> getTransactionDataFromSpreadsheet(config, token) }
-              .map { it.awaitBodyResult<GoogleSpreadsheetValues>() }
+              .map { config -> config.name to getTransactionDataFromSpreadsheet(config, token) }
+              .map { (name, response) ->
+                response.awaitBodyResult<GoogleSpreadsheetValues>().map { name to it }
+              }
               .combine()
         }
-        .map { results -> results.map { transformResponse(it) } }
+        .map { results -> results.map { (name, response) -> transformResponse(name, response) } }
         .onFailure { it.printStackTrace() }
         .onSuccess { println(it) }
   }
 
-  private fun transformResponse(response: GoogleSpreadsheetValues): PortfolioWithHistory {
+  private fun transformResponse(
+      portfolioName: String,
+      response: GoogleSpreadsheetValues
+  ): PortfolioWithHistory {
     TODO()
   }
 
