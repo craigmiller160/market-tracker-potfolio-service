@@ -8,5 +8,5 @@ enum class MajorDimension {
 data class GoogleSpreadsheetValues(
     val range: String,
     val majorDimension: MajorDimension,
-    val rows: List<List<String>>
+    val values: List<List<String>>
 )
