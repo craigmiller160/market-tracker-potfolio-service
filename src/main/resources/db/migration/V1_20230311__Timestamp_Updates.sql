@@ -1,7 +1,3 @@
--- TODO need to automatically set insert/update timestamps
--- TODO on insert, set both
--- TODO on update, set only update
-
 CREATE FUNCTION update_timestamps_on_insert()
 RETURNS TRIGGER
 LANGUAGE plpgsql
