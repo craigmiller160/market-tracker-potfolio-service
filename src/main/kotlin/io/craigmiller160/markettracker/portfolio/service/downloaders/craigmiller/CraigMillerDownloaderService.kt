@@ -11,6 +11,7 @@ import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.crypto.RSASSASigner
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
+import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
@@ -72,6 +73,12 @@ class CraigMillerDownloaderService(
       portfolioName: String,
       response: GoogleSpreadsheetValues
   ): PortfolioWithHistory {
+    val portfolio =
+        PortfolioWithHistory(
+            id = TypedId(),
+            name = name,
+            userId = downloaderConfig.userId,
+            ownershipHistory = listOf())
     TODO()
   }
 
