@@ -1,6 +1,7 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.flatMap
 import com.github.michaelbull.result.map
 import com.github.michaelbull.result.onFailure
@@ -47,7 +48,7 @@ class CraigMillerDownloaderService(
   private val log = LoggerFactory.getLogger(javaClass)
 
   private val dataUri = "/spreadsheets/${config.spreadsheetId}/values/${config.valuesRange}"
-  override suspend fun download(): List<SharesOwned> {
+  override suspend fun download(): KtResult<List<SharesOwned>> {
     log.info("Beginning download of Craig Miller portfolio data")
     val serviceAccount = readServiceAccount()
     log.debug("Authenticating for service account ${serviceAccount.clientEmail}")
@@ -56,7 +57,7 @@ class CraigMillerDownloaderService(
         .flatMap { token -> getTransactionDataFromSpreadsheet(token) }
         .onFailure { it.printStackTrace() }
         .onSuccess { println(it) }
-    return listOf()
+    return Ok(listOf())
   }
 
   private suspend fun getTransactionDataFromSpreadsheet(
