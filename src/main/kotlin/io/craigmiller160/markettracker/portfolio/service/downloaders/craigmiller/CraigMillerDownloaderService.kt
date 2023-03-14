@@ -23,7 +23,6 @@ import java.security.KeyFactory
 import java.security.spec.PKCS8EncodedKeySpec
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import kotlin.math.sign
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -36,7 +35,7 @@ import org.springframework.web.reactive.function.client.WebClient
 
 @Service
 class CraigMillerDownloaderService(
-    private val craigMillerDownloaderConfig: CraigMillerDownloaderConfig,
+    private val config: CraigMillerDownloaderConfig,
     private val webClient: WebClient,
     private val objectMapper: ObjectMapper
 ) : DownloaderService {
@@ -49,36 +48,52 @@ class CraigMillerDownloaderService(
 
   private val log = LoggerFactory.getLogger(javaClass)
 
-  private val dataUri =
-      "/spreadsheets/${craigMillerDownloaderConfig.spreadsheetId}/values/${craigMillerDownloaderConfig.valuesRange}"
+  private val dataUri = "/spreadsheets/${config.spreadsheetId}/values/${config.valuesRange}"
   override suspend fun download(): Flow<SharesOwned> {
     log.info("Beginning download of Craig Miller portfolio data")
     val serviceAccount = readServiceAccount()
     log.debug("Authenticating for service account ${serviceAccount.clientEmail}")
     createJwt(serviceAccount)
-        .map { jwt ->
-          println("JWT: $jwt")
-          LinkedMultiValueMap<String, String>().apply {
-            add(GRANT_TYPE_KEY, TOKEN_GRANT_TYPE)
-            add(ASSERTION_KEY, jwt)
-          }
-        }
-        .flatMap { tokenBody ->
-          webClient
-              .post()
-              .uri(serviceAccount.tokenUri)
-              .body(BodyInserters.fromFormData(tokenBody))
-              .retrieve()
-              .awaitBodyResult<String>()
-        }
+        .flatMap { jwt -> getAccessToken(serviceAccount, jwt) }
+        .flatMap { token -> getTransactionDataFromSpreadsheet(token) }
         .onFailure { it.printStackTrace() }
         .onSuccess { println(it) }
     return flow {}
   }
 
+  private suspend fun getTransactionDataFromSpreadsheet(
+      accessToken: String
+  ): KtResult<GoogleSpreadsheetValues> =
+      webClient
+          .get()
+          .uri(
+              "${config.googleSheetsApiBaseUrl}/spreadsheets/${config.spreadsheetId}/values/${config.valuesRange}")
+          .header("Authorization", "Bearer $accessToken")
+          .retrieve()
+          .awaitBodyResult()
+
+  private suspend fun getAccessToken(
+      serviceAccount: GoogleApiServiceAccount,
+      jwt: String
+  ): KtResult<String> {
+    val tokenBody =
+        LinkedMultiValueMap<String, String>().apply {
+          add(GRANT_TYPE_KEY, TOKEN_GRANT_TYPE)
+          add(ASSERTION_KEY, jwt)
+        }
+
+    return webClient
+        .post()
+        .uri(serviceAccount.tokenUri)
+        .body(BodyInserters.fromFormData(tokenBody))
+        .retrieve()
+        .awaitBodyResult<GoogleApiAccessToken>()
+        .map { it.accessToken }
+  }
+
   private suspend fun readServiceAccount(): GoogleApiServiceAccount =
       withContext(Dispatchers.IO) {
-        Paths.get(craigMillerDownloaderConfig.serviceAccountJsonPath)
+        Paths.get(config.serviceAccountJsonPath)
             .let { Files.readString(it) }
             .let { objectMapper.readValue(it, GoogleApiServiceAccount::class.java) }
       }
