@@ -24,8 +24,6 @@ import java.security.spec.PKCS8EncodedKeySpec
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -49,7 +47,7 @@ class CraigMillerDownloaderService(
   private val log = LoggerFactory.getLogger(javaClass)
 
   private val dataUri = "/spreadsheets/${config.spreadsheetId}/values/${config.valuesRange}"
-  override suspend fun download(): Flow<SharesOwned> {
+  override suspend fun download(): List<SharesOwned> {
     log.info("Beginning download of Craig Miller portfolio data")
     val serviceAccount = readServiceAccount()
     log.debug("Authenticating for service account ${serviceAccount.clientEmail}")
@@ -58,7 +56,7 @@ class CraigMillerDownloaderService(
         .flatMap { token -> getTransactionDataFromSpreadsheet(token) }
         .onFailure { it.printStackTrace() }
         .onSuccess { println(it) }
-    return flow {}
+    return listOf()
   }
 
   private suspend fun getTransactionDataFromSpreadsheet(
