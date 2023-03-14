@@ -81,20 +81,6 @@ class CraigMillerDownloaderService(
           .header("Authorization", "Bearer $accessToken")
           .retrieve()
 
-  // TODO delete this
-  private suspend fun getTransactionDataFromSpreadsheetOld(
-      config: PortfolioConfig,
-      accessToken: String
-  ): KtResult<Pair<String, GoogleSpreadsheetValues>> =
-      webClient
-          .get()
-          .uri(
-              "${downloaderConfig.googleSheetsApiBaseUrl}/spreadsheets/${config.sheetId}/values/${config.valuesRange}")
-          .header("Authorization", "Bearer $accessToken")
-          .retrieve()
-          .awaitBodyResult<GoogleSpreadsheetValues>()
-          .map { values -> config.name to values }
-
   private suspend fun getAccessToken(
       serviceAccount: GoogleApiServiceAccount,
       jwt: String
