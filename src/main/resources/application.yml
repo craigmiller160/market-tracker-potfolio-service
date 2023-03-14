@@ -32,8 +32,16 @@ downloaders:
   craigmiller:
     google-sheets-api-base-url: https://sheets.googleapis.com/v4
     service-account-json-path: ${user.dir}/market-tracker-service-account.json
-    spreadsheet-id: 1E2U1DR7i3xG3Kvi_AH9Zp_uYRYR2sSobcjQ5Di1a_t0
-    values-range: Transactions
+    portfolio-spreadsheets:
+      - name: Brokerage
+        sheet-id: 1E2U1DR7i3xG3Kvi_AH9Zp_uYRYR2sSobcjQ5Di1a_t0
+        values-range: Transactions
+      - name: Roth IRA
+        sheet-id: 18BK_urWmKH_m9bZFVOpDzRDgqQ66gTwdnYil-xtKZK4
+        values-range: Transactions
+      - name: Rollover IRA
+        sheet-id: 1Kuj9Ky_DYh0IsUgXx48rMKgRD7oU7O5xqwylNwx1VN0
+        values-range: Transactions
 
 logging:
   level:
