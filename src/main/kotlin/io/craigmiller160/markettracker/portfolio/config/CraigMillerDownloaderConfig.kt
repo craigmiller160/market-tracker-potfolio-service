@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 data class CraigMillerDownloaderConfig(
     val googleSheetsApiBaseUrl: String,
     val serviceAccountJsonPath: String,
-    val spreadsheetId: String,
-    val valuesRange: String
+    val portfolioSpreadsheets: List<PortfolioConfig>
 )
+
+data class PortfolioConfig(val name: String, val sheetId: String, val valuesRange: String)
