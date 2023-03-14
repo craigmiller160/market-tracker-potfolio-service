@@ -73,13 +73,12 @@ class CraigMillerDownloaderService(
       portfolioName: String,
       response: GoogleSpreadsheetValues
   ): PortfolioWithHistory {
-    val portfolio =
-        PortfolioWithHistory(
-            id = TypedId(),
-            name = portfolioName,
-            userId = downloaderConfig.userId,
-            ownershipHistory = listOf())
-    TODO()
+    val ownershipHistory = response.values.drop(1).map { row -> TODO() }
+    return PortfolioWithHistory(
+        id = TypedId(),
+        name = portfolioName,
+        userId = downloaderConfig.userId,
+        ownershipHistory = ownershipHistory)
   }
 
   private fun getTransactionDataFromSpreadsheet(
