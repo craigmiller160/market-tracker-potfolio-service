@@ -5,7 +5,6 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.SharesOwnedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import java.time.LocalDate
-import java.time.ZonedDateTime
 
 data class SharesOwned(
     val id: TypedId<SharesOwnedId>,
@@ -14,7 +13,5 @@ data class SharesOwned(
     val dateRangeStart: LocalDate,
     val dateRangeEnd: LocalDate,
     val symbol: String,
-    val totalShares: Double,
-    val insertTimestamp: ZonedDateTime,
-    val updateTimestamp: ZonedDateTime
+    val totalShares: Double
 )
