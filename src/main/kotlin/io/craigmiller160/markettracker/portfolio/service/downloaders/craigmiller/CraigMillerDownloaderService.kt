@@ -65,6 +65,7 @@ class CraigMillerDownloaderService(
               .combine()
         }
         .map { results -> results.map { (name, response) -> transformResponse(name, response) } }
+        // TODO delete below
         .onFailure { it.printStackTrace() }
         .onSuccess { println(it) }
   }
