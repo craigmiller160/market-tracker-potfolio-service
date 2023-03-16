@@ -23,10 +23,6 @@ enum class Action(val label: String) {
   companion object
 }
 
-fun Action.Companion.fromLabel(label: String): KtResult<Action> =
-    Action.values().find { it.label == label }?.let { Ok(it) }
-        ?: Err(IllegalArgumentException("Invalid label for action: $label"))
-
 data class CraigMillerTransactionRecord(
     val date: LocalDate,
     val action: Action,
@@ -36,6 +32,10 @@ data class CraigMillerTransactionRecord(
 ) {
   companion object
 }
+
+fun Action.Companion.fromLabel(label: String): KtResult<Action> =
+    Action.values().find { it.label == label }?.let { Ok(it) }
+        ?: Err(IllegalArgumentException("Invalid label for action: $label"))
 
 private val transactionDateFormat = DateTimeFormatter.ofPattern("M/d/yyyy")
 

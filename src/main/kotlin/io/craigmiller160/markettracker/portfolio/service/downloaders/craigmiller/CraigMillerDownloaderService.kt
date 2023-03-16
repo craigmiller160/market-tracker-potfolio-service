@@ -73,12 +73,12 @@ class CraigMillerDownloaderService(
       portfolioName: String,
       response: GoogleSpreadsheetValues
   ): PortfolioWithHistory {
-    val ownershipHistory = response.values.drop(1).map { row -> TODO() }
+    val ownershipHistory = response.values.drop(1).map { CraigMillerTransactionRecord.fromRaw(it) }
     return PortfolioWithHistory(
         id = TypedId(),
         name = portfolioName,
         userId = downloaderConfig.userId,
-        ownershipHistory = ownershipHistory)
+        ownershipHistory = TODO())
   }
 
   private fun getTransactionDataFromSpreadsheet(
