@@ -1,32 +1,23 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
-import org.junit.jupiter.api.Assertions.assertEquals
+import com.github.michaelbull.result.expect
+import com.github.michaelbull.result.expectError
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
+import org.junit.jupiter.params.provider.EnumSource
 
 class CraigMillerTransactionRecordTest {
   @ParameterizedTest
-  @ValueSource(
-      strings =
-          [
-              "Bonus",
-              "Deposit",
-              "Buy",
-              "Sell",
-              "Withdrawal",
-              "Dividend",
-              "Cash Balance",
-              "Investment Balance"])
-  fun `Action fromLabel, success`(value: String) {
-    TODO()
+  @EnumSource(Action::class)
+  fun `Action fromLabel, success`(action: Action) {
+    Action.fromLabel(action.label).expect { "Unable to parse label" }
   }
 
   @Test
   fun `Action fromLabel, fail`() {
-    val ex = assertThrows<IllegalArgumentException> { Action.fromLabel("foo") }
-    assertEquals("Invalid label for action: foo", ex.message)
+    Action.fromLabel("foo").expectError {
+      "${IllegalArgumentException("Invalid label for action: foo")}"
+    }
   }
 
   @Test
