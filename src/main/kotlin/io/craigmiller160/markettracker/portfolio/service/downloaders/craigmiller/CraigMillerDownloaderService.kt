@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.michaelbull.result.combine
 import com.github.michaelbull.result.flatMap
 import com.github.michaelbull.result.map
-import com.github.michaelbull.result.onFailure
-import com.github.michaelbull.result.onSuccess
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.crypto.RSASSASigner
@@ -71,9 +69,6 @@ class CraigMillerDownloaderService(
               .combine()
         }
         .flatMap { responsesToPortfolios(it) }
-        // TODO delete below
-        .onFailure { it.printStackTrace() }
-        .onSuccess { println(it) }
   }
 
   private fun responsesToPortfolios(
