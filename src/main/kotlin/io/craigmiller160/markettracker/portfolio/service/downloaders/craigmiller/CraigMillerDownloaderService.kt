@@ -50,7 +50,8 @@ class CraigMillerDownloaderService(
     const val TOKEN_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:jwt-bearer"
     const val GRANT_TYPE_KEY = "grant_type"
     const val ASSERTION_KEY = "assertion"
-    val MAX_DATE = LocalDate.of(2100, 1, 1)
+    val MAX_DATE: LocalDate = LocalDate.of(2100, 1, 1)
+    val RELEVANT_ACTIONS = listOf(Action.BONUS, Action.BUY, Action.SELL)
   }
 
   private val log = LoggerFactory.getLogger(javaClass)
@@ -105,30 +106,32 @@ class CraigMillerDownloaderService(
   ): List<SharesOwned> =
       records
           .asSequence()
+          .filter { RELEVANT_ACTIONS.contains(it.action) }
           .sortedBy { it.date }
           .map { OwnershipContext(mutableMapOf(), it) }
           .reduce { ctx, record ->
-            when (record.record.action) {
-              Action.BUY -> {
-                val sharesOwnedList =
-                    ctx.sharesOwnedMap.getOrPut(record.record.symbol) { mutableListOf() }
-                val lastSharesOwned = sharesOwnedList.lastOrNull()
-                sharesOwnedList +=
-                    SharesOwned(
-                        id = TypedId(),
-                        userId = downloaderConfig.userId,
-                        portfolioId = portfolioId,
-                        dateRangeStart = record.record.date,
-                        dateRangeEnd = MAX_DATE,
-                        symbol = record.record.symbol,
-                        totalShares = (lastSharesOwned?.totalShares
-                                ?: BigDecimal("0")) + record.record.shares)
-                ctx
-              }
-              Action.SELL -> TODO()
-              Action.BONUS -> TODO()
-              else -> ctx
-            }
+            val sharesOwnedList =
+                ctx.sharesOwnedMap.getOrPut(record.record.symbol) { mutableListOf() }
+            val lastSharesOwned = sharesOwnedList.lastOrNull()
+            val lastTotalShares = lastSharesOwned?.totalShares ?: BigDecimal("0")
+
+            val totalShares =
+                when (record.record.action) {
+                  Action.BUY,
+                  Action.BONUS -> lastTotalShares + record.record.shares
+                  Action.SELL -> lastTotalShares - record.record.shares
+                  else -> BigDecimal("0")
+                }
+            sharesOwnedList +=
+                SharesOwned(
+                    id = TypedId(),
+                    userId = downloaderConfig.userId,
+                    portfolioId = portfolioId,
+                    dateRangeStart = record.record.date,
+                    dateRangeEnd = MAX_DATE,
+                    symbol = record.record.symbol,
+                    totalShares = totalShares)
+            ctx
           }
           .sharesOwnedMap
           .values
