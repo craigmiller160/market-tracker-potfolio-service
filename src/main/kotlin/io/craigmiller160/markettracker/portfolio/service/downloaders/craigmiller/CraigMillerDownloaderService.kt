@@ -106,7 +106,7 @@ class CraigMillerDownloaderService(
       records
           .asSequence()
           .sortedBy { it.date }
-          .map { OwnershipContext(mapOf(), it) }
+          .map { OwnershipContext(mutableMapOf(), it) }
           .reduce { ctx, record ->
             when (record.record.action) {
               Action.BUY -> {
