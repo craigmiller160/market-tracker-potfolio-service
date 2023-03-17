@@ -97,7 +97,9 @@ class CraigMillerDownloaderService(
 
   private fun recordsToSharesOwned(records: List<CraigMillerTransactionRecord>): List<SharesOwned> =
       records
-          .map { OwnershipContext(mapOf(), listOf(), it) }
+          .asSequence()
+          .sortedBy { it.date }
+          .map { OwnershipContext(mapOf(), it) }
           .reduce { ctx, record ->
             when (record.record.action) {
               Action.BUY -> {
@@ -113,7 +115,9 @@ class CraigMillerDownloaderService(
               else -> ctx
             }
           }
-          .sharesOwnedList
+          .sharesOwnedMap
+          .values
+          .flatten()
 
   private fun getTransactionDataFromSpreadsheet(
       config: PortfolioConfig,
@@ -179,7 +183,6 @@ class CraigMillerDownloaderService(
 private data class TotalSharesHolder(val shares: BigDecimal, val date: LocalDate)
 
 private data class OwnershipContext(
-    val totalShareMap: Map<String, TotalSharesHolder>,
-    val sharesOwnedList: List<SharesOwned>,
+    val sharesOwnedMap: Map<String, List<SharesOwned>>,
     val record: CraigMillerTransactionRecord
 )
