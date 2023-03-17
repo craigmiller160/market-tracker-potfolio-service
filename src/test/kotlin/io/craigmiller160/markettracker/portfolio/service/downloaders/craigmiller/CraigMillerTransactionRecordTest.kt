@@ -1,11 +1,13 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
+import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.expect
 import com.github.michaelbull.result.expectError
 import io.craigmiller160.markettracker.portfolio.functions.KtResult
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.format.DateTimeParseException
 import java.util.stream.Stream
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -25,7 +27,9 @@ class CraigMillerTransactionRecordTest {
                         action = Action.BUY,
                         amount = BigDecimal("1.00"),
                         symbol = "VTI",
-                        shares = BigDecimal("1.1"))))
+                        shares = BigDecimal("1.1"))),
+            listOf("abc", "Buy", "$1.00", "VTI", "1.1") to
+                Err(DateTimeParseException("Text 'abc' could not be parsed at index 0", "abc", 0)))
   }
   @ParameterizedTest
   @EnumSource(Action::class)
@@ -46,6 +50,10 @@ class CraigMillerTransactionRecordTest {
       pair: Pair<List<String>, KtResult<CraigMillerTransactionRecord>>
   ) {
     val (list, expected) = pair
-    assertEquals(expected, CraigMillerTransactionRecord.fromRaw(list))
+    val actual = CraigMillerTransactionRecord.fromRaw(list)
+    when (expected) {
+      is Ok -> assertEquals(expected, actual)
+      is Err -> assertEquals(expected.toString(), actual.toString())
+    }
   }
 }
