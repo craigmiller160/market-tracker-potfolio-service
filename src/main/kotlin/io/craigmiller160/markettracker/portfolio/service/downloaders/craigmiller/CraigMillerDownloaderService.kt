@@ -74,7 +74,8 @@ class CraigMillerDownloaderService(
       portfolioName: String,
       response: GoogleSpreadsheetValues
   ): PortfolioWithHistory {
-    val ownershipHistory = response.values.drop(1).map { CraigMillerTransactionRecord.fromRaw(it) }
+    val ownershipHistory =
+        response.values.drop(1).map { CraigMillerTransactionRecord.fromRaw(it) }.combine()
     return PortfolioWithHistory(
         id = TypedId(),
         name = portfolioName,
