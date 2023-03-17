@@ -11,6 +11,7 @@ import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.crypto.RSASSASigner
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
+import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig
@@ -49,6 +50,7 @@ class CraigMillerDownloaderService(
     const val TOKEN_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:jwt-bearer"
     const val GRANT_TYPE_KEY = "grant_type"
     const val ASSERTION_KEY = "assertion"
+    val MAX_DATE = LocalDate.of(2100, 1, 1)
   }
 
   private val log = LoggerFactory.getLogger(javaClass)
@@ -81,21 +83,26 @@ class CraigMillerDownloaderService(
   private fun transformResponse(
       portfolioName: String,
       response: GoogleSpreadsheetValues
-  ): KtResult<PortfolioWithHistory> =
-      response.values
-          .drop(1)
-          .map { CraigMillerTransactionRecord.fromRaw(it) }
-          .combine()
-          .map { recordsToSharesOwned(it) }
-          .map { ownershipHistory ->
-            PortfolioWithHistory(
-                id = TypedId(),
-                name = portfolioName,
-                userId = downloaderConfig.userId,
-                ownershipHistory = ownershipHistory)
-          }
+  ): KtResult<PortfolioWithHistory> {
+    val portfolioId = TypedId<PortfolioId>()
+    return response.values
+        .drop(1)
+        .map { CraigMillerTransactionRecord.fromRaw(it) }
+        .combine()
+        .map { recordsToSharesOwned(portfolioId, it) }
+        .map { ownershipHistory ->
+          PortfolioWithHistory(
+              id = portfolioId,
+              name = portfolioName,
+              userId = downloaderConfig.userId,
+              ownershipHistory = ownershipHistory)
+        }
+  }
 
-  private fun recordsToSharesOwned(records: List<CraigMillerTransactionRecord>): List<SharesOwned> =
+  private fun recordsToSharesOwned(
+      portfolioId: TypedId<PortfolioId>,
+      records: List<CraigMillerTransactionRecord>
+  ): List<SharesOwned> =
       records
           .asSequence()
           .sortedBy { it.date }
@@ -103,12 +110,20 @@ class CraigMillerDownloaderService(
           .reduce { ctx, record ->
             when (record.record.action) {
               Action.BUY -> {
-                // TODO need to think of how to handle the date range
-                ctx.totalShareMap[record.record.symbol]
-                    ?: TotalSharesHolder(BigDecimal("0"), record.record.date)
-                val existingTotal = ctx.totalShareMap[record.record.symbol] ?: BigDecimal("0")
-                val newTotal = existingTotal + record.record.shares
-                TODO()
+                val sharesOwnedList =
+                    ctx.sharesOwnedMap.getOrPut(record.record.symbol) { mutableListOf() }
+                val lastSharesOwned = sharesOwnedList.lastOrNull()
+                sharesOwnedList +=
+                    SharesOwned(
+                        id = TypedId(),
+                        userId = downloaderConfig.userId,
+                        portfolioId = portfolioId,
+                        dateRangeStart = record.record.date,
+                        dateRangeEnd = MAX_DATE,
+                        symbol = record.record.symbol,
+                        totalShares = (lastSharesOwned?.totalShares
+                                ?: BigDecimal("0")) + record.record.shares)
+                ctx
               }
               Action.SELL -> TODO()
               Action.BONUS -> TODO()
@@ -183,6 +198,7 @@ class CraigMillerDownloaderService(
 private data class TotalSharesHolder(val shares: BigDecimal, val date: LocalDate)
 
 private data class OwnershipContext(
-    val sharesOwnedMap: Map<String, List<SharesOwned>>,
+    // TODO remove the Mutability
+    val sharesOwnedMap: MutableMap<String, MutableList<SharesOwned>>,
     val record: CraigMillerTransactionRecord
 )

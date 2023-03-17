@@ -4,6 +4,7 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.SharesOwnedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
+import java.math.BigDecimal
 import java.time.LocalDate
 
 data class SharesOwned(
@@ -13,5 +14,5 @@ data class SharesOwned(
     val dateRangeStart: LocalDate,
     val dateRangeEnd: LocalDate,
     val symbol: String,
-    val totalShares: Double
+    val totalShares: BigDecimal
 )
