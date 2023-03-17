@@ -66,7 +66,7 @@ class CraigMillerDownloaderService(
               }
               .combine()
         }
-        .map { responsesToPortfolios(it) }
+        .flatMap { responsesToPortfolios(it) }
         // TODO delete below
         .onFailure { it.printStackTrace() }
         .onSuccess { println(it) }
@@ -74,20 +74,28 @@ class CraigMillerDownloaderService(
 
   private fun responsesToPortfolios(
       responses: List<Pair<String, GoogleSpreadsheetValues>>
-  ): List<PortfolioWithHistory> =
-      responses.map { (name, response) -> transformResponse(name, response) }
+  ): KtResult<List<PortfolioWithHistory>> =
+      responses.map { (name, response) -> transformResponse(name, response) }.combine()
 
   private fun transformResponse(
       portfolioName: String,
       response: GoogleSpreadsheetValues
-  ): PortfolioWithHistory {
-    val ownershipHistory =
-        response.values.drop(1).map { CraigMillerTransactionRecord.fromRaw(it) }.combine()
-    return PortfolioWithHistory(
-        id = TypedId(),
-        name = portfolioName,
-        userId = downloaderConfig.userId,
-        ownershipHistory = TODO())
+  ): KtResult<PortfolioWithHistory> =
+      response.values
+          .drop(1)
+          .map { CraigMillerTransactionRecord.fromRaw(it) }
+          .combine()
+          .map { recordsToSharesOwned(it) }
+          .map { ownershipHistory ->
+            PortfolioWithHistory(
+                id = TypedId(),
+                name = portfolioName,
+                userId = downloaderConfig.userId,
+                ownershipHistory = ownershipHistory)
+          }
+
+  private fun recordsToSharesOwned(records: List<CraigMillerTransactionRecord>): List<SharesOwned> {
+    TODO()
   }
 
   private fun getTransactionDataFromSpreadsheet(
