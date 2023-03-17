@@ -15,11 +15,13 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
+import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.extensions.awaitBodyResult
 import io.craigmiller160.markettracker.portfolio.extensions.decodePrivateKeyPem
 import io.craigmiller160.markettracker.portfolio.functions.KtResult
 import io.craigmiller160.markettracker.portfolio.functions.ktRunCatching
 import io.craigmiller160.markettracker.portfolio.service.downloaders.DownloaderService
+import java.math.BigDecimal
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.security.KeyFactory
@@ -64,11 +66,16 @@ class CraigMillerDownloaderService(
               }
               .combine()
         }
-        .map { results -> results.map { (name, response) -> transformResponse(name, response) } }
+        .map { responsesToPortfolios(it) }
         // TODO delete below
         .onFailure { it.printStackTrace() }
         .onSuccess { println(it) }
   }
+
+  private fun responsesToPortfolios(
+      responses: List<Pair<String, GoogleSpreadsheetValues>>
+  ): List<PortfolioWithHistory> =
+      responses.map { (name, response) -> transformResponse(name, response) }
 
   private fun transformResponse(
       portfolioName: String,
@@ -143,3 +150,8 @@ class CraigMillerDownloaderService(
     SignedJWT(header, claims).also { it.sign(signer) }.serialize()
   }
 }
+
+private data class OwnershipContext(
+    val totalShareMap: Map<String, BigDecimal>,
+    val sharesOwnedList: List<SharesOwned>
+)
