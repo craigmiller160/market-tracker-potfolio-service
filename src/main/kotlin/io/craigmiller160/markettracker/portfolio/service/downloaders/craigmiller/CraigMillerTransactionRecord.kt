@@ -3,8 +3,8 @@ package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmille
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.zip
-import io.craigmiller160.markettracker.portfolio.extensions.KtResult
-import io.craigmiller160.markettracker.portfolio.extensions.ktRunCatching
+import io.craigmiller160.markettracker.portfolio.functions.KtResult
+import io.craigmiller160.markettracker.portfolio.functions.ktRunCatching
 import java.lang.IllegalArgumentException
 import java.math.BigDecimal
 import java.time.LocalDate

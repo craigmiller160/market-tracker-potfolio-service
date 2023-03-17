@@ -1,4 +1,4 @@
-package io.craigmiller160.markettracker.portfolio.extensions
+package io.craigmiller160.markettracker.portfolio.functions
 
 typealias KtResult<T> = com.github.michaelbull.result.Result<T, Throwable>
 

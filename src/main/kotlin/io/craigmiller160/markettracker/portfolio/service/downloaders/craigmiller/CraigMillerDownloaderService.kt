@@ -15,10 +15,10 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
-import io.craigmiller160.markettracker.portfolio.extensions.KtResult
 import io.craigmiller160.markettracker.portfolio.extensions.awaitBodyResult
 import io.craigmiller160.markettracker.portfolio.extensions.decodePrivateKeyPem
-import io.craigmiller160.markettracker.portfolio.extensions.ktRunCatching
+import io.craigmiller160.markettracker.portfolio.functions.KtResult
+import io.craigmiller160.markettracker.portfolio.functions.ktRunCatching
 import io.craigmiller160.markettracker.portfolio.service.downloaders.DownloaderService
 import java.nio.file.Files
 import java.nio.file.Paths
