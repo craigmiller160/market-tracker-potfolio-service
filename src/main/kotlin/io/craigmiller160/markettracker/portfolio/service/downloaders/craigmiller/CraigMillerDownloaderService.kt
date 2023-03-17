@@ -26,6 +26,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.security.KeyFactory
 import java.security.spec.PKCS8EncodedKeySpec
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import kotlinx.coroutines.Dispatchers
@@ -99,7 +100,14 @@ class CraigMillerDownloaderService(
           .map { OwnershipContext(mapOf(), listOf(), it) }
           .reduce { ctx, record ->
             when (record.record.action) {
-              Action.BUY -> TODO()
+              Action.BUY -> {
+                // TODO need to think of how to handle the date range
+                ctx.totalShareMap[record.record.symbol]
+                    ?: TotalSharesHolder(BigDecimal("0"), record.record.date)
+                val existingTotal = ctx.totalShareMap[record.record.symbol] ?: BigDecimal("0")
+                val newTotal = existingTotal + record.record.shares
+                TODO()
+              }
               Action.SELL -> TODO()
               Action.BONUS -> TODO()
               else -> ctx
@@ -168,8 +176,10 @@ class CraigMillerDownloaderService(
   }
 }
 
+private data class TotalSharesHolder(val shares: BigDecimal, val date: LocalDate)
+
 private data class OwnershipContext(
-    val totalShareMap: Map<String, BigDecimal>,
+    val totalShareMap: Map<String, TotalSharesHolder>,
     val sharesOwnedList: List<SharesOwned>,
     val record: CraigMillerTransactionRecord
 )
