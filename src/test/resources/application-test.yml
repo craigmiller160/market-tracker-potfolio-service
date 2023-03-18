@@ -19,8 +19,7 @@ jwt:
 
 downloaders:
   craigmiller:
-    test-port: 1234
-    google-sheets-api-base-url: http://localhost:${downloaders.craigmiller.test-port}
+    google-sheets-api-base-url: http://localhost:1234
     portfolio-spreadsheets:
       - name: Brokerage
         sheet-id: 1E2U1DR7i3xG3Kvi_AH9Zp_uYRYR2sSobcjQ5Di1a_t0
