@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 @MarketTrackerPortfolioIntegrationTest
 class CraigMillerDownloaderServiceTest {
   @Test
-  fun testStuff() {
+  fun `downloads and formats google sheet data`() {
     TODO()
   }
 }
