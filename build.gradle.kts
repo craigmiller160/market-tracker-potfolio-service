@@ -47,6 +47,8 @@ dependencies {
     implementation("io.github.craigmiller160:spring-fp-result-kt:2.0.0-SNAPSHOT")
     implementation("com.michael-bull.kotlin-result:kotlin-result-jvm:$kotlinResultVersion")
     implementation("com.michael-bull.kotlin-result:kotlin-result-coroutines:$kotlinResultVersion")
+
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
 }
 
 tasks.withType<KotlinCompile> {
