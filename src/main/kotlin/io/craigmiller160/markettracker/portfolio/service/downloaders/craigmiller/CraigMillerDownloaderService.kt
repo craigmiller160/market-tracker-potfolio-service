@@ -104,33 +104,39 @@ class CraigMillerDownloaderService(
           .filter { RELEVANT_ACTIONS.contains(it.action) }
           .sortedBy { it.date }
           .map { OwnershipContext(mutableMapOf(), it) }
-          .reduce { ctx, record ->
-            val sharesOwnedList =
-                ctx.sharesOwnedMap.getOrPut(record.record.symbol) { mutableListOf() }
-            val lastSharesOwned = sharesOwnedList.lastOrNull()
-            val lastTotalShares = lastSharesOwned?.totalShares ?: BigDecimal("0")
-
-            val totalShares =
-                when (record.record.action) {
-                  Action.BUY,
-                  Action.BONUS -> lastTotalShares + record.record.shares
-                  Action.SELL -> lastTotalShares - record.record.shares
-                  else -> BigDecimal("0")
-                }
-            sharesOwnedList +=
-                SharesOwned(
-                    id = TypedId(),
-                    userId = downloaderConfig.userId,
-                    portfolioId = portfolioId,
-                    dateRangeStart = record.record.date,
-                    dateRangeEnd = MAX_DATE,
-                    symbol = record.record.symbol,
-                    totalShares = totalShares)
-            ctx
-          }
+          .reduce(reduceOwnershipContext(portfolioId))
           .sharesOwnedMap
           .values
           .flatten()
+
+  private fun reduceOwnershipContext(
+      portfolioId: TypedId<PortfolioId>
+  ): (OwnershipContext, OwnershipContext) -> OwnershipContext {
+    return { accumulator, record ->
+      val sharesOwnedList =
+          accumulator.sharesOwnedMap.getOrPut(record.record.symbol) { mutableListOf() }
+      val lastSharesOwned = sharesOwnedList.lastOrNull()
+      val lastTotalShares = lastSharesOwned?.totalShares ?: BigDecimal("0")
+
+      val totalShares =
+          when (record.record.action) {
+            Action.BUY,
+            Action.BONUS -> lastTotalShares + record.record.shares
+            Action.SELL -> lastTotalShares - record.record.shares
+            else -> BigDecimal("0")
+          }
+      sharesOwnedList +=
+          SharesOwned(
+              id = TypedId(),
+              userId = downloaderConfig.userId,
+              portfolioId = portfolioId,
+              dateRangeStart = record.record.date,
+              dateRangeEnd = MAX_DATE,
+              symbol = record.record.symbol,
+              totalShares = totalShares)
+      accumulator
+    }
+  }
 
   private fun getTransactionDataFromSpreadsheet(
       config: PortfolioConfig,
