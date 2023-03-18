@@ -28,7 +28,7 @@ jwt:
       principal-attribute: preferred_username
 
 downloaders:
-  interval-cron: 0 0 */3 * * *
+  interval-rate-hours: 3
   craigmiller:
     user-id: 2e0eccce-1f64-4d13-a269-fda027f5ddee
     google-sheets-api-base-url: https://sheets.googleapis.com/v4
