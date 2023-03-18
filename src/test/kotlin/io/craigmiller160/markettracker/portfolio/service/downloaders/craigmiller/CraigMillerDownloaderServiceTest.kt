@@ -6,9 +6,12 @@ import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Value
 
 @MarketTrackerPortfolioIntegrationTest
-class CraigMillerDownloaderServiceTest {
+class CraigMillerDownloaderServiceTest(
+    @Value("\${downloaders.craigmiller.test-port}") private val testPort: Int
+) {
   companion object {
     private val transactions1: String = DataLoader.load("data/craigmiller/Transactions1.json")
     private val transactions2: String = DataLoader.load("data/craigmiller/Transactions2.json")
@@ -18,8 +21,7 @@ class CraigMillerDownloaderServiceTest {
 
   @BeforeEach
   fun setup() {
-    // TODO link this to the application-test.yml
-    mockServer.start(1234)
+    mockServer.start(testPort)
   }
 
   @AfterEach
