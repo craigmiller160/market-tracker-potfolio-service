@@ -1,9 +1,11 @@
 spring:
-  r2dbc:
-    url: ${testcontainers.common.postgres.r2dbcUrl}
+  db:
     username: ${testcontainers.common.postgres.user}
     password: ${testcontainers.common.postgres.password}
+  r2dbc:
+    url: ${testcontainers.common.postgres.r2dbcUrl}
   flyway:
+    url: ${testcontainers.common.postgres.jdbcUrl}
     default-schema: ${testcontainers.common.postgres.schema}
     init-sqls: SET schema '${testcontainers.common.postgres.schema}'
   security:

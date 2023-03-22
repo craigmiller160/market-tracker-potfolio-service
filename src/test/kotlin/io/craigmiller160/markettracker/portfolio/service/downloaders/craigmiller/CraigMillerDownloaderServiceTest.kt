@@ -5,6 +5,7 @@ import com.github.michaelbull.result.getOrThrow
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DataLoader
+import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
@@ -50,6 +51,6 @@ class CraigMillerDownloaderServiceTest(
     val result = runBlocking { service.download() }.getOrThrow()
 
     result.shouldHaveSize(3)
-    TODO()
+    result.map { it.name }.shouldContainAll("Brokerage", "Roth IRA", "Rollover IRA")
   }
 }
