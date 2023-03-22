@@ -26,6 +26,7 @@ java.sourceCompatibility = JavaVersion.VERSION_19
 
 dependencies {
     val kotlinResultVersion: String by project
+    val kotestVersion: String by project
 
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui")
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
@@ -49,6 +50,8 @@ dependencies {
     implementation("com.michael-bull.kotlin-result:kotlin-result-coroutines:$kotlinResultVersion")
 
     testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
+
 }
 
 tasks.withType<KotlinCompile> {

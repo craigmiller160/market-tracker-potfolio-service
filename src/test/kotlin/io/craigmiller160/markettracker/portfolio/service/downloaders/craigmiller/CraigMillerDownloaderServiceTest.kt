@@ -1,9 +1,12 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.github.michaelbull.result.getOrThrow
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DataLoader
+import io.kotest.matchers.collections.shouldHaveSize
+import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.AfterEach
@@ -44,7 +47,9 @@ class CraigMillerDownloaderServiceTest(
           })
     }
 
-    val values = objectMapper.readValue(transactions1, GoogleSpreadsheetValues::class.java)
+    val result = runBlocking { service.download() }.getOrThrow()
+
+    result.shouldHaveSize(3)
     TODO()
   }
 }
