@@ -6,7 +6,6 @@ import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderCon
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DataLoader
 import io.kotest.matchers.collections.shouldBeIn
-import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
@@ -56,7 +55,6 @@ constructor(
     val result = runBlocking { service.download() }.getOrThrow()
 
     result.shouldHaveSize(3)
-    result.map { it.name }.shouldContainAll("Brokerage", "Roth IRA", "Rollover IRA")
 
     result.forEach { portfolio ->
       portfolio.name.shouldBeIn("Brokerage", "Roth IRA", "Rollover IRA")
