@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.michaelbull.result.getOrThrow
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
+import io.craigmiller160.markettracker.portfolio.functions.ktRunCatching
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DataLoader
 import io.kotest.matchers.collections.shouldBeIn
-import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.comparables.shouldBeEqualComparingTo
+import java.lang.AssertionError
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -66,7 +68,13 @@ constructor(
       portfolio.ownershipHistory
           .sortedWith(::sort)
           .shouldHaveSize(expectedSharesOwned.size)
-          .shouldContainAll(expectedSharesOwned)
+          .forEachIndexed { index, actual ->
+            ktRunCatching {
+                  val expected = expectedSharesOwned[index]
+                  actual.symbol.shouldBeEqualComparingTo(expected.symbol)
+                }
+                .getOrThrow { ex -> AssertionError("Error validating record $index", ex) }
+          }
     }
   }
 }
