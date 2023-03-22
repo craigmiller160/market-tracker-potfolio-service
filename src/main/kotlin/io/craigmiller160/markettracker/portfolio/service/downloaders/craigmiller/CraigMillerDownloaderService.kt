@@ -135,6 +135,10 @@ class CraigMillerDownloaderService(
           accumulator.sharesOwnedMap.mutate { map ->
             map[record.record.symbol] =
                 sharesOwnedList.mutate { list ->
+                  lastSharesOwned?.let { lastSharesOwnedReal ->
+                    list[list.size - 1] =
+                        lastSharesOwnedReal.copy(dateRangeEnd = record.record.date.minusDays(1))
+                  }
                   list +=
                       SharesOwned(
                           id = TypedId(),
