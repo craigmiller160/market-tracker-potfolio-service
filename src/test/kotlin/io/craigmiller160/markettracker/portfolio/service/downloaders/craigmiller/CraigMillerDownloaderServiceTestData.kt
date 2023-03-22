@@ -5,11 +5,20 @@ import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import java.math.BigDecimal
 import java.time.LocalDate
 
+val TEST_DATA = createTestData {
+  shares {
+    start = LocalDate.of(2020, 6, 4)
+    end = LocalDate.of(2020, 6, 18)
+    symbol = "COTY"
+    amount = BigDecimal("1")
+  }
+}
+
 private class SharesOwnedBuilder {
   lateinit var start: LocalDate
   var end: LocalDate = CraigMillerDownloaderService.MAX_DATE
   lateinit var symbol: String
-  lateinit var shares: BigDecimal
+  lateinit var amount: BigDecimal
 }
 
 private class TestDataBuilder {
@@ -26,7 +35,7 @@ private class TestDataBuilder {
             userId = TypedId(),
             dateRangeStart = builder.start,
             dateRangeEnd = builder.end,
-            totalShares = builder.totalShares,
+            totalShares = builder.amount,
             symbol = builder.symbol)
       }
 }
