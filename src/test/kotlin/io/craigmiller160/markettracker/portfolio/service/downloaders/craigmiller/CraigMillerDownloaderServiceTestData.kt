@@ -12,6 +12,39 @@ val TEST_DATA = createTestData {
     symbol = "COTY"
     amount = BigDecimal("1")
   }
+  shares {
+    start = LocalDate.of(2020, 6, 19)
+    symbol = "COTY"
+    amount = BigDecimal("0")
+  }
+  shares {
+    start = LocalDate.of(2020, 6, 16)
+    symbol = "UAL"
+    amount = BigDecimal("0")
+  }
+  shares {
+    start = LocalDate.of(2020, 6, 10)
+    end = LocalDate.of(2020, 6, 14)
+    symbol = "VYM"
+    amount = BigDecimal("1")
+  }
+  shares {
+    start = LocalDate.of(2020, 6, 15)
+    end = LocalDate.of(2020, 6, 21)
+    symbol = "VYM"
+    amount = BigDecimal("2")
+  }
+  shares {
+    start = LocalDate.of(2020, 6, 22)
+    end = LocalDate.of(2020, 10, 17)
+    symbol = "VYM"
+    amount = BigDecimal("4")
+  }
+  shares {
+    start = LocalDate.of(2020, 10, 18)
+    symbol = "VYM"
+    BigDecimal("6")
+  }
 }
 
 private class SharesOwnedBuilder {
