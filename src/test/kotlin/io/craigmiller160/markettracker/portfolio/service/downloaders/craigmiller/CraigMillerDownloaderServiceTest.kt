@@ -48,6 +48,7 @@ constructor(
           MockResponse().apply {
             status = "HTTP/1.1 200 OK"
             setBody(transactions1)
+            addHeader("Content-Type", "application/json")
           })
     }
 
