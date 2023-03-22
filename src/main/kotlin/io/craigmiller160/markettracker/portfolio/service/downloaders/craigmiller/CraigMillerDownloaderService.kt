@@ -30,6 +30,8 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.mutate
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
@@ -115,8 +117,7 @@ class CraigMillerDownloaderService(
       portfolioId: TypedId<PortfolioId>
   ): (OwnershipContext, OwnershipContext) -> OwnershipContext {
     return { accumulator, record ->
-      val sharesOwnedList =
-          accumulator.sharesOwnedMap.getOrPut(record.record.symbol) { mutableListOf() }
+      val sharesOwnedList = accumulator.sharesOwnedMap[record.record.symbol] ?: persistentListOf()
       val lastSharesOwned = sharesOwnedList.lastOrNull()
       val lastTotalShares = lastSharesOwned?.totalShares ?: BigDecimal("0")
 
@@ -127,16 +128,23 @@ class CraigMillerDownloaderService(
             Action.SELL -> lastTotalShares - record.record.shares
             else -> BigDecimal("0")
           }
-      sharesOwnedList +=
-          SharesOwned(
-              id = TypedId(),
-              userId = downloaderConfig.userId,
-              portfolioId = portfolioId,
-              dateRangeStart = record.record.date,
-              dateRangeEnd = MAX_DATE,
-              symbol = record.record.symbol,
-              totalShares = totalShares)
-      accumulator
+
+      val newMap =
+          accumulator.sharesOwnedMap.mutate { map ->
+            map[record.record.symbol] =
+                sharesOwnedList.mutate { list ->
+                  list +=
+                      SharesOwned(
+                          id = TypedId(),
+                          userId = downloaderConfig.userId,
+                          portfolioId = portfolioId,
+                          dateRangeStart = record.record.date,
+                          dateRangeEnd = MAX_DATE,
+                          symbol = record.record.symbol,
+                          totalShares = totalShares)
+                }
+          }
+      accumulator.copy(sharesOwnedMap = newMap)
     }
   }
 
