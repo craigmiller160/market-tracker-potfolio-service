@@ -32,6 +32,7 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
@@ -107,7 +108,7 @@ class CraigMillerDownloaderService(
           .asSequence()
           .filter { RELEVANT_ACTIONS.contains(it.action) }
           .sortedBy { it.date }
-          .map { OwnershipContext(mutableMapOf(), it) }
+          .map { OwnershipContext(persistentMapOf(), it) }
           .reduce(reduceOwnershipContext(portfolioId))
           .sharesOwnedMap
           .values
