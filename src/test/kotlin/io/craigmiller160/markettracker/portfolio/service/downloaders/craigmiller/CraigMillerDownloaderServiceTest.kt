@@ -5,6 +5,7 @@ import com.github.michaelbull.result.getOrThrow
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DataLoader
+import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import kotlinx.coroutines.runBlocking
@@ -56,5 +57,13 @@ constructor(
 
     result.shouldHaveSize(3)
     result.map { it.name }.shouldContainAll("Brokerage", "Roth IRA", "Rollover IRA")
+
+    result.forEach { portfolio ->
+      portfolio.name.shouldBeIn("Brokerage", "Roth IRA", "Rollover IRA")
+      val expectedSharesOwned =
+          TEST_DATA.map { it.copy(portfolioId = portfolio.id, userId = downloaderConfig.userId) }
+      portfolio.ownershipHistory.shouldHaveSize(expectedSharesOwned.size)
+      // TODO validate all records
+    }
   }
 }
