@@ -73,6 +73,22 @@ val TEST_DATA: List<SharesOwned> = createTestData {
     symbol = "VOOV"
     amount = BigDecimal("2")
   }
+  shares {
+    start = LocalDate.of(2020, 7, 8)
+    end = LocalDate.of(2020, 10, 17)
+    symbol = "VTI"
+    amount = BigDecimal("1")
+  }
+  shares {
+    start = LocalDate.of(2020, 10, 18)
+    symbol = "VTI"
+    amount = BigDecimal("2")
+  }
+  shares {
+    start = LocalDate.of(2020, 7, 8)
+    symbol = "VB"
+    amount = BigDecimal("1")
+  }
 }
 
 private class SharesOwnedBuilder {
