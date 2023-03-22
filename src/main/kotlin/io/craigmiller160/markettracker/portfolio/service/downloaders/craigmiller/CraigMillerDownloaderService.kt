@@ -88,7 +88,6 @@ class CraigMillerDownloaderService(
     val portfolioId = TypedId<PortfolioId>()
     return response.values
         .drop(1)
-        .filter { it.size == 5 }
         .map { CraigMillerTransactionRecord.fromRaw(it) }
         .combine()
         .map { recordsToSharesOwned(portfolioId, it) }

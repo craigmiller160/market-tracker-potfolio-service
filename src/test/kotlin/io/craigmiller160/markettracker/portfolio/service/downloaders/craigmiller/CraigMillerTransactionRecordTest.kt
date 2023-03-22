@@ -48,6 +48,11 @@ class CraigMillerTransactionRecordTest {
   }
 
   @Test
+  fun `CraigMillerTransactionRecord fromRaw with only 3 fields`() {
+    TODO()
+  }
+
+  @Test
   fun `Action fromLabel, fail`() {
     Action.fromLabel("foo").expectError {
       "${IllegalArgumentException("Invalid label for action: foo")}"
