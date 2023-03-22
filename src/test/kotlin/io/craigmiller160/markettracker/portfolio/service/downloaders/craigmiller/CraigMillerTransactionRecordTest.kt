@@ -4,8 +4,9 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.expect
 import com.github.michaelbull.result.expectError
+import com.github.michaelbull.result.getOrThrow
 import io.craigmiller160.markettracker.portfolio.functions.KtResult
-import io.kotest.matchers.equality.shouldBeEqualToUsingFields
+import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
@@ -50,16 +51,16 @@ class CraigMillerTransactionRecordTest {
 
   @Test
   fun `CraigMillerTransactionRecord fromRaw with only 3 fields`() {
-    val raw = listOf("2020-01-01", Action.BONUS.name, "$100.00")
-    val result = CraigMillerTransactionRecord.fromRaw(raw)
+    val raw = listOf("1/1/2020", Action.BONUS.label, "$100.00")
+    val result = CraigMillerTransactionRecord.fromRaw(raw).getOrThrow()
     val expected =
         CraigMillerTransactionRecord(
             date = LocalDate.of(2020, 1, 1),
             action = Action.BONUS,
-            amount = BigDecimal("100"),
+            amount = BigDecimal("100.00"),
             symbol = "",
             shares = BigDecimal("0"))
-    result.shouldBeEqualToUsingFields(expected)
+    result.shouldBeEqualToComparingFields(expected)
   }
 
   @Test
