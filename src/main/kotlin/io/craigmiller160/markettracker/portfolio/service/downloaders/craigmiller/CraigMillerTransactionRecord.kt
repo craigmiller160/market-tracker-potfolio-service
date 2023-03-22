@@ -47,8 +47,10 @@ fun CraigMillerTransactionRecord.Companion.fromRaw(
   val amountResult = ktRunCatching {
     rawRecord[2].replace(Regex("^\\$"), "").let { BigDecimal(it) }
   }
-  val symbol = rawRecord[3]
-  val sharesResult = ktRunCatching { BigDecimal(rawRecord[4]) }
+
+  val symbol = if (rawRecord.size >= 4) rawRecord[3] else ""
+  val sharesResult =
+      if (rawRecord.size >= 5) ktRunCatching { BigDecimal(rawRecord[4]) } else Ok(BigDecimal("0"))
   return zip({ dateResult }, { actionResult }, { amountResult }, { sharesResult }) {
       date,
       action,
