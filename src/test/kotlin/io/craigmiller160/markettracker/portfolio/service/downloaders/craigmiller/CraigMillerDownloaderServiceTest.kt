@@ -80,7 +80,7 @@ constructor(
 }
 
 private fun sort(one: SharesOwned, two: SharesOwned): Int {
-  val symbolCompare = one.symbol.compareTo(one.symbol)
+  val symbolCompare = one.symbol.compareTo(two.symbol)
   if (symbolCompare == 0) {
     return one.dateRangeStart.compareTo(two.dateRangeStart)
   }
