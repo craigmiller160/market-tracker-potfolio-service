@@ -5,6 +5,7 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.expect
 import com.github.michaelbull.result.expectError
 import io.craigmiller160.markettracker.portfolio.functions.KtResult
+import io.kotest.matchers.equality.shouldBeEqualToUsingFields
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
@@ -49,7 +50,16 @@ class CraigMillerTransactionRecordTest {
 
   @Test
   fun `CraigMillerTransactionRecord fromRaw with only 3 fields`() {
-    TODO()
+    val raw = listOf("2020-01-01", Action.BONUS.name, "$100.00")
+    val result = CraigMillerTransactionRecord.fromRaw(raw)
+    val expected =
+        CraigMillerTransactionRecord(
+            date = LocalDate.of(2020, 1, 1),
+            action = Action.BONUS,
+            amount = BigDecimal("100"),
+            symbol = "",
+            shares = BigDecimal("0"))
+    result.shouldBeEqualToUsingFields(expected)
   }
 
   @Test
