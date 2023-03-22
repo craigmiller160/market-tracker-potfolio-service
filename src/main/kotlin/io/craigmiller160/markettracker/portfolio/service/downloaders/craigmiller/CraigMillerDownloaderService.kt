@@ -28,6 +28,8 @@ import java.security.spec.PKCS8EncodedKeySpec
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
@@ -202,7 +204,6 @@ class CraigMillerDownloaderService(
 private data class TotalSharesHolder(val shares: BigDecimal, val date: LocalDate)
 
 private data class OwnershipContext(
-    // TODO remove the Mutability
-    val sharesOwnedMap: MutableMap<String, MutableList<SharesOwned>>,
+    val sharesOwnedMap: PersistentMap<String, PersistentList<SharesOwned>>,
     val record: CraigMillerTransactionRecord
 )
