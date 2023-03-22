@@ -13,10 +13,13 @@ import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 
 @MarketTrackerPortfolioIntegrationTest
-class CraigMillerDownloaderServiceTest(
+class CraigMillerDownloaderServiceTest
+@Autowired
+constructor(
     @Value("\${downloaders.craigmiller.test-port}") private val testPort: Int,
     private val service: CraigMillerDownloaderService,
     private val objectMapper: ObjectMapper,
@@ -43,7 +46,7 @@ class CraigMillerDownloaderServiceTest(
     repeat(3) {
       mockServer.enqueue(
           MockResponse().apply {
-            status = "200"
+            status = "HTTP/1.1 200 OK"
             setBody(transactions1)
           })
     }
