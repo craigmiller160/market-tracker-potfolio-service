@@ -108,11 +108,28 @@ class CraigMillerDownloaderService(
           .asSequence()
           .filter { RELEVANT_ACTIONS.contains(it.action) }
           .sortedBy { it.date }
-          .map { OwnershipContext(persistentMapOf(), it) }
+          .map(initialRecord(portfolioId))
           .reduce(reduceOwnershipContext(portfolioId))
           .sharesOwnedMap
           .values
           .flatten()
+
+  private fun initialRecord(
+      portfolioId: TypedId<PortfolioId>
+  ): (CraigMillerTransactionRecord) -> OwnershipContext = { record ->
+    val sharesOwned =
+        SharesOwned(
+            id = TypedId(),
+            userId = downloaderConfig.userId,
+            portfolioId = portfolioId,
+            dateRangeStart = record.date,
+            dateRangeEnd = CraigMillerDownloaderService.MAX_DATE,
+            symbol = record.symbol,
+            totalShares = record.shares)
+    OwnershipContext(
+        sharesOwnedMap = persistentMapOf(record.symbol to persistentListOf(sharesOwned)),
+        record = record)
+  }
 
   private fun reduceOwnershipContext(
       portfolioId: TypedId<PortfolioId>
