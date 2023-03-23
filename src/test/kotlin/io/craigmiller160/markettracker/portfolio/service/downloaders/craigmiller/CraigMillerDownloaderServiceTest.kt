@@ -72,7 +72,7 @@ constructor(
             ktRunCatching {
                   val expected = expectedSharesOwned[index]
                   actual.symbol.shouldBeEqualComparingTo(expected.symbol)
-                // TODO need to validate more fields
+                  // TODO need to validate more fields
                 }
                 .getOrThrow { ex -> AssertionError("Error validating record $index", ex) }
           }
