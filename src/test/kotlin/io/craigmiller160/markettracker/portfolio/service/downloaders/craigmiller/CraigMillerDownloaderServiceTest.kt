@@ -70,8 +70,12 @@ constructor(
       actualSharesOwned.shouldHaveSize(expectedSharesOwned.size).forEachIndexed { index, actual ->
         ktRunCatching {
               val expected = expectedSharesOwned[index]
+              actual.userId.shouldBeEqualComparingTo(expected.userId)
+              actual.portfolioId.shouldBeEqualComparingTo(expected.portfolioId)
+              actual.dateRangeStart.shouldBeEqualComparingTo(expected.dateRangeStart)
+              actual.dateRangeEnd.shouldBeEqualComparingTo(expected.dateRangeEnd)
               actual.symbol.shouldBeEqualComparingTo(expected.symbol)
-              // TODO need to validate more fields
+              actual.totalShares.shouldBeEqualComparingTo(expected.totalShares)
             }
             .getOrThrow { ex -> AssertionError("Error validating record $index", ex) }
       }
