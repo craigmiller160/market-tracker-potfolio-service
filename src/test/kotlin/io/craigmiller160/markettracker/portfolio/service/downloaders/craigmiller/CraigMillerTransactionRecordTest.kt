@@ -55,7 +55,9 @@ class CraigMillerTransactionRecordTest {
                 emptyRecord().copy(symbol = "DEF"),
                 -1),
             Triple(emptyRecord(), emptyRecord().copy(symbol = "DEF"), -1),
-            Triple(emptyRecord(), emptyRecord(), 0))
+            Triple(emptyRecord(), emptyRecord(), 0),
+            Triple(emptyRecord().copy(action = Action.INVESTMENT_BALANCE), emptyRecord(), 1),
+            Triple(emptyRecord(), emptyRecord().copy(action = Action.INVESTMENT_BALANCE), -1))
 
     private fun emptyRecord(): CraigMillerTransactionRecord =
         CraigMillerTransactionRecord(
