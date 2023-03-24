@@ -52,6 +52,7 @@ dependencies {
     testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
     testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.5")
+    implementation("com.github.spullara.mustache.java:compiler:0.9.10")
 
 }
 
