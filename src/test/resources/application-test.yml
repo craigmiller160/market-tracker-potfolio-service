@@ -23,6 +23,7 @@ downloaders:
   craigmiller:
     test-port: 1234
     google-sheets-api-base-url: http://localhost:${downloaders.craigmiller.test-port}
+    service-account-json-path: ${user.dir}/src/test/resources/data/craigmiller/market-tracker-service-account.json
 
 logging:
   level:
