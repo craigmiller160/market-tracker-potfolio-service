@@ -107,7 +107,7 @@ class CraigMillerDownloaderService(
       records
           .asSequence()
           .filter { RELEVANT_ACTIONS.contains(it.action) }
-          .sortedBy { it.date }
+          .sortedWith(CraigMillerTransactionRecord.comparator)
           .map(initialRecord(portfolioId))
           .reduce(reduceOwnershipContext(portfolioId))
           .sharesOwnedMap

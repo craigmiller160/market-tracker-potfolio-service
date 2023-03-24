@@ -60,3 +60,18 @@ fun CraigMillerTransactionRecord.Companion.fromRaw(
         date = date, action = action, amount = amount, shares = shares, symbol = symbol)
   }
 }
+
+val CraigMillerTransactionRecord.Companion.comparator: Comparator<CraigMillerTransactionRecord>
+  get() = Comparator { one, two ->
+    val symbolCompare = one.symbol.compareTo(two.symbol)
+    if (symbolCompare != 0) {
+      return@Comparator symbolCompare
+    }
+
+    val dateCompare = one.date.compareTo(two.date)
+    if (dateCompare != 0) {
+      return@Comparator dateCompare
+    }
+
+    return@Comparator one.action.compareTo(two.action)
+  }
