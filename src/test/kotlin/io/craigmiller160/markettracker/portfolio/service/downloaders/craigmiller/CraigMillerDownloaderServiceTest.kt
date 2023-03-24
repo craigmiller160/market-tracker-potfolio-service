@@ -72,10 +72,10 @@ constructor(
       // TODO delete this part
       Files.write(
           Paths.get(System.getProperty("user.dir"), "expected.json"),
-          objectMapper.writeValueAsBytes(expectedSharesOwned))
+          objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(expectedSharesOwned))
       Files.write(
           Paths.get(System.getProperty("user.dir"), "actual.json"),
-          objectMapper.writeValueAsBytes(expectedSharesOwned))
+          objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(actualSharesOwned))
 
       actualSharesOwned.shouldHaveSize(expectedSharesOwned.size).forEachIndexed { index, actual ->
         ktRunCatching {
