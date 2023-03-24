@@ -47,7 +47,15 @@ class CraigMillerTransactionRecordTest {
     @JvmStatic
     fun comparatorValues():
         Stream<Triple<CraigMillerTransactionRecord, CraigMillerTransactionRecord, Int>> =
-        Stream.of(Triple(emptyRecord(), emptyRecord(), 1))
+        Stream.of(
+            Triple(emptyRecord(), emptyRecord().copy(date = LocalDate.of(2020, 2, 1)), -1),
+            Triple(emptyRecord().copy(date = LocalDate.of(2020, 2, 1)), emptyRecord(), 1),
+            Triple(
+                emptyRecord().copy(date = LocalDate.of(2020, 2, 1)),
+                emptyRecord().copy(symbol = "DEF"),
+                -1),
+            Triple(emptyRecord(), emptyRecord().copy(symbol = "DEF"), -1),
+            Triple(emptyRecord(), emptyRecord(), 0))
 
     private fun emptyRecord(): CraigMillerTransactionRecord =
         CraigMillerTransactionRecord(
