@@ -6,6 +6,7 @@ import com.github.michaelbull.result.expect
 import com.github.michaelbull.result.expectError
 import com.github.michaelbull.result.getOrThrow
 import io.craigmiller160.markettracker.portfolio.functions.KtResult
+import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -42,6 +43,19 @@ class CraigMillerTransactionRecordTest {
                 Err(
                     NumberFormatException(
                         "Character d is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark.")))
+
+    @JvmStatic
+    fun comparatorValues():
+        Stream<Triple<CraigMillerTransactionRecord, CraigMillerTransactionRecord, Int>> =
+        Stream.of(Triple(emptyRecord(), emptyRecord(), 1))
+
+    private fun emptyRecord(): CraigMillerTransactionRecord =
+        CraigMillerTransactionRecord(
+            date = LocalDate.of(2020, 1, 1),
+            action = Action.BUY,
+            amount = BigDecimal("0"),
+            symbol = "ABC",
+            shares = BigDecimal("0"))
   }
   @ParameterizedTest
   @EnumSource(Action::class)
@@ -81,5 +95,16 @@ class CraigMillerTransactionRecordTest {
       is Ok -> assertEquals(expected, actual)
       is Err -> assertEquals(expected.toString(), actual.toString())
     }
+  }
+
+  @ParameterizedTest
+  @MethodSource("comparatorValues")
+  fun `comparator orders correctly`(
+      value: Triple<CraigMillerTransactionRecord, CraigMillerTransactionRecord, Int>
+  ) {
+    val (record1, record2, result) = value
+    CraigMillerTransactionRecord.comparator
+        .compare(record1, record2)
+        .shouldBeEqualComparingTo(result)
   }
 }
