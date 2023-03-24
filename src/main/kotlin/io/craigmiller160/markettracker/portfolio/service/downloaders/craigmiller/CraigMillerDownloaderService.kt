@@ -17,10 +17,10 @@ import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHist
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.extensions.awaitBodyResult
 import io.craigmiller160.markettracker.portfolio.extensions.decodePrivateKeyPem
+import io.craigmiller160.markettracker.portfolio.extensions.retrieveSuccess
 import io.craigmiller160.markettracker.portfolio.functions.KtResult
 import io.craigmiller160.markettracker.portfolio.functions.ktRunCatching
 import io.craigmiller160.markettracker.portfolio.service.downloaders.DownloaderService
-import java.lang.RuntimeException
 import java.math.BigDecimal
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -37,13 +37,11 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatusCode
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.ResponseSpec
-import reactor.core.publisher.Mono
 
 @Service
 class CraigMillerDownloaderService(
@@ -180,20 +178,6 @@ class CraigMillerDownloaderService(
     }
   }
 
-  private fun getTransactionDataFromSpreadsheet(
-      config: PortfolioConfig,
-      accessToken: String
-  ): ResponseSpec =
-      webClient
-          .get()
-          .uri(
-              "${downloaderConfig.googleSheetsApiBaseUrl}/spreadsheets/${config.sheetId}/values/${config.valuesRange}")
-          .header("Authorization", "Bearer $accessToken")
-          .retrieve()
-          // TODO make re-usable
-          .onStatus(HttpStatusCode::is4xxClientError) { Mono.just(RuntimeException("Dying")) }
-          .onStatus(HttpStatusCode::is5xxServerError) { Mono.just(RuntimeException("Dying")) }
-
   private suspend fun getAccessToken(
       serviceAccount: GoogleApiServiceAccount,
       jwt: String
@@ -208,13 +192,21 @@ class CraigMillerDownloaderService(
         .post()
         .uri(serviceAccount.tokenUri)
         .body(BodyInserters.fromFormData(tokenBody))
-        .retrieve()
-        // TODO make re-usable
-        .onStatus(HttpStatusCode::is4xxClientError) { Mono.just(RuntimeException("Dying")) }
-        .onStatus(HttpStatusCode::is5xxServerError) { Mono.just(RuntimeException("Dying")) }
+        .retrieveSuccess()
         .awaitBodyResult<GoogleApiAccessToken>()
         .map { it.accessToken }
   }
+
+  private fun getTransactionDataFromSpreadsheet(
+      config: PortfolioConfig,
+      accessToken: String
+  ): ResponseSpec =
+      webClient
+          .get()
+          .uri(
+              "${downloaderConfig.googleSheetsApiBaseUrl}/spreadsheets/${config.sheetId}/values/${config.valuesRange}")
+          .header("Authorization", "Bearer $accessToken")
+          .retrieveSuccess()
 
   private suspend fun readServiceAccount(): GoogleApiServiceAccount =
       withContext(Dispatchers.IO) {
