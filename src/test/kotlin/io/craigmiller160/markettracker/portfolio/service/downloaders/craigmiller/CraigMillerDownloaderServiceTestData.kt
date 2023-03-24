@@ -18,7 +18,7 @@ val TEST_DATA: List<SharesOwned> = createTestData {
     amount = BigDecimal("0")
   }
   shares {
-    start = LocalDate.of(2020, 6, 16)
+    start = LocalDate.of(2020, 6, 15)
     symbol = "UAL"
     amount = BigDecimal("0")
   }

@@ -47,6 +47,21 @@ constructor(
     mockServer.shutdown()
   }
 
+  private fun writeDataForDebugging(
+      index: Int,
+      expected: List<SharesOwned>,
+      actual: List<SharesOwned>
+  ) {
+    val outputPath = Paths.get(System.getProperty("user.dir"), "build", "craigmiller_download")
+    Files.createDirectories(outputPath)
+    Files.write(
+        outputPath.resolve("expected$index.json"),
+        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(expected))
+    Files.write(
+        outputPath.resolve("actual$index.json"),
+        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(actual))
+  }
+
   @Test
   fun `downloads and formats google sheet data`() {
     val googleApiAccessToken =
@@ -78,14 +93,7 @@ constructor(
               .sortedWith(::sort)
       val actualSharesOwned = portfolio.ownershipHistory.sortedWith(::sort)
 
-      val outputPath = Paths.get(System.getProperty("user.dir"), "build", "craigmiller_download")
-      Files.createDirectories(outputPath)
-      Files.write(
-          outputPath.resolve("expected$index.json"),
-          objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(expectedSharesOwned))
-      Files.write(
-          outputPath.resolve("actual$index.json"),
-          objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(actualSharesOwned))
+      writeDataForDebugging(index, expectedSharesOwned, actualSharesOwned)
 
       actualSharesOwned.shouldHaveSize(expectedSharesOwned.size).forEachIndexed { index, actual ->
         ktRunCatching {
