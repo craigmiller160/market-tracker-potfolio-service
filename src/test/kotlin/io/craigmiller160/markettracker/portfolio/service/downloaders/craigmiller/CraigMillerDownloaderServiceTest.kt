@@ -47,6 +47,15 @@ constructor(
 
   @Test
   fun `downloads and formats google sheet data`() {
+    val googleApiAccessToken =
+        GoogleApiAccessToken(accessToken = "TOKEN", expiresIn = 100000, tokenType = "Bearer")
+    mockServer.enqueue(
+        MockResponse().apply {
+          status = "HTTP/1.1 200 OK"
+          setBody(objectMapper.writeValueAsString(googleApiAccessToken))
+          addHeader("Content-Type", "application/json")
+        })
+
     repeat(3) {
       mockServer.enqueue(
           MockResponse().apply {
