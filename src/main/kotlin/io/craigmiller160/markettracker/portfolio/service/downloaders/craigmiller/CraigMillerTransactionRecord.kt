@@ -82,7 +82,7 @@ val CraigMillerTransactionRecord.Companion.comparator: Comparator<CraigMillerTra
 
     val dateCompare = one.date.compareTo(two.date)
     if (dateCompare != 0) {
-      return@Comparator convertResult(symbolCompare)
+      return@Comparator convertResult(dateCompare)
     }
 
     return@Comparator convertResult(one.action.compareTo(two.action))
