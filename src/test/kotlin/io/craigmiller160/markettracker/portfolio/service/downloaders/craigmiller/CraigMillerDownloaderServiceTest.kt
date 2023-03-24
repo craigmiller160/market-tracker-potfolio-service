@@ -11,6 +11,8 @@ import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import java.lang.AssertionError
+import java.nio.file.Files
+import java.nio.file.Paths
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -65,17 +67,24 @@ constructor(
       val expectedSharesOwned =
           TEST_DATA.map { it.copy(portfolioId = portfolio.id, userId = downloaderConfig.userId) }
               .sortedWith(::sort)
-      portfolio.ownershipHistory
-          .sortedWith(::sort)
-          .shouldHaveSize(expectedSharesOwned.size)
-          .forEachIndexed { index, actual ->
-            ktRunCatching {
-                  val expected = expectedSharesOwned[index]
-                  actual.symbol.shouldBeEqualComparingTo(expected.symbol)
-                  // TODO need to validate more fields
-                }
-                .getOrThrow { ex -> AssertionError("Error validating record $index", ex) }
-          }
+      val actualSharesOwned = portfolio.ownershipHistory.sortedWith(::sort)
+
+      // TODO delete this part
+      Files.write(
+          Paths.get(System.getProperty("user.dir"), "expected.json"),
+          objectMapper.writeValueAsBytes(expectedSharesOwned))
+      Files.write(
+          Paths.get(System.getProperty("user.dir"), "actual.json"),
+          objectMapper.writeValueAsBytes(expectedSharesOwned))
+
+      actualSharesOwned.shouldHaveSize(expectedSharesOwned.size).forEachIndexed { index, actual ->
+        ktRunCatching {
+              val expected = expectedSharesOwned[index]
+              actual.symbol.shouldBeEqualComparingTo(expected.symbol)
+              // TODO need to validate more fields
+            }
+            .getOrThrow { ex -> AssertionError("Error validating record $index", ex) }
+      }
     }
   }
 }
