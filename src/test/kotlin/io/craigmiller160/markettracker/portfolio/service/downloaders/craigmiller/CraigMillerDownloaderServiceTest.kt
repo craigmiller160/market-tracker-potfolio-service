@@ -11,6 +11,8 @@ import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import java.lang.AssertionError
+import java.nio.file.Files
+import java.nio.file.Paths
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -69,12 +71,21 @@ constructor(
 
     result.shouldHaveSize(3)
 
-    result.forEach { portfolio ->
+    result.forEachIndexed { index, portfolio ->
       portfolio.name.shouldBeIn("Brokerage", "Roth IRA", "Rollover IRA")
       val expectedSharesOwned =
           TEST_DATA.map { it.copy(portfolioId = portfolio.id, userId = downloaderConfig.userId) }
               .sortedWith(::sort)
       val actualSharesOwned = portfolio.ownershipHistory.sortedWith(::sort)
+
+      val outputPath = Paths.get(System.getProperty("user.dir"), "build", "craigmiller_download")
+      Files.createDirectories(outputPath)
+      Files.write(
+          outputPath.resolve("expected$index.json"),
+          objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(expectedSharesOwned))
+      Files.write(
+          outputPath.resolve("actual$index.json"),
+          objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(actualSharesOwned))
 
       actualSharesOwned.shouldHaveSize(expectedSharesOwned.size).forEachIndexed { index, actual ->
         ktRunCatching {
