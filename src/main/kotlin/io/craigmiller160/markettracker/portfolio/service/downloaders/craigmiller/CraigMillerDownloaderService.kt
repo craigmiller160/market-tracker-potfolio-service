@@ -138,6 +138,7 @@ class CraigMillerDownloaderService(
       val sharesOwnedList = accumulator.sharesOwnedMap[record.record.symbol] ?: persistentListOf()
       val lastSharesOwned = sharesOwnedList.lastOrNull()
       val lastTotalShares = lastSharesOwned?.totalShares ?: BigDecimal("0")
+      val replaceLastSharesOwned = lastSharesOwned?.dateRangeStart == record.record.date
 
       val totalShares =
           when (record.record.action) {
@@ -147,23 +148,29 @@ class CraigMillerDownloaderService(
             else -> BigDecimal("0")
           }
 
+      val newSharesOwned =
+          SharesOwned(
+              id = TypedId(),
+              userId = downloaderConfig.userId,
+              portfolioId = portfolioId,
+              dateRangeStart = record.record.date,
+              dateRangeEnd = MAX_DATE,
+              symbol = record.record.symbol,
+              totalShares = totalShares)
+
       val newMap =
           accumulator.sharesOwnedMap.mutate { map ->
             map[record.record.symbol] =
                 sharesOwnedList.mutate { list ->
-                  lastSharesOwned?.let { lastSharesOwnedReal ->
-                    list[list.size - 1] =
-                        lastSharesOwnedReal.copy(dateRangeEnd = record.record.date.minusDays(1))
+                  if (replaceLastSharesOwned) {
+                    list[list.size - 1] = newSharesOwned
+                  } else {
+                    lastSharesOwned?.let { lastSharesOwnedReal ->
+                      list[list.size - 1] =
+                          lastSharesOwnedReal.copy(dateRangeEnd = record.record.date.minusDays(1))
+                    }
+                    list += newSharesOwned
                   }
-                  list +=
-                      SharesOwned(
-                          id = TypedId(),
-                          userId = downloaderConfig.userId,
-                          portfolioId = portfolioId,
-                          dateRangeStart = record.record.date,
-                          dateRangeEnd = MAX_DATE,
-                          symbol = record.record.symbol,
-                          totalShares = totalShares)
                 }
           }
       accumulator.copy(sharesOwnedMap = newMap)
