@@ -62,7 +62,6 @@ class CraigMillerDownloaderService(
   override suspend fun download(): KtResult<List<PortfolioWithHistory>> {
     log.info("Beginning download of Craig Miller portfolio data")
     val serviceAccount = readServiceAccount()
-    log.debug("Authenticating for service account ${serviceAccount.clientEmail}")
 
     return createJwt(serviceAccount)
         .flatMap { jwt -> getAccessToken(serviceAccount, jwt) }
@@ -79,8 +78,10 @@ class CraigMillerDownloaderService(
 
   private fun responsesToPortfolios(
       responses: List<Pair<String, GoogleSpreadsheetValues>>
-  ): KtResult<List<PortfolioWithHistory>> =
-      responses.map { (name, response) -> transformResponse(name, response) }.combine()
+  ): KtResult<List<PortfolioWithHistory>> {
+    log.debug("Parsing and formatting google spreadsheet responses")
+    return responses.map { (name, response) -> transformResponse(name, response) }.combine()
+  }
 
   private fun transformResponse(
       portfolioName: String,
@@ -182,6 +183,7 @@ class CraigMillerDownloaderService(
       serviceAccount: GoogleApiServiceAccount,
       jwt: String
   ): KtResult<String> {
+    log.debug("Authenticating for service account ${serviceAccount.clientEmail}")
     val tokenBody =
         LinkedMultiValueMap<String, String>().apply {
           add(GRANT_TYPE_KEY, TOKEN_GRANT_TYPE)
@@ -200,13 +202,16 @@ class CraigMillerDownloaderService(
   private fun getTransactionDataFromSpreadsheet(
       config: PortfolioConfig,
       accessToken: String
-  ): ResponseSpec =
-      webClient
-          .get()
-          .uri(
-              "${downloaderConfig.googleSheetsApiBaseUrl}/spreadsheets/${config.sheetId}/values/${config.valuesRange}")
-          .header("Authorization", "Bearer $accessToken")
-          .retrieveSuccess()
+  ): ResponseSpec {
+    log.debug(
+        "Downloading data from spreadsheet. Sheet: ${config.sheetId} Values: ${config.valuesRange}")
+    return webClient
+        .get()
+        .uri(
+            "${downloaderConfig.googleSheetsApiBaseUrl}/spreadsheets/${config.sheetId}/values/${config.valuesRange}")
+        .header("Authorization", "Bearer $accessToken")
+        .retrieveSuccess()
+  }
 
   private suspend fun readServiceAccount(): GoogleApiServiceAccount =
       withContext(Dispatchers.IO) {
@@ -216,6 +221,7 @@ class CraigMillerDownloaderService(
       }
 
   private fun createJwt(serviceAccount: GoogleApiServiceAccount): KtResult<String> = ktRunCatching {
+    log.debug("Creating JWT for service account ${serviceAccount.clientEmail}")
     val nowUtc = ZonedDateTime.now(ZoneId.of("UTC"))
     val header = JWSHeader.Builder(JWSAlgorithm.RS256).keyID(serviceAccount.privateKeyId).build()
     val claims =
