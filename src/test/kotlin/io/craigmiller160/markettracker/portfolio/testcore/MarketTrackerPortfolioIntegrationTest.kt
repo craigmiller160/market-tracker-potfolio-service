@@ -11,7 +11,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)
 @SpringBootTest
-@ExtendWith(value = [TestcontainersExtension::class, SpringExtension::class])
+@ExtendWith(
+    value =
+        [TestcontainersExtension::class, SpringExtension::class, DatabaseCleaningExtension::class])
 @AutoConfigureWebTestClient
 @ActiveProfiles("test")
 @TestPropertySource(value = ["classpath:application.yml", "classpath:application-test.yml"])
