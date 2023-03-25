@@ -19,11 +19,16 @@ constructor(
   fun `the portfolios are all persisted`() {
     runBlocking {
       getPortfolioCount().shouldBeEqualComparingTo(0)
+      getSharesOwnedCount().shouldBeEqualComparingTo(0)
       TODO()
     }
   }
 
   private suspend fun getPortfolioCount(): Long =
       databaseClient.sql("SELECT COUNT(*) AS count FROM portfolios").fetch().awaitOne()["count"]
+          as Long
+
+  private suspend fun getSharesOwnedCount(): Long =
+      databaseClient.sql("SELECT COUNT(*) AS count FROM shares_owned").fetch().awaitOne()["count"]
           as Long
 }
