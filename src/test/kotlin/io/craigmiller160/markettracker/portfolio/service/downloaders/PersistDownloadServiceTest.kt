@@ -7,10 +7,15 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
+import io.craigmiller160.markettracker.portfolio.domain.rowmappers.portfolioRowMapper
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
-import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import java.math.BigDecimal
 import java.time.LocalDate
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -46,18 +51,22 @@ constructor(
   @Test
   fun `the portfolios are all persisted`() {
     runBlocking {
-      getPortfolios().shouldBeEmpty()
-      getSharesOwned().shouldBeEmpty()
+      getPortfolios().toList().shouldHaveSize(0)
 
       persistDownloadService.persistPortfolios(DATA).getOrThrow()
-      TODO()
+
+      val portfolios = getPortfolios().toList()
+      portfolios.shouldHaveSize(1)
+      portfolios[0].let { portfolio ->
+        portfolio.id.shouldBeEqualToComparingFields(DATA[0].id)
+        portfolio.userId.shouldBeEqualToComparingFields(DATA[0].userId)
+        portfolio.name.shouldBeEqualToComparingFields(DATA[0].name)
+      }
     }
   }
 
-  private suspend fun getPortfolios(): List<Portfolio> {
-    databaseClient.sql("SELECT * FROM portfolios").map { a, b -> a }.all()
-    TODO()
-  }
+  private suspend fun getPortfolios(): Flow<Portfolio> =
+      databaseClient.sql("SELECT * FROM portfolios").map(portfolioRowMapper).all().asFlow()
   private suspend fun getSharesOwned(): List<SharesOwned> {
     databaseClient.sql("SELECT * FROM shares_owned").fetch().all()
     TODO()
