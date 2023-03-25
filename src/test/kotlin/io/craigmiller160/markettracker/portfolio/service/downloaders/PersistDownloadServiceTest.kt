@@ -4,17 +4,17 @@ import com.github.michaelbull.result.getOrThrow
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
+import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
-import io.kotest.matchers.comparables.shouldBeEqualComparingTo
+import io.kotest.matchers.collections.shouldBeEmpty
 import java.math.BigDecimal
 import java.time.LocalDate
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.r2dbc.core.DatabaseClient
-import org.springframework.r2dbc.core.awaitOne
 
 @MarketTrackerPortfolioIntegrationTest
 class PersistDownloadServiceTest
@@ -46,16 +46,20 @@ constructor(
   @Test
   fun `the portfolios are all persisted`() {
     runBlocking {
-      getPortfolios().shouldBeEqualComparingTo(0)
-      getSharesOwnedCount().shouldBeEqualComparingTo(0)
+      getPortfolios().shouldBeEmpty()
+      getSharesOwned().shouldBeEmpty()
 
       persistDownloadService.persistPortfolios(DATA).getOrThrow()
+      TODO()
     }
   }
 
-  private suspend fun getPortfolios(): Long =
-      databaseClient.sql("SELECT * FROM portfolios").fetch().awaitOne()["count"] as Long
-
-  private suspend fun getSharesOwnedCount(): Long =
-      databaseClient.sql("SELECT * FROM shares_owned").fetch().awaitOne()["count"] as Long
+  private suspend fun getPortfolios(): List<Portfolio> {
+    databaseClient.sql("SELECT * FROM portfolios").fetch().all()
+    TODO()
+  }
+  private suspend fun getSharesOwned(): List<SharesOwned> {
+    databaseClient.sql("SELECT * FROM shares_owned").fetch().all()
+    TODO()
+  }
 }
