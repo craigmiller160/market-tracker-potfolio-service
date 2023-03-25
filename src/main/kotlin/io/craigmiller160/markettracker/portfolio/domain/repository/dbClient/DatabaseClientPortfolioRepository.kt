@@ -28,8 +28,8 @@ class DatabaseClientPortfolioRepository(
             ktRunCatching {
               databaseClient
                   .sql(sql)
-                  .bind("id", portfolio.id)
-                  .bind("userId", portfolio.userId)
+                  .bind("id", portfolio.id.value)
+                  .bind("userId", portfolio.userId.value)
                   .bind("name", portfolio.name)
                   .fetch()
                   .awaitRowsUpdated()
