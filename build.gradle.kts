@@ -53,7 +53,8 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.5")
     implementation("com.github.spullara.mustache.java:compiler:0.9.10")
-
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
+    testImplementation("io.mockk:mockk:1.13.4")
 }
 
 tasks.withType<KotlinCompile> {
