@@ -7,11 +7,9 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.transaction.annotation.Transactional
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)
-@Transactional
 @SpringBootTest
 @ExtendWith(value = [TestcontainersExtension::class, SpringExtension::class])
 @AutoConfigureWebTestClient
