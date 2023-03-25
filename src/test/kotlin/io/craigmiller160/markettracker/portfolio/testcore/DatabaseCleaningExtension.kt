@@ -9,9 +9,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 
 class DatabaseCleaningExtension : BeforeEachCallback, AfterEachCallback {
   override fun beforeEach(context: ExtensionContext) {
-    val databaseClient = getDatabaseClient(context)
-    val sqlLoader = getSqlLoader(context)
-    TODO("Not yet implemented")
+    cleanDatabase(context)
+  }
+
+  override fun afterEach(context: ExtensionContext) {
+    cleanDatabase(context)
   }
 
   private fun getDatabaseClient(context: ExtensionContext) =
@@ -19,7 +21,8 @@ class DatabaseCleaningExtension : BeforeEachCallback, AfterEachCallback {
   private fun getSqlLoader(context: ExtensionContext) =
       SpringExtension.getApplicationContext(context).getBean(SqlLoader::class.java)
 
-  override fun afterEach(context: ExtensionContext) {
-    TODO("Not yet implemented")
+  private fun cleanDatabase(context: ExtensionContext) {
+    val databaseClient = getDatabaseClient(context)
+    val sqlLoader = getSqlLoader(context)
   }
 }
