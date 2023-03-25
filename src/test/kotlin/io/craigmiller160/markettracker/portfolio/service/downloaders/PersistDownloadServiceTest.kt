@@ -1,6 +1,7 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders
 
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
+import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,13 +18,12 @@ constructor(
   @Test
   fun `the portfolios are all persisted`() {
     runBlocking {
-      getPortfolioCount()
+      getPortfolioCount().shouldBeEqualComparingTo(0)
       TODO()
     }
   }
 
-  private suspend fun getPortfolioCount(): Int {
-    val result = databaseClient.sql("SELECT COUNT(*) FROM portfolios").fetch().awaitOne()
-    TODO()
-  }
+  private suspend fun getPortfolioCount(): Long =
+      databaseClient.sql("SELECT COUNT(*) AS count FROM portfolios").fetch().awaitOne()["count"]
+          as Long
 }
