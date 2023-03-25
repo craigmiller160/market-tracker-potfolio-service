@@ -20,7 +20,6 @@ class DatabaseClientPortfolioRepository(
     private const val INSERT_PORTFOLIO_SQL = "portfolio/insertPortfolio.sql"
   }
 
-  // TODO need to test spring transaction management
   override suspend fun createPortfolio(portfolio: Portfolio): KtResult<Portfolio> =
       sqlLoader
           .loadSql(INSERT_PORTFOLIO_SQL)
