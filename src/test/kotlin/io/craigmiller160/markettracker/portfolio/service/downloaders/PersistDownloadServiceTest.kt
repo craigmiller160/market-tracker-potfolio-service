@@ -55,7 +55,7 @@ constructor(
   }
 
   private suspend fun getPortfolios(): List<Portfolio> {
-    databaseClient.sql("SELECT * FROM portfolios").fetch().all()
+    databaseClient.sql("SELECT * FROM portfolios").map { a, b -> a }.all()
     TODO()
   }
   private suspend fun getSharesOwned(): List<SharesOwned> {
