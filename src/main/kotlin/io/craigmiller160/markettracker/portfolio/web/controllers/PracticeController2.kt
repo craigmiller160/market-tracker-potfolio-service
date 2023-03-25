@@ -1,5 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.web.controllers
 
+import com.github.michaelbull.result.onFailure
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.BasePortfolio
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
@@ -18,6 +19,6 @@ class PracticeController2(private val repo: PortfolioRepository) {
   suspend fun transactionExp() {
     val unique = UUID.randomUUID()
     val portfolio = BasePortfolio(id = TypedId(), userId = TypedId(), name = "Hello_$unique")
-    repo.createPortfolio(portfolio)
+    repo.createPortfolio(portfolio).onFailure { it.printStackTrace() }
   }
 }
