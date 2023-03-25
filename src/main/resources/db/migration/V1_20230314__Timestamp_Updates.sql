@@ -6,6 +6,7 @@ $$
     BEGIN
         NEW.insert_timestamp = now();
         NEW.update_timestamp = now();
+        RETURN NEW;
     END;
 $$;
 
@@ -16,6 +17,7 @@ AS
 $$
     BEGIN
         NEW.update_timestamp = now();
+        RETURN NEW;
     END;
 $$;
 
