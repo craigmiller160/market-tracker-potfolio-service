@@ -51,6 +51,6 @@ class DatabaseClientSharesOwnedRepository(
                   .awaitSingle()
             }
           }
-          .map { result -> println("ROWS: ${result.rowsUpdated.awaitSingle()}") }
+          .map { result -> result.rowsUpdated.awaitSingle() }
           .map { sharesOwned }
 }
