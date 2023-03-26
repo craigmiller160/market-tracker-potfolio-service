@@ -1,9 +1,11 @@
 spring:
-  r2dbc:
-    url: ${testcontainers.common.postgres.r2dbcUrl}
+  db:
     username: ${testcontainers.common.postgres.user}
     password: ${testcontainers.common.postgres.password}
+  r2dbc:
+    url: ${testcontainers.common.postgres.r2dbcUrl}
   flyway:
+    url: ${testcontainers.common.postgres.jdbcUrl}
     default-schema: ${testcontainers.common.postgres.schema}
     init-sqls: SET schema '${testcontainers.common.postgres.schema}'
   security:
@@ -16,6 +18,12 @@ jwt:
   auth:
     converter:
       resource-id: ${testcontainers.common.keycloak.client.id}
+
+downloaders:
+  craigmiller:
+    test-port: 1234
+    google-sheets-api-base-url: http://localhost:${downloaders.craigmiller.test-port}
+    service-account-json-path: ${user.dir}/src/test/resources/data/craigmiller/test-service-account.json
 
 logging:
   level:

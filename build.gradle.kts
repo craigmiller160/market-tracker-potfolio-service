@@ -25,6 +25,9 @@ version = projectVersion
 java.sourceCompatibility = JavaVersion.VERSION_19
 
 dependencies {
+    val kotlinResultVersion: String by project
+    val kotestVersion: String by project
+
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui")
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
@@ -42,6 +45,16 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.craigmiller160:testcontainers-common:1.1.1")
     implementation("org.flywaydb:flyway-core")
+    implementation("io.github.craigmiller160:spring-fp-result-kt:2.0.0-SNAPSHOT")
+    implementation("com.michael-bull.kotlin-result:kotlin-result-jvm:$kotlinResultVersion")
+    implementation("com.michael-bull.kotlin-result:kotlin-result-coroutines:$kotlinResultVersion")
+
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.5")
+    implementation("com.github.spullara.mustache.java:compiler:0.9.10")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
+    testImplementation("io.mockk:mockk:1.13.4")
 }
 
 tasks.withType<KotlinCompile> {

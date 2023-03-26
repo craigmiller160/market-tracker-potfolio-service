@@ -13,14 +13,43 @@ spring:
     url: r2dbc:${spring.db.baseUrl}
     username: ${spring.db.username}
     password: ${spring.db.password}
+    properties:
+      schema: ${testcontainers.common.postgres.schema}
   flyway:
     url: jdbc:${spring.db.baseUrl}
     user: ${spring.db.username}
     password: ${spring.db.password}
 
+http-client:
+  timeout-millis: 30000
 
 jwt:
   auth:
     converter:
       resource-id: market-tracker-portfolio-service
       principal-attribute: preferred_username
+
+downloaders:
+  enable: false
+  interval-rate-hours: 3
+  craigmiller:
+    user-id: 2e0eccce-1f64-4d13-a269-fda027f5ddee
+    google-sheets-api-base-url: https://sheets.googleapis.com/v4
+    service-account-json-path: ${user.dir}/market-tracker-service-account.json
+    portfolio-spreadsheets:
+      - name: Brokerage
+        sheet-id: 1E2U1DR7i3xG3Kvi_AH9Zp_uYRYR2sSobcjQ5Di1a_t0
+        values-range: Transactions
+      - name: Roth IRA
+        sheet-id: 18BK_urWmKH_m9bZFVOpDzRDgqQ66gTwdnYil-xtKZK4
+        values-range: Transactions
+      - name: Rollover IRA
+        sheet-id: 1Kuj9Ky_DYh0IsUgXx48rMKgRD7oU7O5xqwylNwx1VN0
+        values-range: Transactions
+
+logging:
+  level:
+    io.craigmiller160: DEBUG
+    org.springframework.data.r2dbc: DEBUG
+    io.r2dbc.postgresql.QUERY: DEBUG
+    io.r2dbc.postgresql.PARAM: DEBUG
