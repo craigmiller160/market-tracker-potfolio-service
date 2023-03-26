@@ -8,11 +8,10 @@ import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRe
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
 import io.craigmiller160.markettracker.portfolio.functions.KtResult
 import io.craigmiller160.markettracker.portfolio.functions.ktRunCatching
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.stereotype.Repository
-import reactor.kotlin.core.publisher.toFlux
+import reactor.kotlin.core.publisher.toMono
 
 @Repository
 class DatabaseClientSharesOwnedRepository(
@@ -30,23 +29,31 @@ class DatabaseClientSharesOwnedRepository(
           .flatMap { sql ->
             ktRunCatching {
               databaseClient
-                  .inConnectionMany { conn ->
+                  .inConnection { conn ->
                     val stmt = conn.createStatement(sql)
-                    sharesOwned.forEach { record ->
-                      stmt
-                          .bind(0, record.id.value)
-                          .bind(1, record.userId.value)
-                          .bind(2, record.portfolioId.value)
-                          .bind(3, record.dateRange)
-                          .bind(4, record.symbol)
-                          .bind(5, record.totalShares)
-                          .add()
-                    }
-                    stmt.execute().toFlux()
+                    // TODO definitely refactor to be flexible
+                    stmt
+                        .bind(0, sharesOwned[0].id.value)
+                        .bind(1, sharesOwned[0].userId.value)
+                        .bind(2, sharesOwned[0].portfolioId.value)
+                        .bind(3, sharesOwned[0].dateRange)
+                        .bind(4, sharesOwned[0].symbol)
+                        .bind(5, sharesOwned[0].totalShares)
+                        .add()
+                        .bind(0, sharesOwned[1].id.value)
+                        .bind(1, sharesOwned[1].userId.value)
+                        .bind(2, sharesOwned[1].portfolioId.value)
+                        .bind(3, sharesOwned[1].dateRange)
+                        .bind(4, sharesOwned[1].symbol)
+                        .bind(5, sharesOwned[1].totalShares)
+                    println("BEFORE EXECUTE") // TODO delete this
+                    stmt.execute().toMono()
                   }
-                  .asFlow()
-                  .toList() // TODO is there a better option?
+                  .awaitSingle()
             }
           }
-          .map { sharesOwned }
+          .map {
+            println("AT END") // TODO delete this
+            sharesOwned
+          }
 }
