@@ -6,6 +6,7 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 data class SharesOwned(
     val id: TypedId<SharesOwnedId>,
@@ -16,3 +17,10 @@ data class SharesOwned(
     val symbol: String,
     val totalShares: BigDecimal
 )
+
+val SharesOwned.dateRange: String
+  get() {
+    val startFormatted = dateRangeStart.format(DateTimeFormatter.ISO_DATE)
+    val endFormatted = dateRangeEnd.format(DateTimeFormatter.ISO_DATE)
+    return "[$startFormatted,$endFormatted)"
+  }

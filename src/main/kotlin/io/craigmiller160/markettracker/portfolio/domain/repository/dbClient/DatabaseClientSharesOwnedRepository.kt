@@ -3,6 +3,7 @@ package io.craigmiller160.markettracker.portfolio.domain.repository.dbClient
 import com.github.michaelbull.result.flatMap
 import com.github.michaelbull.result.map
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
+import io.craigmiller160.markettracker.portfolio.domain.models.dateRange
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
 import io.craigmiller160.markettracker.portfolio.functions.KtResult
@@ -36,10 +37,9 @@ class DatabaseClientSharesOwnedRepository(
                           .bind(0, record.id.value)
                           .bind(1, record.userId.value)
                           .bind(2, record.portfolioId.value)
-                          .bind(3, record.dateRangeStart)
-                          .bind(4, record.dateRangeEnd)
-                          .bind(5, record.symbol)
-                          .bind(6, record.totalShares)
+                          .bind(3, record.dateRange)
+                          .bind(4, record.symbol)
+                          .bind(5, record.totalShares)
                           .add()
                     }
                     stmt.execute().toFlux()
