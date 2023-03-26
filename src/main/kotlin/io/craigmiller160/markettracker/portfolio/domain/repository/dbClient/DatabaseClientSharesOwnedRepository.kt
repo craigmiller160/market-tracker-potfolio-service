@@ -46,14 +46,11 @@ class DatabaseClientSharesOwnedRepository(
                         .bind(3, sharesOwned[1].dateRange)
                         .bind(4, sharesOwned[1].symbol)
                         .bind(5, sharesOwned[1].totalShares)
-                    println("BEFORE EXECUTE") // TODO delete this
                     stmt.execute().toMono()
                   }
                   .awaitSingle()
             }
           }
-          .map {
-            println("AT END") // TODO delete this
-            sharesOwned
-          }
+          .map { result -> println("ROWS: ${result.rowsUpdated.awaitSingle()}") }
+          .map { sharesOwned }
 }
