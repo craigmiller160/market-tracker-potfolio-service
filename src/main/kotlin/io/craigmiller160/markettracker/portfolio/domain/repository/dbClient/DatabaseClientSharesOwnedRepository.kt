@@ -5,8 +5,7 @@ import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.models.dateRange
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
-import io.craigmiller160.markettracker.portfolio.extensions.mapToStatementBatch
-import io.craigmiller160.markettracker.portfolio.extensions.reduceStatementBatches
+import io.craigmiller160.markettracker.portfolio.extensions.toSqlBatches
 import io.craigmiller160.markettracker.portfolio.functions.KtResult
 import io.craigmiller160.markettracker.portfolio.functions.coFlatMap
 import io.craigmiller160.markettracker.portfolio.functions.ktRunCatching
@@ -38,7 +37,7 @@ class DatabaseClientSharesOwnedRepository(
           .inConnection { conn ->
             val statement = conn.createStatement(sql)
             sharesOwned
-                .mapToStatementBatch { record, stmt ->
+                .toSqlBatches(statement) { record, stmt ->
                   stmt
                       .bind(0, record.id.value)
                       .bind(1, record.userId.value)
@@ -47,7 +46,6 @@ class DatabaseClientSharesOwnedRepository(
                       .bind(4, record.symbol)
                       .bind(5, record.totalShares)
                 }
-                .reduceStatementBatches(statement)
                 .execute()
                 .toMono()
           }
