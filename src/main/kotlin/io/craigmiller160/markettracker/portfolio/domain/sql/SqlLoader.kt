@@ -1,9 +1,8 @@
 package io.craigmiller160.markettracker.portfolio.domain.sql
 
-import com.github.michaelbull.result.map
+import arrow.core.Either
 import com.github.mustachejava.DefaultMustacheFactory
-import io.craigmiller160.markettracker.portfolio.functions.KtResult
-import io.craigmiller160.markettracker.portfolio.functions.ktRunCatching
+import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import java.io.Reader
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.core.io.ResourceLoader
@@ -21,12 +20,11 @@ class SqlLoader(private val resourceLoader: ResourceLoader) {
       resourceLoader.getResource("classpath:sql/$filePath").inputStream.reader()
 
   @Cacheable(cacheNames = [SQL_CACHE], key = "#filePath")
-  fun loadSql(filePath: String): KtResult<String> = ktRunCatching {
-    openSqlReader(filePath).readText()
-  }
+  fun loadSql(filePath: String): TryEither<String> =
+      Either.catch { openSqlReader(filePath).readText() }
 
   @Cacheable(cacheNames = [MUSTACHE_CACHE], key = "#filePath")
-  fun loadSqlMustacheTemplate(filePath: String): KtResult<MustacheSqlTemplate> =
-      ktRunCatching { mustacheFactory.compile(openSqlReader(filePath), filePath) }
+  fun loadSqlMustacheTemplate(filePath: String): TryEither<MustacheSqlTemplate> =
+      Either.catch { mustacheFactory.compile(openSqlReader(filePath), filePath) }
           .map { MustacheSqlTemplate(it) }
 }
