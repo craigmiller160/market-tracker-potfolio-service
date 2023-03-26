@@ -5,6 +5,8 @@ import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.models.dateRange
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
+import io.craigmiller160.markettracker.portfolio.extensions.mapToStatementBatch
+import io.craigmiller160.markettracker.portfolio.extensions.reduceStatementBatches
 import io.craigmiller160.markettracker.portfolio.functions.KtResult
 import io.craigmiller160.markettracker.portfolio.functions.coFlatMap
 import io.craigmiller160.markettracker.portfolio.functions.ktRunCatching
@@ -34,26 +36,20 @@ class DatabaseClientSharesOwnedRepository(
     ktRunCatching {
       databaseClient
           .inConnection { conn ->
-            val stmt = conn.createStatement(sql)
+            val statement = conn.createStatement(sql)
             sharesOwned
-                .map { record ->
-                  {
-                    stmt
-                        .bind(0, record.id.value)
-                        .bind(1, record.userId.value)
-                        .bind(2, record.portfolioId.value)
-                        .bind(3, record.dateRange)
-                        .bind(4, record.symbol)
-                        .bind(5, record.totalShares)
-                  }
+                .mapToStatementBatch { record, stmt ->
+                  stmt
+                      .bind(0, record.id.value)
+                      .bind(1, record.userId.value)
+                      .bind(2, record.portfolioId.value)
+                      .bind(3, record.dateRange)
+                      .bind(4, record.symbol)
+                      .bind(5, record.totalShares)
                 }
-                .reduce { first, second ->
-                  {
-                    first().add()
-                    second()
-                  }
-                }()
-            stmt.execute().toMono()
+                .reduceStatementBatches(statement)
+                .execute()
+                .toMono()
           }
           .awaitSingle()
           .rowsUpdated
