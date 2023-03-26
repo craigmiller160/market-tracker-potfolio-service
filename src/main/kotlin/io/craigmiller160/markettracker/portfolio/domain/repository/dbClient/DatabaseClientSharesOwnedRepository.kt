@@ -33,13 +33,13 @@ class DatabaseClientSharesOwnedRepository(
                     val stmt = conn.createStatement(sql)
                     sharesOwned.forEach { record ->
                       stmt
-                          .bind("id", record.id.value)
-                          .bind("userId", record.userId.value)
-                          .bind("portfolioId", record.portfolioId.value)
-                          .bind("dateRangeStart", record.dateRangeStart)
-                          .bind("dateRangeEnd", record.dateRangeEnd)
-                          .bind("symbol", record.symbol)
-                          .bind("totalShares", record.totalShares)
+                          .bind(0, record.id.value)
+                          .bind(1, record.userId.value)
+                          .bind(2, record.portfolioId.value)
+                          .bind(3, record.dateRangeStart)
+                          .bind(4, record.dateRangeEnd)
+                          .bind(5, record.symbol)
+                          .bind(6, record.totalShares)
                           .add()
                     }
                     stmt.execute().toFlux()
