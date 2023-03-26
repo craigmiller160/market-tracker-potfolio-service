@@ -2,7 +2,7 @@ package io.craigmiller160.markettracker.portfolio.extensions
 
 import io.r2dbc.spi.Statement
 
-typealias StatementBatchBinder = (Statement) -> Statement
+private typealias StatementBatchBinder = (Statement) -> Statement
 
 fun <T> List<T>.toSqlBatches(statement: Statement, block: (T, Statement) -> Statement): Statement =
     mapToStatementBatch(block).reduceStatementBatches(statement)
