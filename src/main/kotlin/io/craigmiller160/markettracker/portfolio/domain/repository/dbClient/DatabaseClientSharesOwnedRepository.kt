@@ -9,10 +9,11 @@ import io.craigmiller160.markettracker.portfolio.extensions.toSqlBatches
 import io.craigmiller160.markettracker.portfolio.functions.KtResult
 import io.craigmiller160.markettracker.portfolio.functions.coFlatMap
 import io.craigmiller160.markettracker.portfolio.functions.ktRunCatching
-import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.stereotype.Repository
-import reactor.kotlin.core.publisher.toMono
+import reactor.kotlin.core.publisher.toFlux
 
 @Repository
 class DatabaseClientSharesOwnedRepository(
@@ -31,10 +32,10 @@ class DatabaseClientSharesOwnedRepository(
 
   private suspend fun createAsBatch(
       sharesOwned: List<SharesOwned>
-  ): suspend (String) -> KtResult<Long> = { sql ->
+  ): suspend (String) -> KtResult<List<Long>> = { sql ->
     ktRunCatching {
       databaseClient
-          .inConnection { conn ->
+          .inConnectionMany { conn ->
             val statement = conn.createStatement(sql)
             sharesOwned
                 .toSqlBatches(statement) { record, stmt ->
@@ -47,11 +48,11 @@ class DatabaseClientSharesOwnedRepository(
                       .bind(5, record.totalShares)
                 }
                 .execute()
-                .toMono()
+                .toFlux()
+                .flatMap { result -> result.rowsUpdated.toFlux() }
           }
-          .awaitSingle()
-          .rowsUpdated
-          .awaitSingle()
+          .asFlow()
+          .toList()
     }
   }
 }

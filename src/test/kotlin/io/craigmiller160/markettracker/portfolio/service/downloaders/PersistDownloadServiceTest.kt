@@ -12,6 +12,7 @@ import io.craigmiller160.markettracker.portfolio.domain.rowmappers.portfolioRowM
 import io.craigmiller160.markettracker.portfolio.domain.rowmappers.sharesOwnedRowMapper
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -76,17 +77,14 @@ constructor(
       val sharesOwned = getSharesOwned()
       sharesOwned.shouldHaveSize(2)
       sharesOwned.forEachIndexed { index, actual ->
-        actual.id.shouldBeEqualToComparingFields(DATA[0].ownershipHistory[index].id)
-        actual.userId.shouldBeEqualToComparingFields(DATA[0].ownershipHistory[index].userId)
-        actual.portfolioId.shouldBeEqualToComparingFields(
-            DATA[0].ownershipHistory[index].portfolioId)
-        actual.dateRangeStart.shouldBeEqualToComparingFields(
+        actual.id.shouldBeEqualComparingTo(DATA[0].ownershipHistory[index].id)
+        actual.userId.shouldBeEqualComparingTo(DATA[0].ownershipHistory[index].userId)
+        actual.portfolioId.shouldBeEqualComparingTo(DATA[0].ownershipHistory[index].portfolioId)
+        actual.dateRangeStart.shouldBeEqualComparingTo(
             DATA[0].ownershipHistory[index].dateRangeStart)
-        actual.dateRangeEnd.shouldBeEqualToComparingFields(
-            DATA[0].ownershipHistory[index].dateRangeEnd)
-        actual.symbol.shouldBeEqualToComparingFields(DATA[0].ownershipHistory[index].symbol)
-        actual.totalShares.shouldBeEqualToComparingFields(
-            DATA[0].ownershipHistory[index].totalShares)
+        actual.dateRangeEnd.shouldBeEqualComparingTo(DATA[0].ownershipHistory[index].dateRangeEnd)
+        actual.symbol.shouldBeEqualComparingTo(DATA[0].ownershipHistory[index].symbol)
+        actual.totalShares.shouldBeEqualComparingTo(DATA[0].ownershipHistory[index].totalShares)
       }
     }
   }
