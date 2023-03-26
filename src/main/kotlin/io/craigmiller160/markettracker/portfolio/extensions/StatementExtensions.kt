@@ -15,5 +15,3 @@ fun List<StatementBatchBinder>.reduceStatementBatches(statement: Statement): Sta
         second(stmt)
       }
     }(statement)
-
-// fun List<() -> Statement>.reduceStatementBatchFunctions(): Statement
