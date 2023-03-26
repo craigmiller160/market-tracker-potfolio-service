@@ -52,7 +52,7 @@ class DatabaseClientSharesOwnedRepository(
                     first().add()
                     second()
                   }
-                }
+                }()
             stmt.execute().toMono()
           }
           .awaitSingle()
