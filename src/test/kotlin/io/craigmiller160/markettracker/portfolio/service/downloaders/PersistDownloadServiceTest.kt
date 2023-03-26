@@ -1,5 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders
 
+import com.github.michaelbull.result.combine
 import com.github.michaelbull.result.getOrThrow
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
@@ -14,7 +15,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import java.math.BigDecimal
 import java.time.LocalDate
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
@@ -60,12 +60,12 @@ constructor(
   @Test
   fun `the portfolios are all persisted`() {
     runBlocking {
-      getPortfolios().toList().shouldHaveSize(0)
-      getSharesOwned().toList().shouldHaveSize(0)
+      getPortfolios().shouldHaveSize(0)
+      getSharesOwned().shouldHaveSize(0)
 
       persistDownloadService.persistPortfolios(DATA).getOrThrow()
 
-      val portfolios = getPortfolios().toList()
+      val portfolios = getPortfolios()
       portfolios.shouldHaveSize(1)
       portfolios[0].let { portfolio ->
         portfolio.id.shouldBeEqualToComparingFields(DATA[0].id)
@@ -73,7 +73,7 @@ constructor(
         portfolio.name.shouldBeEqualToComparingFields(DATA[0].name)
       }
 
-      val sharesOwned = getSharesOwned().toList()
+      val sharesOwned = getSharesOwned()
       sharesOwned.shouldHaveSize(2)
       sharesOwned.forEachIndexed { index, actual ->
         actual.id.shouldBeEqualToComparingFields(DATA[0].ownershipHistory[index].id)
@@ -91,8 +91,22 @@ constructor(
     }
   }
 
-  private suspend fun getPortfolios(): Flow<Portfolio> =
-      databaseClient.sql("SELECT * FROM portfolios").map(portfolioRowMapper).all().asFlow()
-  private suspend fun getSharesOwned(): Flow<SharesOwned> =
-      databaseClient.sql("SELECT * FROM shares_owned").map(sharesOwnedRowMapper).all().asFlow()
+  private suspend fun getPortfolios(): List<Portfolio> =
+      databaseClient
+          .sql("SELECT * FROM portfolios")
+          .map(portfolioRowMapper)
+          .all()
+          .asFlow()
+          .toList()
+          .combine()
+          .getOrThrow()
+  private suspend fun getSharesOwned(): List<SharesOwned> =
+      databaseClient
+          .sql("SELECT * FROM shares_owned")
+          .map(sharesOwnedRowMapper)
+          .all()
+          .asFlow()
+          .toList()
+          .combine()
+          .getOrThrow()
 }
