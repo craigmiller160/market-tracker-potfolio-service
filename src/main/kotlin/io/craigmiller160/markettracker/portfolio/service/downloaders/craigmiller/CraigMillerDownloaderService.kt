@@ -90,7 +90,7 @@ class CraigMillerDownloaderService(
     return response.values
         .drop(1)
         .map { CraigMillerTransactionRecord.fromRaw(it) }
-        .combine()
+        .sequence()
         .map { recordsToSharesOwned(portfolioId, it) }
         .map { ownershipHistory ->
           PortfolioWithHistory(
