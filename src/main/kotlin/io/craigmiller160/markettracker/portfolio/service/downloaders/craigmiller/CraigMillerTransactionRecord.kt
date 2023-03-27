@@ -1,11 +1,9 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.zip
-import io.craigmiller160.markettracker.portfolio.functions.KtResult
-import io.craigmiller160.markettracker.portfolio.functions.ktRunCatching
-import java.lang.IllegalArgumentException
+import arrow.core.Either
+import arrow.core.continuations.either
+import io.craigmiller160.markettracker.portfolio.extensions.TryEither
+import io.craigmiller160.markettracker.portfolio.extensions.leftIfNull
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -33,31 +31,30 @@ data class CraigMillerTransactionRecord(
   companion object
 }
 
-fun Action.Companion.fromLabel(label: String): KtResult<Action> =
-    Action.values().find { it.label == label }?.let { Ok(it) }
-        ?: Err(IllegalArgumentException("Invalid label for action: $label"))
+fun Action.Companion.fromLabel(label: String): TryEither<Action> =
+    Action.values().find { it.label == label }.leftIfNull("Invalid label for action: $label")
 
 private val transactionDateFormat = DateTimeFormatter.ofPattern("M/d/yyyy")
 
 fun CraigMillerTransactionRecord.Companion.fromRaw(
     rawRecord: List<String>
-): KtResult<CraigMillerTransactionRecord> {
-  val dateResult = ktRunCatching { LocalDate.parse(rawRecord[0], transactionDateFormat) }
+): TryEither<CraigMillerTransactionRecord> {
+  val dateResult = Either.catch { LocalDate.parse(rawRecord[0], transactionDateFormat) }
   val actionResult = Action.fromLabel(rawRecord[1])
-  val amountResult = ktRunCatching {
-    rawRecord[2].replace(Regex("^\\$"), "").let { BigDecimal(it) }
-  }
+  val amountResult = Either.catch { rawRecord[2].replace(Regex("^\\$"), "").let { BigDecimal(it) } }
 
   val symbol = if (rawRecord.size >= 4) rawRecord[3] else ""
   val sharesResult =
-      if (rawRecord.size >= 5) ktRunCatching { BigDecimal(rawRecord[4]) } else Ok(BigDecimal("0"))
-  return zip({ dateResult }, { actionResult }, { amountResult }, { sharesResult }) {
-      date,
-      action,
-      amount,
-      shares ->
+      if (rawRecord.size >= 5) Either.catch { BigDecimal(rawRecord[4]) }
+      else Either.Right(BigDecimal("0"))
+
+  return either.eager {
     CraigMillerTransactionRecord(
-        date = date, action = action, amount = amount, shares = shares, symbol = symbol)
+        date = dateResult.bind(),
+        action = actionResult.bind(),
+        amount = amountResult.bind(),
+        symbol = symbol,
+        shares = sharesResult.bind())
   }
 }
 

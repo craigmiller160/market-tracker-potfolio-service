@@ -1,9 +1,9 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
+import arrow.core.Either
+import arrow.core.flatMap
+import arrow.core.sequence
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.michaelbull.result.combine
-import com.github.michaelbull.result.flatMap
-import com.github.michaelbull.result.map
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.crypto.RSASSASigner
@@ -15,11 +15,10 @@ import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderCon
 import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
+import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.awaitBodyResult
 import io.craigmiller160.markettracker.portfolio.extensions.decodePrivateKeyPem
 import io.craigmiller160.markettracker.portfolio.extensions.retrieveSuccess
-import io.craigmiller160.markettracker.portfolio.functions.KtResult
-import io.craigmiller160.markettracker.portfolio.functions.ktRunCatching
 import io.craigmiller160.markettracker.portfolio.service.downloaders.DownloaderService
 import java.math.BigDecimal
 import java.nio.file.Files
@@ -59,7 +58,7 @@ class CraigMillerDownloaderService(
   }
 
   private val log = LoggerFactory.getLogger(javaClass)
-  override suspend fun download(): KtResult<List<PortfolioWithHistory>> {
+  override suspend fun download(): TryEither<List<PortfolioWithHistory>> {
     log.info("Beginning download of Craig Miller portfolio data")
     val serviceAccount = readServiceAccount()
 
@@ -71,22 +70,22 @@ class CraigMillerDownloaderService(
               .map { (name, response) ->
                 response.awaitBodyResult<GoogleSpreadsheetValues>().map { name to it }
               }
-              .combine()
+              .sequence()
         }
         .flatMap { responsesToPortfolios(it) }
   }
 
   private fun responsesToPortfolios(
       responses: List<Pair<String, GoogleSpreadsheetValues>>
-  ): KtResult<List<PortfolioWithHistory>> {
+  ): TryEither<List<PortfolioWithHistory>> {
     log.debug("Parsing and formatting google spreadsheet responses")
-    return responses.map { (name, response) -> transformResponse(name, response) }.combine()
+    return responses.map { (name, response) -> transformResponse(name, response) }.sequence()
   }
 
   private fun transformResponse(
       portfolioName: String,
       response: GoogleSpreadsheetValues
-  ): KtResult<PortfolioWithHistory> {
+  ): TryEither<PortfolioWithHistory> {
     val portfolioId = TypedId<PortfolioId>()
     return response.values
         .drop(1)
@@ -182,7 +181,7 @@ class CraigMillerDownloaderService(
   private suspend fun getAccessToken(
       serviceAccount: GoogleApiServiceAccount,
       jwt: String
-  ): KtResult<String> {
+  ): TryEither<String> {
     log.debug("Authenticating for service account ${serviceAccount.clientEmail}")
     val tokenBody =
         LinkedMultiValueMap<String, String>().apply {
@@ -220,29 +219,31 @@ class CraigMillerDownloaderService(
             .let { objectMapper.readValue(it, GoogleApiServiceAccount::class.java) }
       }
 
-  private fun createJwt(serviceAccount: GoogleApiServiceAccount): KtResult<String> = ktRunCatching {
-    log.debug("Creating JWT for service account ${serviceAccount.clientEmail}")
-    val nowUtc = ZonedDateTime.now(ZoneId.of("UTC"))
-    val header = JWSHeader.Builder(JWSAlgorithm.RS256).keyID(serviceAccount.privateKeyId).build()
-    val claims =
-        mapOf(
-                "sub" to serviceAccount.clientEmail,
-                "iss" to serviceAccount.clientEmail,
-                "scope" to SPREADSHEET_SCOPE,
-                "aud" to serviceAccount.tokenUri,
-                "iat" to nowUtc.toEpochSecond(),
-                "exp" to nowUtc.plusMinutes(30).toEpochSecond())
-            .let { JWTClaimsSet.parse(it) }
+  private fun createJwt(serviceAccount: GoogleApiServiceAccount): TryEither<String> =
+      Either.catch {
+        log.debug("Creating JWT for service account ${serviceAccount.clientEmail}")
+        val nowUtc = ZonedDateTime.now(ZoneId.of("UTC"))
+        val header =
+            JWSHeader.Builder(JWSAlgorithm.RS256).keyID(serviceAccount.privateKeyId).build()
+        val claims =
+            mapOf(
+                    "sub" to serviceAccount.clientEmail,
+                    "iss" to serviceAccount.clientEmail,
+                    "scope" to SPREADSHEET_SCOPE,
+                    "aud" to serviceAccount.tokenUri,
+                    "iat" to nowUtc.toEpochSecond(),
+                    "exp" to nowUtc.plusMinutes(30).toEpochSecond())
+                .let { JWTClaimsSet.parse(it) }
 
-    val signer =
-        serviceAccount.privateKey
-            .decodePrivateKeyPem()
-            .let { PKCS8EncodedKeySpec(it) }
-            .let { KeyFactory.getInstance("RSA").generatePrivate(it) }
-            .let { RSASSASigner(it) }
+        val signer =
+            serviceAccount.privateKey
+                .decodePrivateKeyPem()
+                .let { PKCS8EncodedKeySpec(it) }
+                .let { KeyFactory.getInstance("RSA").generatePrivate(it) }
+                .let { RSASSASigner(it) }
 
-    SignedJWT(header, claims).also { it.sign(signer) }.serialize()
-  }
+        SignedJWT(header, claims).also { it.sign(signer) }.serialize()
+      }
 }
 
 private data class TotalSharesHolder(val shares: BigDecimal, val date: LocalDate)
