@@ -32,7 +32,8 @@ class CraigMillerTransactionRecordTest {
                 Either.Left(
                     DateTimeParseException("Text 'abc' could not be parsed at index 0", "abc", 0)),
             listOf("1/1/2020", "Foo", "$1.00", "VTI", "1.1") to
-                Either.Left(IllegalArgumentException("Invalid label for action: Foo")),
+                Either.Left(
+                    java.lang.NullPointerException("Value is null: Invalid label for action: Foo")),
             listOf("1/1/2020", "Buy", "abc", "VTI", "1.1") to
                 Either.Left(
                     NumberFormatException(
