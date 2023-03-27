@@ -3,7 +3,7 @@ package io.craigmiller160.markettracker.portfolio.domain.rowmappers
 import io.r2dbc.spi.Row
 import io.r2dbc.spi.RowMetadata
 
-class MockRow(private val map: Map<String, Any>) : Row {
+class MockRow(private val map: Map<String, Any?>) : Row {
   override fun <T : Any?> get(index: Int, type: Class<T>): T? {
     TODO("Not yet implemented")
   }
