@@ -9,6 +9,7 @@ import java.util.UUID
 
 val portfolioRowMapper: RowMapper<Portfolio> = { row, metadata ->
   either.eager {
+    // TODO handle type exceptions
     val id = row.get("id", UUID::class.java).leftIfNull("Missing id column").bind()
     val userId = row.get("user_id", UUID::class.java).leftIfNull("Missing user_id column").bind()
     val name = row.get("name", String::class.java).leftIfNull("Missing name column").bind()

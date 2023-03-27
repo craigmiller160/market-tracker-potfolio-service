@@ -9,6 +9,7 @@ import java.util.UUID
 
 val sharesOwnedRowMapper: RowMapper<SharesOwned> = { row, metadata ->
   either.eager {
+    // TODO handle type exceptions
     val dateRangeString =
         row.get("date_range", String::class.java).leftIfNull("Missing date_range column").bind()
     val id = row.get("id", UUID::class.java).leftIfNull("Missing id column").bind()
