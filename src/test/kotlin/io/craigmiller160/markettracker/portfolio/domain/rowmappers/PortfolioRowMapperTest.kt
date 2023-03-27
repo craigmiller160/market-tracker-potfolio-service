@@ -7,6 +7,8 @@ import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.r2dbc.spi.RowMetadata
 import java.util.UUID
@@ -34,7 +36,10 @@ class PortfolioRowMapperTest {
           base + mapOf("name" to null) to
               Either.Left(NullPointerException("Value is null: Missing name column")),
           base + mapOf("id" to "Hello") to
-              Either.Left(ClassCastException("Invalid type: java.util.UUID")))
+              Either.Left(
+                  IllegalArgumentException(
+                      "Error getting column id",
+                      ClassCastException("Invalid type: java.util.UUID"))))
     }
   }
 
@@ -48,7 +53,14 @@ class PortfolioRowMapperTest {
     val actual = portfolioRowMapper(row, metadata)
     when (expected) {
       is Either.Right -> actual.shouldBeRight(expected.value)
-      is Either.Left -> actual.shouldBeLeft(expected.value)
+      is Either.Left -> {
+        val actualException = actual.shouldBeLeft(expected.value)
+        if (expected.value.cause != null) {
+          actualException.cause.shouldNotBeNull()
+          actualException.cause!!.javaClass.shouldBe(expected.value.cause!!.javaClass)
+          actualException.cause!!.message.shouldBe(expected.value.cause!!.message)
+        }
+      }
     }
   }
 }
