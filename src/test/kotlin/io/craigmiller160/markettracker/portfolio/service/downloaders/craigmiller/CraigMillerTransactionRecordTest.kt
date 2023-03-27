@@ -10,7 +10,6 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 import java.util.stream.Stream
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
@@ -69,7 +68,7 @@ class CraigMillerTransactionRecordTest {
   @ParameterizedTest
   @EnumSource(Action::class)
   fun `Action fromLabel, success`(action: Action) {
-    Action.fromLabel(action.label).shouldBeRight { "Unable to parse label" }
+    Action.fromLabel(action.label).shouldBeRight()
   }
 
   @Test
@@ -88,7 +87,8 @@ class CraigMillerTransactionRecordTest {
 
   @Test
   fun `Action fromLabel, fail`() {
-    Action.fromLabel("foo").shouldBeLeft(IllegalArgumentException("Invalid label for action: foo"))
+    Action.fromLabel("foo")
+        .shouldBeLeft(NullPointerException("Value is null: Invalid label for action: foo"))
   }
 
   @ParameterizedTest
@@ -99,8 +99,8 @@ class CraigMillerTransactionRecordTest {
     val (list, expected) = pair
     val actual = CraigMillerTransactionRecord.fromRaw(list)
     when (expected) {
-      is Either.Right -> assertEquals(expected, actual)
-      is Either.Left -> assertEquals(expected.toString(), actual.toString())
+      is Either.Right -> actual.shouldBeRight(expected.value)
+      is Either.Left -> actual.shouldBeLeft(expected.value)
     }
   }
 

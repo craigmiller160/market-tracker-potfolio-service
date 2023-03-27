@@ -11,7 +11,7 @@ suspend fun <A, B, C> Either<A, B>.coFlatMap(block: suspend (B) -> Either<A, C>)
     }
 
 fun <T> T?.leftIfNull(message: String): TryEither<T> =
-    Either.Left(NullPointerException("Value is null: $message"))
+    this?.let { Either.Right(it) } ?: Either.Left(NullPointerException("Value is null: $message"))
 
 fun <B, C> TryEither<B>.mapCatch(block: (B) -> C): TryEither<C> = flatMap { value ->
   Either.catch { block(value) }
