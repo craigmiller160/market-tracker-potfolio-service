@@ -39,7 +39,17 @@ class PortfolioRowMapperTest {
               Either.Left(
                   IllegalArgumentException(
                       "Error getting column id",
-                      ClassCastException("Invalid type: java.util.UUID"))))
+                      ClassCastException("Invalid type: java.util.UUID"))),
+          base + mapOf("user_id" to "Hello") to
+              Either.Left(
+                  IllegalArgumentException(
+                      "Error getting column user_id",
+                      ClassCastException("Invalid type: java.util.UUID"))),
+          base + mapOf("name" to 123) to
+              Either.Left(
+                  IllegalArgumentException(
+                      "Error getting column name",
+                      ClassCastException("Invalid type: java.lang.String"))))
     }
   }
 
