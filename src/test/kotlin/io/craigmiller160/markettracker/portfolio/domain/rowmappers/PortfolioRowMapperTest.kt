@@ -32,7 +32,9 @@ class PortfolioRowMapperTest {
           base + mapOf("user_id" to null) to
               Either.Left(NullPointerException("Value is null: Missing user_id column")),
           base + mapOf("name" to null) to
-              Either.Left(NullPointerException("Value is null: Missing name column")))
+              Either.Left(NullPointerException("Value is null: Missing name column")),
+          base + mapOf("id" to "Hello") to
+              Either.Left(ClassCastException("Invalid type: java.util.UUID")))
     }
   }
 

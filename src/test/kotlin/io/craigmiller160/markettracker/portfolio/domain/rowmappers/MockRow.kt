@@ -8,7 +8,13 @@ class MockRow(private val map: Map<String, Any?>) : Row {
     TODO("Not yet implemented")
   }
 
-  override fun <T : Any?> get(name: String, type: Class<T>): T? = map[name] as T
+  override fun <T : Any?> get(name: String, type: Class<T>): T? {
+    val value = map[name] ?: return null
+    if (!type.isAssignableFrom(value.javaClass)) {
+      throw ClassCastException("Invalid type: ${type.name}")
+    }
+    return value as T
+  }
 
   override fun getMetadata(): RowMetadata {
     TODO("Not yet implemented")
