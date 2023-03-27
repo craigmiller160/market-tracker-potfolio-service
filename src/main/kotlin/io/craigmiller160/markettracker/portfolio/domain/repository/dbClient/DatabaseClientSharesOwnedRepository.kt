@@ -1,5 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.domain.repository.dbClient
 
+import arrow.core.Either
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.models.dateRange
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
@@ -30,8 +31,8 @@ class DatabaseClientSharesOwnedRepository(
 
   private suspend fun createAsBatch(
       sharesOwned: List<SharesOwned>
-  ): suspend (String) -> KtResult<List<Long>> = { sql ->
-    ktRunCatching {
+  ): suspend (String) -> TryEither<List<Long>> = { sql ->
+    Either.catch {
       databaseClient
           .inConnectionMany { conn ->
             val statement = conn.createStatement(sql)

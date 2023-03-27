@@ -1,13 +1,13 @@
 package io.craigmiller160.markettracker.portfolio.domain.rowmappers
 
+import arrow.core.Either
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.BasePortfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
-import io.craigmiller160.markettracker.portfolio.functions.ktRunCatching
 import java.util.UUID
 
 val portfolioRowMapper: RowMapper<Portfolio> = { row, metadata ->
-  ktRunCatching {
+  Either.catch {
     BasePortfolio(
         id = TypedId(row.get("id", UUID::class.java)!!),
         userId = TypedId(row.get("user_id", UUID::class.java)!!),
