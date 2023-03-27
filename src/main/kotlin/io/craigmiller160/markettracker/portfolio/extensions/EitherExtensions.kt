@@ -9,3 +9,6 @@ suspend fun <A, B, C> Either<A, B>.coFlatMap(block: suspend (B) -> Either<A, C>)
     flatMap {
       block(it)
     }
+
+fun <T> T?.leftIfNull(message: String): TryEither<T> =
+    Either.Left(NullPointerException("Value is null: $message"))
