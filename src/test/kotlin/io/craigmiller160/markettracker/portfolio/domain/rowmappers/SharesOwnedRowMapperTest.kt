@@ -2,6 +2,7 @@ package io.craigmiller160.markettracker.portfolio.domain.rowmappers
 
 import arrow.core.Either
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
+import io.craigmiller160.markettracker.portfolio.domain.models.toDateRange
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
@@ -9,6 +10,9 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.r2dbc.spi.RowMetadata
+import java.math.BigDecimal
+import java.time.LocalDate
+import java.util.UUID
 import java.util.stream.Stream
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -19,6 +23,21 @@ class SharesOwnedRowMapperTest {
   companion object {
     @JvmStatic
     fun sharesOwnedData(): Stream<SharesOwnedData> {
+      val id = UUID.randomUUID()
+      val userId = UUID.randomUUID()
+      val portfolioId = UUID.randomUUID()
+      val dateRangeStart = LocalDate.of(2020, 1, 1)
+      val dateRangeEnd = LocalDate.of(2020, 2, 1)
+      val symbol = "VTI"
+      val totalShares = BigDecimal("10")
+      val base =
+          mapOf(
+              "id" to id,
+              "user_id" to userId,
+              "portfolio_id" to portfolioId,
+              "date_range" to SharesOwned.toDateRange(dateRangeStart, dateRangeEnd),
+              "symbol" to symbol,
+              "total_shares" to totalShares)
       TODO()
     }
   }
