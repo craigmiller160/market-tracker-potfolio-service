@@ -65,10 +65,10 @@ class PortfolioRowMapperTest {
       is Either.Right -> actual.shouldBeRight(expected.value)
       is Either.Left -> {
         val actualException = actual.shouldBeLeft(expected.value)
-        if (expected.value.cause != null) {
-          actualException.cause.shouldNotBeNull()
-          actualException.cause!!.javaClass.shouldBe(expected.value.cause!!.javaClass)
-          actualException.cause!!.message.shouldBe(expected.value.cause!!.message)
+        expected.value.cause?.let { expectedCause ->
+          val actualCause = actualException.cause.shouldNotBeNull()
+          actualCause.javaClass.shouldBe(expectedCause.javaClass)
+          actualCause.message.shouldBe(expectedCause.message)
         }
       }
     }
