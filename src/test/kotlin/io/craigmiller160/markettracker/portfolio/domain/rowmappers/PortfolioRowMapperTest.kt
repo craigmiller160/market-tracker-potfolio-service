@@ -16,7 +16,7 @@ import java.util.stream.Stream
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-typealias PortfolioData = Pair<Map<String, Any?>, TryEither<Portfolio>>
+private typealias PortfolioData = Pair<Map<String, Any?>, TryEither<Portfolio>>
 
 class PortfolioRowMapperTest {
   companion object {
