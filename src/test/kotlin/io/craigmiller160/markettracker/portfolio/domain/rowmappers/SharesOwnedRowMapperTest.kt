@@ -1,6 +1,7 @@
 package io.craigmiller160.markettracker.portfolio.domain.rowmappers
 
 import arrow.core.Either
+import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.models.toDateRange
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
@@ -38,7 +39,17 @@ class SharesOwnedRowMapperTest {
               "date_range" to SharesOwned.toDateRange(dateRangeStart, dateRangeEnd),
               "symbol" to symbol,
               "total_shares" to totalShares)
-      TODO()
+      val sharesOwned =
+          SharesOwned(
+              id = TypedId(id),
+              userId = TypedId(userId),
+              portfolioId = TypedId(portfolioId),
+              dateRangeStart = dateRangeStart,
+              dateRangeEnd = dateRangeEnd,
+              symbol = symbol,
+              totalShares = totalShares)
+      TODO("Add more conditions")
+      return Stream.of(base to Either.Right(sharesOwned))
     }
   }
 
