@@ -1,8 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.extensions
 
-import io.craigmiller160.markettracker.portfolio.functions.KtResult
-import io.craigmiller160.markettracker.portfolio.functions.ktRunCatching
-import java.lang.RuntimeException
+import arrow.core.Either
 import org.springframework.http.HttpStatusCode
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
@@ -11,10 +9,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.reactive.function.client.awaitBody
 import reactor.core.publisher.Mono
 
-suspend inline fun <reified T : Any> WebClient.ResponseSpec.awaitBodyResult(): KtResult<T> =
-    ktRunCatching {
-      awaitBody<T>()
-    }
+suspend inline fun <reified T : Any> WebClient.ResponseSpec.awaitBodyResult(): TryEither<T> =
+    Either.catch { awaitBody<T>() }
 
 private fun responseToException(stackTraceSource: Throwable): (ClientResponse) -> Mono<Throwable> =
     { response ->

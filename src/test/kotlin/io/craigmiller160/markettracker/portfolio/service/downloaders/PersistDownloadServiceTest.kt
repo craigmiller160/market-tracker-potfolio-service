@@ -1,7 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders
 
-import com.github.michaelbull.result.combine
-import com.github.michaelbull.result.getOrThrow
+import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
@@ -11,6 +10,7 @@ import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.rowmappers.portfolioRowMapper
 import io.craigmiller160.markettracker.portfolio.domain.rowmappers.sharesOwnedRowMapper
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
@@ -64,7 +64,7 @@ constructor(
       getPortfolios().shouldHaveSize(0)
       getSharesOwned().shouldHaveSize(0)
 
-      persistDownloadService.persistPortfolios(DATA).getOrThrow()
+      persistDownloadService.persistPortfolios(DATA).shouldBeRight()
 
       val portfolios = getPortfolios()
       portfolios.shouldHaveSize(1)
@@ -96,8 +96,8 @@ constructor(
           .all()
           .asFlow()
           .toList()
-          .combine()
-          .getOrThrow()
+          .sequence()
+          .shouldBeRight()
   private suspend fun getSharesOwned(): List<SharesOwned> =
       databaseClient
           .sql("SELECT * FROM shares_owned")
@@ -105,6 +105,6 @@ constructor(
           .all()
           .asFlow()
           .toList()
-          .combine()
-          .getOrThrow()
+          .sequence()
+          .shouldBeRight()
 }

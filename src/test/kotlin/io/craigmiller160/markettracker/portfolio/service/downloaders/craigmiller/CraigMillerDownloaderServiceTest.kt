@@ -1,16 +1,15 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
+import arrow.core.Either
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.michaelbull.result.getOrThrow
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
-import io.craigmiller160.markettracker.portfolio.functions.ktRunCatching
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DataLoader
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
-import java.lang.AssertionError
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlinx.coroutines.runBlocking
@@ -82,7 +81,7 @@ constructor(
           })
     }
 
-    val result = runBlocking { service.download() }.getOrThrow()
+    val result = runBlocking { service.download() }.shouldBeRight()
 
     result.shouldHaveSize(3)
 
@@ -95,9 +94,10 @@ constructor(
 
       writeDataForDebugging(index, expectedSharesOwned, actualSharesOwned)
 
-      actualSharesOwned.shouldHaveSize(expectedSharesOwned.size).forEachIndexed { index, actual ->
-        ktRunCatching {
-              val expected = expectedSharesOwned[index]
+      actualSharesOwned.shouldHaveSize(expectedSharesOwned.size).forEachIndexed { innerIndex, actual
+        ->
+        Either.catch {
+              val expected = expectedSharesOwned[innerIndex]
               actual.userId.shouldBeEqualComparingTo(expected.userId)
               actual.portfolioId.shouldBeEqualComparingTo(expected.portfolioId)
               actual.dateRangeStart.shouldBeEqualComparingTo(expected.dateRangeStart)
@@ -105,7 +105,9 @@ constructor(
               actual.symbol.shouldBeEqualComparingTo(expected.symbol)
               actual.totalShares.shouldBeEqualComparingTo(expected.totalShares)
             }
-            .getOrThrow { ex -> AssertionError("Error validating record $index", ex) }
+            .shouldBeRight {
+              "Error validating record $innerIndex"
+            } // TODO make sure this has the desired affect
       }
     }
   }

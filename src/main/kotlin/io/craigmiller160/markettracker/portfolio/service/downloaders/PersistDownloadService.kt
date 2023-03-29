@@ -1,12 +1,11 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders
 
-import com.github.michaelbull.result.combine
-import com.github.michaelbull.result.flatMap
-import com.github.michaelbull.result.map
+import arrow.core.flatMap
+import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
-import io.craigmiller160.markettracker.portfolio.functions.KtResult
+import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -18,11 +17,11 @@ class PersistDownloadService(
   @Transactional
   suspend fun persistPortfolios(
       portfolios: List<PortfolioWithHistory>
-  ): KtResult<List<PortfolioWithHistory>> = portfolios.map { createPortfolio(it) }.combine()
+  ): TryEither<List<PortfolioWithHistory>> = portfolios.map { createPortfolio(it) }.sequence()
 
   private suspend fun createPortfolio(
       portfolio: PortfolioWithHistory
-  ): KtResult<PortfolioWithHistory> =
+  ): TryEither<PortfolioWithHistory> =
       portfolioRepository
           .createPortfolio(portfolio)
           .flatMap { sharesOwnedRepository.createAllSharesOwned(portfolio.ownershipHistory) }

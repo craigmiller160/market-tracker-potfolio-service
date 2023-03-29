@@ -1,18 +1,15 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.expect
-import com.github.michaelbull.result.expectError
-import com.github.michaelbull.result.getOrThrow
-import io.craigmiller160.markettracker.portfolio.functions.KtResult
+import arrow.core.Either
+import io.craigmiller160.markettracker.portfolio.extensions.TryEither
+import io.kotest.assertions.arrow.core.shouldBeLeft
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 import java.util.stream.Stream
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
@@ -21,10 +18,10 @@ import org.junit.jupiter.params.provider.MethodSource
 class CraigMillerTransactionRecordTest {
   companion object {
     @JvmStatic
-    fun rawRecordValues(): Stream<Pair<List<String>, KtResult<CraigMillerTransactionRecord>>> =
+    fun rawRecordValues(): Stream<Pair<List<String>, TryEither<CraigMillerTransactionRecord>>> =
         Stream.of(
             listOf("1/1/2020", "Buy", "$1.00", "VTI", "1.1") to
-                Ok(
+                Either.Right(
                     CraigMillerTransactionRecord(
                         date = LocalDate.of(2020, 1, 1),
                         action = Action.BUY,
@@ -32,15 +29,17 @@ class CraigMillerTransactionRecordTest {
                         symbol = "VTI",
                         shares = BigDecimal("1.1"))),
             listOf("abc", "Buy", "$1.00", "VTI", "1.1") to
-                Err(DateTimeParseException("Text 'abc' could not be parsed at index 0", "abc", 0)),
+                Either.Left(
+                    DateTimeParseException("Text 'abc' could not be parsed at index 0", "abc", 0)),
             listOf("1/1/2020", "Foo", "$1.00", "VTI", "1.1") to
-                Err(IllegalArgumentException("Invalid label for action: Foo")),
+                Either.Left(
+                    java.lang.NullPointerException("Value is null: Invalid label for action: Foo")),
             listOf("1/1/2020", "Buy", "abc", "VTI", "1.1") to
-                Err(
+                Either.Left(
                     NumberFormatException(
                         "Character a is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark.")),
             listOf("1/1/2020", "Buy", "$1.00", "VTI", "def") to
-                Err(
+                Either.Left(
                     NumberFormatException(
                         "Character d is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark.")))
 
@@ -70,13 +69,13 @@ class CraigMillerTransactionRecordTest {
   @ParameterizedTest
   @EnumSource(Action::class)
   fun `Action fromLabel, success`(action: Action) {
-    Action.fromLabel(action.label).expect { "Unable to parse label" }
+    Action.fromLabel(action.label).shouldBeRight()
   }
 
   @Test
   fun `CraigMillerTransactionRecord fromRaw with only 3 fields`() {
     val raw = listOf("1/1/2020", Action.BONUS.label, "$100.00")
-    val result = CraigMillerTransactionRecord.fromRaw(raw).getOrThrow()
+    val result = CraigMillerTransactionRecord.fromRaw(raw).shouldBeRight()
     val expected =
         CraigMillerTransactionRecord(
             date = LocalDate.of(2020, 1, 1),
@@ -89,21 +88,20 @@ class CraigMillerTransactionRecordTest {
 
   @Test
   fun `Action fromLabel, fail`() {
-    Action.fromLabel("foo").expectError {
-      "${IllegalArgumentException("Invalid label for action: foo")}"
-    }
+    Action.fromLabel("foo")
+        .shouldBeLeft(NullPointerException("Value is null: Invalid label for action: foo"))
   }
 
   @ParameterizedTest
   @MethodSource("rawRecordValues")
   fun `CraigMillerTransactionRecord fromRaw`(
-      pair: Pair<List<String>, KtResult<CraigMillerTransactionRecord>>
+      pair: Pair<List<String>, TryEither<CraigMillerTransactionRecord>>
   ) {
     val (list, expected) = pair
     val actual = CraigMillerTransactionRecord.fromRaw(list)
     when (expected) {
-      is Ok -> assertEquals(expected, actual)
-      is Err -> assertEquals(expected.toString(), actual.toString())
+      is Either.Right -> actual.shouldBeRight(expected.value)
+      is Either.Left -> actual.shouldBeLeft(expected.value)
     }
   }
 

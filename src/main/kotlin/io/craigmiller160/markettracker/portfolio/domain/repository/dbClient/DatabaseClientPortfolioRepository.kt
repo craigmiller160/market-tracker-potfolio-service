@@ -1,12 +1,11 @@
 package io.craigmiller160.markettracker.portfolio.domain.repository.dbClient
 
-import com.github.michaelbull.result.flatMap
-import com.github.michaelbull.result.map
+import arrow.core.Either
+import arrow.core.flatMap
 import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
-import io.craigmiller160.markettracker.portfolio.functions.KtResult
-import io.craigmiller160.markettracker.portfolio.functions.ktRunCatching
+import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.awaitRowsUpdated
 import org.springframework.stereotype.Repository
@@ -20,11 +19,11 @@ class DatabaseClientPortfolioRepository(
     private const val INSERT_PORTFOLIO_SQL = "portfolio/insertPortfolio.sql"
   }
 
-  override suspend fun createPortfolio(portfolio: Portfolio): KtResult<Portfolio> =
+  override suspend fun createPortfolio(portfolio: Portfolio): TryEither<Portfolio> =
       sqlLoader
           .loadSql(INSERT_PORTFOLIO_SQL)
           .flatMap { sql ->
-            ktRunCatching {
+            Either.catch {
               databaseClient
                   .sql(sql)
                   .bind("id", portfolio.id.value)

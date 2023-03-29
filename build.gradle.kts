@@ -46,15 +46,14 @@ dependencies {
     testImplementation("io.craigmiller160:testcontainers-common:1.1.1")
     implementation("org.flywaydb:flyway-core")
     implementation("io.github.craigmiller160:spring-fp-result-kt:2.0.0-SNAPSHOT")
-    implementation("com.michael-bull.kotlin-result:kotlin-result-jvm:$kotlinResultVersion")
-    implementation("com.michael-bull.kotlin-result:kotlin-result-coroutines:$kotlinResultVersion")
+    implementation("io.arrow-kt:arrow-core:1.1.5")
 
     testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
     testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.5")
     implementation("com.github.spullara.mustache.java:compiler:0.9.10")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
     testImplementation("io.mockk:mockk:1.13.4")
+    testImplementation("io.kotest.extensions:kotest-assertions-arrow:1.3.0")
 }
 
 tasks.withType<KotlinCompile> {

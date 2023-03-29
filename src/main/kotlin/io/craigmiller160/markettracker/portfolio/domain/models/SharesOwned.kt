@@ -16,11 +16,15 @@ data class SharesOwned(
     val dateRangeEnd: LocalDate,
     val symbol: String,
     val totalShares: BigDecimal
-)
+) {
+  companion object
+}
 
 val SharesOwned.dateRange: String
-  get() {
-    val startFormatted = dateRangeStart.format(DateTimeFormatter.ISO_DATE)
-    val endFormatted = dateRangeEnd.format(DateTimeFormatter.ISO_DATE)
-    return "[$startFormatted,$endFormatted)"
-  }
+  get() = SharesOwned.toDateRange(dateRangeStart, dateRangeEnd)
+
+fun SharesOwned.Companion.toDateRange(dateRangeStart: LocalDate, dateRangeEnd: LocalDate): String {
+  val startFormatted = dateRangeStart.format(DateTimeFormatter.ISO_DATE)
+  val endFormatted = dateRangeEnd.format(DateTimeFormatter.ISO_DATE)
+  return "[$startFormatted,$endFormatted)"
+}

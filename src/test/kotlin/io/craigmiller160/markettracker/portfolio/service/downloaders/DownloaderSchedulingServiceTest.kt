@@ -1,19 +1,16 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders
 
-import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.getOrThrow
+import arrow.core.Either
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller.CraigMillerDownloaderService
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.junit.jupiter.MockitoExtension
 
-@ExtendWith(MockitoExtension::class)
 class DownloaderSchedulingServiceTest {
   private val craigMillerDownloaderService: CraigMillerDownloaderService = mockk()
   private val persistDownloadService: PersistDownloadService = mockk()
@@ -32,10 +29,10 @@ class DownloaderSchedulingServiceTest {
         PortfolioWithHistory(
             id = TypedId(), userId = TypedId(), name = "Something", ownershipHistory = listOf())
 
-    coEvery { craigMillerDownloaderService.download() } returns Ok(listOf(portfolio))
+    coEvery { craigMillerDownloaderService.download() } returns Either.Right(listOf(portfolio))
     coEvery { persistDownloadService.persistPortfolios(listOf(portfolio)) } returns
-        Ok(listOf(portfolio))
+        Either.Right(listOf(portfolio))
 
-    runBlocking { downloaderSchedulingService.downloadAtInterval() }.getOrThrow()
+    runBlocking { downloaderSchedulingService.downloadAtInterval() }.shouldBeRight(Unit)
   }
 }

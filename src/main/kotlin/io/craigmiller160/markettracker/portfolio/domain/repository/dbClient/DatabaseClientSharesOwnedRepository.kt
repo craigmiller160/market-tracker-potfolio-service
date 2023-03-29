@@ -1,14 +1,13 @@
 package io.craigmiller160.markettracker.portfolio.domain.repository.dbClient
 
-import com.github.michaelbull.result.map
+import arrow.core.Either
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.models.dateRange
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
+import io.craigmiller160.markettracker.portfolio.extensions.TryEither
+import io.craigmiller160.markettracker.portfolio.extensions.coFlatMap
 import io.craigmiller160.markettracker.portfolio.extensions.toSqlBatches
-import io.craigmiller160.markettracker.portfolio.functions.KtResult
-import io.craigmiller160.markettracker.portfolio.functions.coFlatMap
-import io.craigmiller160.markettracker.portfolio.functions.ktRunCatching
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.r2dbc.core.DatabaseClient
@@ -25,15 +24,15 @@ class DatabaseClientSharesOwnedRepository(
   }
   override suspend fun createAllSharesOwned(
       sharesOwned: List<SharesOwned>
-  ): KtResult<List<SharesOwned>> =
+  ): TryEither<List<SharesOwned>> =
       sqlLoader.loadSql(INSERT_SHARES_OWNED_SQL).coFlatMap(createAsBatch(sharesOwned)).map {
         sharesOwned
       }
 
   private suspend fun createAsBatch(
       sharesOwned: List<SharesOwned>
-  ): suspend (String) -> KtResult<List<Long>> = { sql ->
-    ktRunCatching {
+  ): suspend (String) -> TryEither<List<Long>> = { sql ->
+    Either.catch {
       databaseClient
           .inConnectionMany { conn ->
             val statement = conn.createStatement(sql)
