@@ -11,6 +11,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.r2dbc.spi.RowMetadata
+import java.lang.IllegalArgumentException
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.UUID
@@ -48,9 +49,29 @@ class SharesOwnedRowMapperTest {
               dateRangeEnd = dateRangeEnd,
               symbol = symbol,
               totalShares = totalShares)
-      TODO("Add more conditions")
-      return Stream.of(base to Either.Right(sharesOwned))
+      return Stream.of(
+          base to Either.Right(sharesOwned),
+          base + mapOf("id" to null) to nullLeft("id"),
+          base + mapOf("user_id" to null) to nullLeft("user_id"),
+          base + mapOf("portfolio_id" to null) to nullLeft("portfolio_id"),
+          base + mapOf("date_range" to null) to nullLeft("date_range"),
+          base + mapOf("symbol" to null) to nullLeft("symbol"),
+          base + mapOf("total_shares" to null) to nullLeft("total_shares"),
+          base + mapOf("id" to 1) to typeLeft("id", Int::class.java),
+          base + mapOf("user_id" to 1) to typeLeft("user_id", Int::class.java),
+          base + mapOf("portfolio_id" to 1) to typeLeft("portfolio_id", Int::class.java),
+          base + mapOf("date_range" to 1) to typeLeft("date_range", Int::class.java),
+          base + mapOf("symbol" to 1) to typeLeft("symbol", Int::class.java),
+          base + mapOf("total_shares" to 1) to typeLeft("total_shares", Int::class.java))
     }
+
+    private fun typeLeft(column: String, type: Class<*>): Either<Throwable, SharesOwned> =
+        Either.Left(
+            IllegalArgumentException(
+                "Error getting column $column", ClassCastException("Invalid type: ${type.name}")))
+
+    private fun nullLeft(column: String): Either<Throwable, SharesOwned> =
+        Either.Left(NullPointerException("Value is null: Missing $column column"))
   }
 
   private val metadata: RowMetadata = mockk()
