@@ -3,6 +3,7 @@ package io.craigmiller160.markettracker.portfolio.web.controllers
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.BasePortfolio
+import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioNameResponse
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
@@ -38,7 +39,7 @@ constructor(
   }
   @Test
   fun `gets list of portfolio names for user`() {
-    val expectedResponse = portfolios.drop(1).map { portfolio -> TODO() }
+    val expectedResponse = portfolios.drop(1).map { it.toPortfolioNameResponse() }
     webTestClient
         .get()
         .uri("/portfolios/names")
