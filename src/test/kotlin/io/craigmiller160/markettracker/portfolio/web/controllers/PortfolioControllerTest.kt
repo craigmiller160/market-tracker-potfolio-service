@@ -1,10 +1,12 @@
 package io.craigmiller160.markettracker.portfolio.web.controllers
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.BasePortfolio
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,7 +18,8 @@ class PortfolioControllerTest
 constructor(
     private val webTestClient: WebTestClient,
     private val portfolioRepo: PortfolioRepository,
-    private val defaultUsers: DefaultUsers
+    private val defaultUsers: DefaultUsers,
+    private val objectMapper: ObjectMapper
 ) {
 
   private val portfolios =
@@ -31,10 +34,11 @@ constructor(
 
   @BeforeEach
   fun setup() {
-    TODO("Create the portfolios in the db")
+    runBlocking { portfolioRepo.createPortfolios(portfolios) }
   }
   @Test
   fun `gets list of portfolio names for user`() {
+    val expectedResponse = portfolios.drop(1).map { portfolio -> TODO() }
     webTestClient
         .get()
         .uri("/portfolios/names")
@@ -43,6 +47,6 @@ constructor(
         .expectStatus()
         .is2xxSuccessful
         .expectBody()
-    TODO()
+        .json(objectMapper.writeValueAsString(expectedResponse))
   }
 }
