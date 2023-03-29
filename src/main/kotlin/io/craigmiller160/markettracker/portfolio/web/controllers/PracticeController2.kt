@@ -1,7 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.web.controllers
 
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
-import io.craigmiller160.markettracker.portfolio.web.types.PracticeResponse
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
