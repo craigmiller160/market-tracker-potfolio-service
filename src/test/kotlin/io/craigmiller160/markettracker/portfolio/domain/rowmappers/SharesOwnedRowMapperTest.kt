@@ -57,12 +57,12 @@ class SharesOwnedRowMapperTest {
           base + mapOf("date_range" to null) to nullLeft("date_range"),
           base + mapOf("symbol" to null) to nullLeft("symbol"),
           base + mapOf("total_shares" to null) to nullLeft("total_shares"),
-          base + mapOf("id" to 1) to typeLeft("id", Int::class.java),
-          base + mapOf("user_id" to 1) to typeLeft("user_id", Int::class.java),
-          base + mapOf("portfolio_id" to 1) to typeLeft("portfolio_id", Int::class.java),
-          base + mapOf("date_range" to 1) to typeLeft("date_range", Int::class.java),
-          base + mapOf("symbol" to 1) to typeLeft("symbol", Int::class.java),
-          base + mapOf("total_shares" to 1) to typeLeft("total_shares", Int::class.java))
+          base + mapOf("id" to 1) to typeLeft("id", UUID::class.java),
+          base + mapOf("user_id" to 1) to typeLeft("user_id", UUID::class.java),
+          base + mapOf("portfolio_id" to 1) to typeLeft("portfolio_id", UUID::class.java),
+          base + mapOf("date_range" to 1) to typeLeft("date_range", String::class.java),
+          base + mapOf("symbol" to 1) to typeLeft("symbol", String::class.java),
+          base + mapOf("total_shares" to 1) to typeLeft("total_shares", BigDecimal::class.java))
     }
 
     private fun typeLeft(column: String, type: Class<*>): Either<Throwable, SharesOwned> =
