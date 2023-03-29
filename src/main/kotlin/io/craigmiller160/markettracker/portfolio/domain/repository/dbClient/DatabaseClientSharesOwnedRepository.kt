@@ -20,7 +20,7 @@ class DatabaseClientSharesOwnedRepository(
     private val sqlLoader: SqlLoader
 ) : SharesOwnedRepository {
   companion object {
-    private const val INSERT_SHARES_OWNED_SQL = "sharesOwned/insertSharesOwned.sql"
+    private const val INSERT_SHARES_OWNED_SQL = "sharesOwned/insertSharesOwnedBatch.sql"
   }
   override suspend fun createAllSharesOwned(
       sharesOwned: List<SharesOwned>

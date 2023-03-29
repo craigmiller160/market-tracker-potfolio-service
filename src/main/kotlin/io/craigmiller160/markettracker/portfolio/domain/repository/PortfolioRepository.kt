@@ -5,4 +5,6 @@ import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 
 interface PortfolioRepository {
   suspend fun createPortfolio(portfolio: Portfolio): TryEither<Portfolio>
+
+  suspend fun createPortfolios(portfolios: List<Portfolio>): TryEither<List<Portfolio>>
 }
