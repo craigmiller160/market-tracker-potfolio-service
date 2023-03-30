@@ -8,9 +8,8 @@ import org.springframework.web.server.WebExceptionHandler
 
 @Component
 class GlobalExceptionHandler {
-  // TODO figure out how to make this work
   @Bean
-  @Order(-2) // TODO relying on order-based logic to solve my problem, not ideal
+  @Order(-2)
   fun exceptionHandler(): WebExceptionHandler = WebExceptionHandler { exchange, ex ->
     exchange.response.apply { statusCode = HttpStatus.BAD_REQUEST }.setComplete()
   }
