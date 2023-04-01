@@ -13,8 +13,8 @@ import org.springframework.web.reactive.function.server.ServerResponse
 class PortfolioRoutesHolder {
   @Bean
   fun portfolioRoutes(handler: PortfolioHandler): RouterFunction<ServerResponse> = coSwaggerRouter {
-    GET("/portfolios/names", handler::getPortfolioNames) {
-      it.operationId("getPortfolioNames")
+    GET("/portfolios", handler::getPortfolios) {
+      it.operationId("getPortfolios")
           .response(
               SwaggerBuilders.responseBuilder()
                   .responseCode("200")

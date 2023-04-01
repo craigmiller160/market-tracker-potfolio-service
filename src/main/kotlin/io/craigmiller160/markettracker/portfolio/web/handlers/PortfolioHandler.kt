@@ -8,6 +8,6 @@ import org.springframework.web.reactive.function.server.ServerResponse
 
 @Component
 class PortfolioHandler(private val portfolioService: PortfolioService) {
-  suspend fun getPortfolioNames(request: ServerRequest): ServerResponse =
-      portfolioService.getPortfolioNames().toResponse()
+  suspend fun getPortfolios(request: ServerRequest): ServerResponse =
+      portfolioService.getPortfolios().toResponse()
 }

@@ -11,7 +11,7 @@ class PortfolioService(
     private val portfolioRepository: PortfolioRepository,
     private val authorizationService: AuthorizationService
 ) {
-  suspend fun getPortfolioNames(): TryEither<List<PortfolioNameResponse>> =
+  suspend fun getPortfolios(): TryEither<List<PortfolioNameResponse>> =
       portfolioRepository.findAllForUser(authorizationService.getUserId()).map { portfolios ->
         portfolios.map { it.toPortfolioNameResponse() }
       }
