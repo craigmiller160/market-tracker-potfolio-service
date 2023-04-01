@@ -18,11 +18,12 @@ class DownloaderSchedulingService(
   private val log = LoggerFactory.getLogger(javaClass)
 
   @Scheduled(fixedRateString = "#{\${downloaders.interval-rate-hours} * 60 * 60 * 1000}")
-  fun downloadAtInterval(): TryEither<Unit> = runBlocking {
-    craigMillerDownloaderService
-        .download()
-        .flatMap { persistDownloadService.persistPortfolios(it) }
-        .mapLeft { ex -> ex.also { log.error("Error downloading portfolio data", it) } }
-        .map { Unit }
-  }
+  fun downloadAtInterval(): TryEither<Unit> = runBlocking { download() }
+
+  suspend fun download(): TryEither<Unit> =
+      craigMillerDownloaderService
+          .download()
+          .flatMap { persistDownloadService.persistPortfolios(it) }
+          .mapLeft { ex -> ex.also { log.error("Error downloading portfolio data", it) } }
+          .map { Unit }
 }
