@@ -42,7 +42,7 @@ constructor(
     val expectedResponse = portfolios.drop(1).map { it.toPortfolioNameResponse() }
     webTestClient
         .get()
-        .uri("/portfolios/names")
+        .uri("/portfolios")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
