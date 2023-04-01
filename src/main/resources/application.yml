@@ -13,8 +13,6 @@ spring:
     url: r2dbc:${spring.db.baseUrl}
     username: ${spring.db.username}
     password: ${spring.db.password}
-    properties:
-      schema: ${testcontainers.common.postgres.schema}
   flyway:
     url: jdbc:${spring.db.baseUrl}
     user: ${spring.db.username}
@@ -51,5 +49,3 @@ logging:
   level:
     io.craigmiller160: DEBUG
     org.springframework.data.r2dbc: DEBUG
-    io.r2dbc.postgresql.QUERY: DEBUG
-    io.r2dbc.postgresql.PARAM: DEBUG

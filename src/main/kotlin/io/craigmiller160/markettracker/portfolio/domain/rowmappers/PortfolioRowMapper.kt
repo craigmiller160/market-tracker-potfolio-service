@@ -7,7 +7,7 @@ import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.extensions.getRequired
 import java.util.UUID
 
-val portfolioRowMapper: RowMapper<Portfolio> = { row, metadata ->
+val portfolioRowMapper: RowMapper<Portfolio> = { row, _ ->
   either.eager {
     val id = row.getRequired("id", UUID::class.java).bind()
     val userId = row.getRequired("user_id", UUID::class.java).bind()
