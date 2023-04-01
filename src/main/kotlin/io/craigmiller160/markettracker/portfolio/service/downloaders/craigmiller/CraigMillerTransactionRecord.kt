@@ -42,7 +42,10 @@ fun CraigMillerTransactionRecord.Companion.fromRaw(
 ): TryEither<CraigMillerTransactionRecord> {
   val dateResult = Either.catch { LocalDate.parse(rawRecord[0], transactionDateFormat) }
   val actionResult = Action.fromLabel(rawRecord[1])
-  val amountResult = Either.catch { rawRecord[2].replace(Regex("^\\$"), "").let { BigDecimal(it) } }
+  val amountResult =
+      Either.catch {
+        rawRecord[2].replace(Regex("^\\$"), "").replace(",", "").let { BigDecimal(it) }
+      }
 
   val symbol = if (rawRecord.size >= 4) rawRecord[3] else ""
   val sharesResult =
