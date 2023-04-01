@@ -1,4 +1,4 @@
-package io.craigmiller160.markettracker.portfolio.web.controllers
+package io.craigmiller160.markettracker.portfolio.web.routes
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.reactive.server.WebTestClient
 
 @MarketTrackerPortfolioIntegrationTest
-class PortfolioControllerTest
+class PortfolioRoutesTest
 @Autowired
 constructor(
     private val webTestClient: WebTestClient,
