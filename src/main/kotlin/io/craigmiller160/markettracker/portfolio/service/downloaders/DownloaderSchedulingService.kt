@@ -3,6 +3,7 @@ package io.craigmiller160.markettracker.portfolio.service.downloaders
 import arrow.core.flatMap
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller.CraigMillerDownloaderService
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.scheduling.annotation.Scheduled
@@ -17,10 +18,11 @@ class DownloaderSchedulingService(
   private val log = LoggerFactory.getLogger(javaClass)
 
   @Scheduled(fixedRateString = "#{\${downloaders.interval-rate-hours} * 60 * 60 * 1000}")
-  suspend fun downloadAtInterval(): TryEither<Unit> =
-      craigMillerDownloaderService
-          .download()
-          .flatMap { persistDownloadService.persistPortfolios(it) }
-          .mapLeft { ex -> ex.also { log.error("Error downloading portfolio data", it) } }
-          .map { Unit }
+  fun downloadAtInterval(): TryEither<Unit> = runBlocking {
+    craigMillerDownloaderService
+        .download()
+        .flatMap { persistDownloadService.persistPortfolios(it) }
+        .mapLeft { ex -> ex.also { log.error("Error downloading portfolio data", it) } }
+        .map { Unit }
+  }
 }
