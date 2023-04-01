@@ -13,8 +13,6 @@ spring:
     url: r2dbc:${spring.db.baseUrl}
     username: ${spring.db.username}
     password: ${spring.db.password}
-    properties:
-      schema: ${testcontainers.common.postgres.schema}
   flyway:
     url: jdbc:${spring.db.baseUrl}
     user: ${spring.db.username}

@@ -4,6 +4,8 @@ spring:
     password: ${testcontainers.common.postgres.password}
   r2dbc:
     url: ${testcontainers.common.postgres.r2dbcUrl}
+    properties:
+      schema: ${testcontainers.common.postgres.schema}
   flyway:
     url: ${testcontainers.common.postgres.jdbcUrl}
     default-schema: ${testcontainers.common.postgres.schema}
