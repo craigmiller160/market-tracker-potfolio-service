@@ -33,6 +33,6 @@ class DownloaderOrchestrationServiceTest {
     coEvery { persistDownloadService.persistPortfolios(listOf(portfolio)) } returns
         Either.Right(listOf(portfolio))
 
-    runBlocking { downloaderOrchestrationService.downloadAtInterval() }.shouldBeRight(Unit)
+    runBlocking { downloaderOrchestrationService.download() }.shouldBeRight(Unit)
   }
 }
