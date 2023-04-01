@@ -6,6 +6,8 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
@@ -101,7 +103,10 @@ class CraigMillerTransactionRecordTest {
     val actual = CraigMillerTransactionRecord.fromRaw(list)
     when (expected) {
       is Either.Right -> actual.shouldBeRight(expected.value)
-      is Either.Left -> actual.shouldBeLeft(expected.value)
+      is Either.Left -> {
+        val ex = actual.shouldBeLeft()
+        ex.cause.shouldNotBeNull().shouldBe(expected.value)
+      }
     }
   }
 
