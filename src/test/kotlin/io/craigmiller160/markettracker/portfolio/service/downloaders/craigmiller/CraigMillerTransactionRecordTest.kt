@@ -43,7 +43,15 @@ class CraigMillerTransactionRecordTest {
             listOf("1/1/2020", "Buy", "$1.00", "VTI", "def") to
                 Either.Left(
                     NumberFormatException(
-                        "Character d is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark.")))
+                        "Character d is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark.")),
+            listOf("1/1/2020", "Deposit", "$2,000.00", "VTI", "1.1") to
+                Either.Right(
+                    CraigMillerTransactionRecord(
+                        date = LocalDate.of(2020, 1, 1),
+                        action = Action.DEPOSIT,
+                        amount = BigDecimal("2000.00"),
+                        symbol = "VTI",
+                        shares = BigDecimal("1.1"))))
 
     @JvmStatic
     fun comparatorValues():
