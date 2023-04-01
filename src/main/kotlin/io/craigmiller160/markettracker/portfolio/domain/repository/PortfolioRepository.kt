@@ -4,12 +4,11 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
-import kotlinx.coroutines.flow.Flow
 
 interface PortfolioRepository {
   suspend fun createPortfolio(portfolio: Portfolio): TryEither<Portfolio>
 
   suspend fun createPortfolios(portfolios: List<Portfolio>): TryEither<List<Portfolio>>
 
-  suspend fun findAllForUser(userId: TypedId<UserId>): TryEither<Flow<Portfolio>>
+  suspend fun findAllForUser(userId: TypedId<UserId>): TryEither<List<Portfolio>>
 }
