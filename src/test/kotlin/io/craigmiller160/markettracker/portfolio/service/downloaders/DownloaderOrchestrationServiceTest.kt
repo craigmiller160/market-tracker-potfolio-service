@@ -11,16 +11,16 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class DownloaderSchedulingServiceTest {
+class DownloaderOrchestrationServiceTest {
   private val craigMillerDownloaderService: CraigMillerDownloaderService = mockk()
   private val persistDownloadService: PersistDownloadService = mockk()
 
-  private lateinit var downloaderSchedulingService: DownloaderSchedulingService
+  private lateinit var downloaderOrchestrationService: DownloaderOrchestrationService
 
   @BeforeEach
   fun setup() {
-    downloaderSchedulingService =
-        DownloaderSchedulingService(craigMillerDownloaderService, persistDownloadService)
+    downloaderOrchestrationService =
+        DownloaderOrchestrationService(craigMillerDownloaderService, persistDownloadService)
   }
 
   @Test
@@ -33,6 +33,6 @@ class DownloaderSchedulingServiceTest {
     coEvery { persistDownloadService.persistPortfolios(listOf(portfolio)) } returns
         Either.Right(listOf(portfolio))
 
-    runBlocking { downloaderSchedulingService.downloadAtInterval() }.shouldBeRight(Unit)
+    runBlocking { downloaderOrchestrationService.downloadAtInterval() }.shouldBeRight(Unit)
   }
 }

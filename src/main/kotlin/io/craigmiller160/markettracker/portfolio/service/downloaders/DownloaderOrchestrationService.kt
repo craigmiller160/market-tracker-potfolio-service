@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
 
 @Service
 @ConditionalOnProperty(name = ["downloaders.enable-schedule"], havingValue = "true")
-class DownloaderSchedulingService(
+class DownloaderOrchestrationService(
     private val craigMillerDownloaderService: CraigMillerDownloaderService,
     private val persistDownloadService: PersistDownloadService
 ) {
