@@ -9,17 +9,12 @@ class EitherToResponseTest {
   }
 
   @Test
-  fun `converts a Left into a 500 response`() {
+  fun `throws exception for Left`() {
     TODO()
   }
 
   @Test
   fun `converts a Right into a 202 response with custom headers`() {
-    TODO()
-  }
-
-  @Test
-  fun `converts a Left into a 400 response with custom headers`() {
     TODO()
   }
 }
