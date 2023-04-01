@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.continuations.either
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.leftIfNull
+import io.craigmiller160.markettracker.portfolio.service.downloaders.DownloadParsingException
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -48,14 +49,16 @@ fun CraigMillerTransactionRecord.Companion.fromRaw(
       if (rawRecord.size >= 5) Either.catch { BigDecimal(rawRecord[4]) }
       else Either.Right(BigDecimal("0"))
 
-  return either.eager {
-    CraigMillerTransactionRecord(
-        date = dateResult.bind(),
-        action = actionResult.bind(),
-        amount = amountResult.bind(),
-        symbol = symbol,
-        shares = sharesResult.bind())
-  }
+  return either
+      .eager {
+        CraigMillerTransactionRecord(
+            date = dateResult.bind(),
+            action = actionResult.bind(),
+            amount = amountResult.bind(),
+            symbol = symbol,
+            shares = sharesResult.bind())
+      }
+      .mapLeft { ex -> DownloadParsingException("Error parsing raw download: $rawRecord", ex) }
 }
 
 private fun convertResult(result: Int): Int {
