@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 
 @Service
-@ConditionalOnProperty(name = ["downloaders.enable"], havingValue = "")
+@ConditionalOnProperty(name = ["downloaders.enable-schedule"], havingValue = "true")
 class DownloaderSchedulingService(
     private val craigMillerDownloaderService: CraigMillerDownloaderService,
     private val persistDownloadService: PersistDownloadService

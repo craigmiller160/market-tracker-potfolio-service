@@ -28,7 +28,7 @@ jwt:
       principal-attribute: preferred_username
 
 downloaders:
-  enable: false
+  enable-schedule: false
   interval-rate-hours: 3
   craigmiller:
     user-id: 2e0eccce-1f64-4d13-a269-fda027f5ddee
