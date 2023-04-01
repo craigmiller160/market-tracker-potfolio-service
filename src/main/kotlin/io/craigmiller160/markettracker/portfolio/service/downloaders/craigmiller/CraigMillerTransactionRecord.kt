@@ -40,7 +40,8 @@ private val transactionDateFormat = DateTimeFormatter.ofPattern("M/d/yyyy")
 fun CraigMillerTransactionRecord.Companion.fromRaw(
     rawRecord: List<String>
 ): TryEither<CraigMillerTransactionRecord> {
-  val rawValidFields = rawRecord.slice(0 until 5).filter { it.trim().isNotEmpty() }
+  val maxSize = if (rawRecord.size < 5) rawRecord.size else 5
+  val rawValidFields = rawRecord.slice(0 until maxSize).filter { it.trim().isNotEmpty() }
 
   val dateResult = Either.catch { LocalDate.parse(rawValidFields[0], transactionDateFormat) }
   val actionResult = Action.fromLabel(rawValidFields[1])
