@@ -51,7 +51,15 @@ class CraigMillerTransactionRecordTest {
                         action = Action.DEPOSIT,
                         amount = BigDecimal("2000.00"),
                         symbol = "VTI",
-                        shares = BigDecimal("1.1"))))
+                        shares = BigDecimal("1.1"))),
+            listOf("1/1/2020", "Buy", "$1.00", "", "", "Hello World") to
+                Either.Right(
+                    CraigMillerTransactionRecord(
+                        date = LocalDate.of(2020, 1, 1),
+                        action = Action.BUY,
+                        amount = BigDecimal("1.00"),
+                        symbol = "",
+                        shares = BigDecimal("0"))))
 
     @JvmStatic
     fun comparatorValues():

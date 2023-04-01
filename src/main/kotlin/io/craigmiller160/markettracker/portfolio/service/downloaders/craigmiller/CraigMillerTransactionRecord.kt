@@ -40,16 +40,18 @@ private val transactionDateFormat = DateTimeFormatter.ofPattern("M/d/yyyy")
 fun CraigMillerTransactionRecord.Companion.fromRaw(
     rawRecord: List<String>
 ): TryEither<CraigMillerTransactionRecord> {
-  val dateResult = Either.catch { LocalDate.parse(rawRecord[0], transactionDateFormat) }
-  val actionResult = Action.fromLabel(rawRecord[1])
+  val rawValidFields = rawRecord.slice(0 until 5).filter { it.trim().isNotEmpty() }
+
+  val dateResult = Either.catch { LocalDate.parse(rawValidFields[0], transactionDateFormat) }
+  val actionResult = Action.fromLabel(rawValidFields[1])
   val amountResult =
       Either.catch {
-        rawRecord[2].replace(Regex("^\\$"), "").replace(",", "").let { BigDecimal(it) }
+        rawValidFields[2].replace(Regex("^\\$"), "").replace(",", "").let { BigDecimal(it) }
       }
 
-  val symbol = if (rawRecord.size >= 4) rawRecord[3] else ""
+  val symbol = if (rawValidFields.size >= 4) rawValidFields[3] else ""
   val sharesResult =
-      if (rawRecord.size >= 5) Either.catch { BigDecimal(rawRecord[4]) }
+      if (rawValidFields.size >= 5) Either.catch { BigDecimal(rawValidFields[4]) }
       else Either.Right(BigDecimal("0"))
 
   return either
