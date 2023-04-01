@@ -7,7 +7,7 @@ import io.craigmiller160.markettracker.portfolio.extensions.getRequired
 import java.math.BigDecimal
 import java.util.UUID
 
-val sharesOwnedRowMapper: RowMapper<SharesOwned> = { row, metadata ->
+val sharesOwnedRowMapper: RowMapper<SharesOwned> = { row, _ ->
   either.eager {
     val dateRangeString = row.getRequired("date_range", String::class.java).bind()
     val id = row.getRequired("id", UUID::class.java).bind()

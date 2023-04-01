@@ -18,8 +18,8 @@ class GlobalExceptionHandler(private val objectMapper: ObjectMapper) {
   private val log = LoggerFactory.getLogger(javaClass)
   @Bean
   @Order(-2)
-  fun exceptionHandler(): WebExceptionHandler = WebExceptionHandler { exchange, ex ->
-    log.error(ex.message, ex)
+  fun exceptionHandler(): WebExceptionHandler = WebExceptionHandler { exchange, exception ->
+    log.error(exception.message, exception)
 
     val status = HttpStatus.INTERNAL_SERVER_ERROR
     val response =
