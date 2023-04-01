@@ -5,6 +5,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
@@ -42,7 +43,7 @@ class EitherToResponseTest {
     runBlocking { response.getBody() }.shouldBe("Hello World")
   }
 
-  private suspend inline fun ServerResponse.getBody(): String {
+  private suspend fun ServerResponse.getBody(): String {
     val mockExchange =
         MockServerHttpRequest.get("http://thisdoenstmatter.com").build().let {
           MockServerWebExchange.from(it)
@@ -55,7 +56,7 @@ class EitherToResponseTest {
           override fun viewResolvers(): MutableList<ViewResolver> = mutableListOf()
         }
 
-    writeTo(mockExchange, mockContext)
+    writeTo(mockExchange, mockContext).awaitFirstOrNull()
     return mockExchange.response.bodyAsString.awaitSingle()
   }
 }
