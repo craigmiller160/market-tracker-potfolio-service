@@ -16,7 +16,6 @@ class PersistDownloadService(
     private val sharesOwnedRepository: SharesOwnedRepository,
     private val transactionOperator: TransactionalOperator
 ) {
-  // TODO delete all @Transactional uses
   suspend fun persistPortfolios(
       portfolios: List<PortfolioWithHistory>
   ): TryEither<List<PortfolioWithHistory>> =
