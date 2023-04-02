@@ -5,7 +5,6 @@ import org.springframework.transaction.ReactiveTransaction
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 
-// TODO write a test validating rollbacks using this
 suspend fun <E, T> TransactionalOperator.executeAndAwaitEither(
     fn: suspend (ReactiveTransaction) -> Either<E, T>
 ): Either<E, T> = executeAndAwait { tx ->
