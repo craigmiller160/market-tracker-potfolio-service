@@ -5,7 +5,7 @@ import org.springframework.transaction.ReactiveTransaction
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 
-suspend fun <E, T> TransactionalOperator.executeAndAwait(
+suspend fun <E, T> TransactionalOperator.executeAndAwaitEither(
     fn: suspend (ReactiveTransaction) -> Either<E, T>
 ): Either<E, T> = executeAndAwait { tx ->
   fn(tx).mapLeft { ex ->

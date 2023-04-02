@@ -6,9 +6,9 @@ import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHist
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
+import io.craigmiller160.markettracker.portfolio.extensions.executeAndAwaitEither
 import org.springframework.stereotype.Service
 import org.springframework.transaction.reactive.TransactionalOperator
-import org.springframework.transaction.reactive.executeAndAwait
 
 @Service
 class PersistDownloadService(
@@ -20,11 +20,8 @@ class PersistDownloadService(
   suspend fun persistPortfolios(
       portfolios: List<PortfolioWithHistory>
   ): TryEither<List<PortfolioWithHistory>> =
-      transactionOperator.executeAndAwait { tx ->
-        portfolios
-            .map { createPortfolio(it) }
-            .sequence()
-            .onLeft { tx.setRollbackOnly() } // TODO create extension function to automate this
+      transactionOperator.executeAndAwaitEither {
+        portfolios.map { createPortfolio(it) }.sequence()
       }
 
   private suspend fun createPortfolio(
