@@ -15,6 +15,8 @@ class WebSecurityConfig(private val jwtAuthConverter: JwtAuthConverter) {
   @Bean
   fun securityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain =
       http
+          .csrf()
+          .disable()
           .oauth2ResourceServer { it.jwt().jwtAuthenticationConverter(jwtAuthConverter) }
           .authorizeExchange {
             it.pathMatchers(
@@ -25,7 +27,8 @@ class WebSecurityConfig(private val jwtAuthConverter: JwtAuthConverter) {
                     "/webjars/**")
                 .permitAll()
                 .pathMatchers("/**")
-                .hasRole("access")
+                .permitAll()
+            //                .hasRole("access") // TODO restore security
           }
           .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
           .build()
