@@ -27,8 +27,7 @@ class WebSecurityConfig(private val jwtAuthConverter: JwtAuthConverter) {
                     "/webjars/**")
                 .permitAll()
                 .pathMatchers("/**")
-                .permitAll()
-            //                .hasRole("access") // TODO restore security
+                .hasRole("access")
           }
           .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
           .build()
