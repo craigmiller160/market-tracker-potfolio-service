@@ -49,3 +49,4 @@ logging:
   level:
     io.craigmiller160: DEBUG
     org.springframework.data.r2dbc: DEBUG
+#    io.r2dbc.postgresql.QUERY: DEBUG
