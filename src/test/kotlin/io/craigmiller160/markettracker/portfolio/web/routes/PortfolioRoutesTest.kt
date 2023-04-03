@@ -7,6 +7,7 @@ import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioNameRe
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
+import io.craigmiller160.markettracker.portfolio.web.types.PortfolioStockResponse
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -49,5 +50,23 @@ constructor(
         .is2xxSuccessful
         .expectBody()
         .json(objectMapper.writeValueAsString(expectedResponse))
+  }
+
+  @Test
+  fun `gets list of stocks in portfolio for user`() {
+    TODO()
+  }
+
+  @Test
+  fun `gets list of stocks in portfolio that the user does not own`() {
+    webTestClient
+        .get()
+        .uri("/portfolios/${portfolios[0].id}")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .is2xxSuccessful
+        .expectBody()
+        .json(objectMapper.writeValueAsString(listOf<PortfolioStockResponse>()))
   }
 }
