@@ -6,6 +6,8 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
@@ -41,7 +43,23 @@ class CraigMillerTransactionRecordTest {
             listOf("1/1/2020", "Buy", "$1.00", "VTI", "def") to
                 Either.Left(
                     NumberFormatException(
-                        "Character d is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark.")))
+                        "Character d is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark.")),
+            listOf("1/1/2020", "Deposit", "$2,000.00", "VTI", "1.1") to
+                Either.Right(
+                    CraigMillerTransactionRecord(
+                        date = LocalDate.of(2020, 1, 1),
+                        action = Action.DEPOSIT,
+                        amount = BigDecimal("2000.00"),
+                        symbol = "VTI",
+                        shares = BigDecimal("1.1"))),
+            listOf("1/1/2020", "Buy", "$1.00", "", "", "Hello World") to
+                Either.Right(
+                    CraigMillerTransactionRecord(
+                        date = LocalDate.of(2020, 1, 1),
+                        action = Action.BUY,
+                        amount = BigDecimal("1.00"),
+                        symbol = "",
+                        shares = BigDecimal("0"))))
 
     @JvmStatic
     fun comparatorValues():
@@ -101,7 +119,10 @@ class CraigMillerTransactionRecordTest {
     val actual = CraigMillerTransactionRecord.fromRaw(list)
     when (expected) {
       is Either.Right -> actual.shouldBeRight(expected.value)
-      is Either.Left -> actual.shouldBeLeft(expected.value)
+      is Either.Left -> {
+        val ex = actual.shouldBeLeft()
+        ex.cause.shouldNotBeNull().shouldBe(expected.value)
+      }
     }
   }
 

@@ -20,6 +20,14 @@ class SwaggerRouterDsl(private val builder: SpringdocRouteBuilder) {
   ) {
     builder.GET(path, suspendToMonoHandler(handler), swagger)
   }
+
+  fun POST(
+      path: String,
+      hander: suspend (ServerRequest) -> ServerResponse,
+      swagger: Consumer<SwaggerOperationBuilder> = Consumer {}
+  ) {
+    builder.POST(path, suspendToMonoHandler(hander), swagger)
+  }
 }
 
 fun coSwaggerRouter(init: SwaggerRouterDsl.() -> Unit): RouterFunction<ServerResponse> {

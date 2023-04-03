@@ -15,6 +15,8 @@ class WebSecurityConfig(private val jwtAuthConverter: JwtAuthConverter) {
   @Bean
   fun securityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain =
       http
+          .csrf()
+          .disable()
           .oauth2ResourceServer { it.jwt().jwtAuthenticationConverter(jwtAuthConverter) }
           .authorizeExchange {
             it.pathMatchers(

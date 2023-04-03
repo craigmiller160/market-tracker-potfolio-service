@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.continuations.either
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.leftIfNull
+import io.craigmiller160.markettracker.portfolio.service.downloaders.DownloadParsingException
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -39,23 +40,31 @@ private val transactionDateFormat = DateTimeFormatter.ofPattern("M/d/yyyy")
 fun CraigMillerTransactionRecord.Companion.fromRaw(
     rawRecord: List<String>
 ): TryEither<CraigMillerTransactionRecord> {
-  val dateResult = Either.catch { LocalDate.parse(rawRecord[0], transactionDateFormat) }
-  val actionResult = Action.fromLabel(rawRecord[1])
-  val amountResult = Either.catch { rawRecord[2].replace(Regex("^\\$"), "").let { BigDecimal(it) } }
+  val maxSize = if (rawRecord.size < 5) rawRecord.size else 5
+  val rawValidFields = rawRecord.slice(0 until maxSize).filter { it.trim().isNotEmpty() }
 
-  val symbol = if (rawRecord.size >= 4) rawRecord[3] else ""
+  val dateResult = Either.catch { LocalDate.parse(rawValidFields[0], transactionDateFormat) }
+  val actionResult = Action.fromLabel(rawValidFields[1])
+  val amountResult =
+      Either.catch {
+        rawValidFields[2].replace(Regex("^\\$"), "").replace(",", "").let { BigDecimal(it) }
+      }
+
+  val symbol = if (rawValidFields.size >= 4) rawValidFields[3] else ""
   val sharesResult =
-      if (rawRecord.size >= 5) Either.catch { BigDecimal(rawRecord[4]) }
+      if (rawValidFields.size >= 5) Either.catch { BigDecimal(rawValidFields[4]) }
       else Either.Right(BigDecimal("0"))
 
-  return either.eager {
-    CraigMillerTransactionRecord(
-        date = dateResult.bind(),
-        action = actionResult.bind(),
-        amount = amountResult.bind(),
-        symbol = symbol,
-        shares = sharesResult.bind())
-  }
+  return either
+      .eager {
+        CraigMillerTransactionRecord(
+            date = dateResult.bind(),
+            action = actionResult.bind(),
+            amount = amountResult.bind(),
+            symbol = symbol,
+            shares = sharesResult.bind())
+      }
+      .mapLeft { ex -> DownloadParsingException("Error parsing raw download: $rawRecord", ex) }
 }
 
 private fun convertResult(result: Int): Int {
