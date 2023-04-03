@@ -22,8 +22,15 @@ class PortfolioRoutesHolder {
                   .responseCode("200")
                   .implementationArray(PortfolioNameResponse::class.java))
     }
+    GET("/portfolios/all", handler::getStocksForAllPortfolios) {
+      it.operationId("getStocksForAllPortfolios")
+          .response(
+              SwaggerBuilders.responseBuilder()
+                  .responseCode("200")
+                  .implementationArray(String::class.java))
+    }
     GET("/portfolios/{portfolioId}", handler::getStocksForPortfolio) {
-      it.operationId("getStocksForPortolio")
+      it.operationId("getStocksForPortfolio")
           .parameter(
               SwaggerBuilders.pathParamBuilder()
                   .name("portfolioId")
