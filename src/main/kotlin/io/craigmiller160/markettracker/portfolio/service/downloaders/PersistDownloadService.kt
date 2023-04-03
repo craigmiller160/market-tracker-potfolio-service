@@ -6,7 +6,7 @@ import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHist
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
-import io.craigmiller160.markettracker.portfolio.extensions.executeAndAwaitEither
+import io.github.craigmiller160.fpresultkt.transaction.extensions.executeAndAwaitEither
 import org.springframework.stereotype.Service
 import org.springframework.transaction.reactive.TransactionalOperator
 
