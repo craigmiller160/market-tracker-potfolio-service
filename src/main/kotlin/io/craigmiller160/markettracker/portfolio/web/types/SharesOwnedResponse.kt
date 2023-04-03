@@ -6,5 +6,5 @@ import java.time.ZonedDateTime
 data class SharesOwnedResponse(
     val timestamp: ZonedDateTime,
     val symbol: String,
-    val totalShares: BigDecimal
+    val shares: BigDecimal
 )
