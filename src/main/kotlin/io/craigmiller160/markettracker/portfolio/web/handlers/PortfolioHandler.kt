@@ -10,4 +10,6 @@ import org.springframework.web.reactive.function.server.ServerResponse
 class PortfolioHandler(private val portfolioService: PortfolioService) {
   suspend fun getPortfolios(request: ServerRequest): ServerResponse =
       portfolioService.getPortfolios().toResponse()
+
+  suspend fun getStocksForPortfolio(request: ServerRequest): ServerResponse = TODO()
 }
