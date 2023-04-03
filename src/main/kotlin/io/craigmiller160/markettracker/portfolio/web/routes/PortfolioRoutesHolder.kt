@@ -4,7 +4,7 @@ import io.craigmiller160.markettracker.portfolio.web.handlers.PortfolioHandler
 import io.craigmiller160.markettracker.portfolio.web.swagger.SwaggerBuilders
 import io.craigmiller160.markettracker.portfolio.web.swagger.coSwaggerRouter
 import io.craigmiller160.markettracker.portfolio.web.types.PortfolioNameResponse
-import io.craigmiller160.markettracker.portfolio.web.types.PortfolioStockResponse
+import io.craigmiller160.markettracker.portfolio.web.types.SharesOwnedResponse
 import java.util.UUID
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
@@ -31,7 +31,14 @@ class PortfolioRoutesHolder {
           .response(
               SwaggerBuilders.responseBuilder()
                   .responseCode("200")
-                  .implementation(PortfolioStockResponse::class.java))
+                  .implementationArray(String::class.java))
+    }
+    GET("/portfolios/{portfolioId}/{stockSymbol}", handler::getSharesOwnedForPortfolioStock) {
+      it.operationId("getSharesOwnedForPortfolioStock")
+          .response(
+              SwaggerBuilders.responseBuilder()
+                  .responseCode("200")
+                  .implementationArray(SharesOwnedResponse::class.java))
     }
   }
 }

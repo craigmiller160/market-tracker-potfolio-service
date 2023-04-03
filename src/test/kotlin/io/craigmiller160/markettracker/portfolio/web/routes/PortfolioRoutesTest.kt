@@ -50,9 +50,4 @@ constructor(
         .expectBody()
         .json(objectMapper.writeValueAsString(expectedResponse))
   }
-
-  @Test
-  fun `gets list of stocks in a portfolio`() {
-    TODO()
-  }
 }

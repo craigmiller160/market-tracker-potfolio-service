@@ -12,4 +12,6 @@ class PortfolioHandler(private val portfolioService: PortfolioService) {
       portfolioService.getPortfolios().toResponse()
 
   suspend fun getStocksForPortfolio(request: ServerRequest): ServerResponse = TODO()
+
+  suspend fun getSharesOwnedForPortfolioStock(request: ServerRequest): ServerResponse = TODO()
 }
