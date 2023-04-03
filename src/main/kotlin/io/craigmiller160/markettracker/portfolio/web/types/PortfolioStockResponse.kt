@@ -6,5 +6,5 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 data class PortfolioStockResponse(
     val portfolioId: TypedId<PortfolioId>,
     val portfolioName: String,
-    val stockSymbols: List<String>
+    val stockSymbols: Set<String>
 )
