@@ -110,6 +110,16 @@ constructor(
 
   @Test
   fun `gets a list of unique stocks for all portfolios combined`() {
-    TODO()
+    val expectedResponse =
+        stocks.flatMap { stock -> (1..4).map { index -> "$stock-$index" } }.sorted()
+    webTestClient
+        .get()
+        .uri("/portfolios/combined")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .is2xxSuccessful
+        .expectBody()
+        .json(objectMapper.writeValueAsString(expectedResponse))
   }
 }
