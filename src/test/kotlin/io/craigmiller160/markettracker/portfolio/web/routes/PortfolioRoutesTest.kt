@@ -12,6 +12,7 @@ import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolio
 import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
 import io.craigmiller160.markettracker.portfolio.web.types.PortfolioStockResponse
 import java.math.BigDecimal
+import java.time.LocalDate
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -28,6 +29,9 @@ constructor(
     private val defaultUsers: DefaultUsers,
     private val objectMapper: ObjectMapper
 ) {
+  companion object {
+    private const val DATE_RANGE_LENGTH = 10L
+  }
 
   private val portfolios: List<Portfolio> =
       (0 until 5).map { index ->
@@ -39,15 +43,17 @@ constructor(
             name = "Portfolio-$index")
       }
   private val stocks: List<String> = listOf("VTI", "VXUS", "VOO")
+  private val baseDate = LocalDate.now()
   private val sharesOwned: List<SharesOwned> =
       portfolios.flatMap { portfolio ->
         stocks.mapIndexed { index, symbol ->
+          val dateOffset = DATE_RANGE_LENGTH * index
           SharesOwned(
               id = TypedId(),
               portfolioId = portfolio.id,
               userId = portfolio.userId,
-              dateRangeStart = TODO(),
-              dateRangeEnd = TODO(),
+              dateRangeStart = baseDate.plusDays(dateOffset),
+              dateRangeEnd = baseDate.plusDays(dateOffset + DATE_RANGE_LENGTH),
               symbol = symbol,
               totalShares = BigDecimal("${index + 1}"))
         }
