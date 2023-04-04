@@ -28,7 +28,6 @@ class PortfolioHandler(
   suspend fun getSharesOwnedForAllPortfoliosCombinedStock(request: ServerRequest): ServerResponse =
       TODO()
 
-  // TODO move to separate file properly restricted with some kind of context
   private val ServerRequest.portfolioId: TypedId<PortfolioId>
     get() = pathVariable("portfolioId").let { TypedId(it) }
 }
