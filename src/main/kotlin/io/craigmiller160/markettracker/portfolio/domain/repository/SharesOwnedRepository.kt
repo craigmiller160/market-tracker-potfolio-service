@@ -12,4 +12,6 @@ interface SharesOwnedRepository {
       userId: TypedId<UserId>,
       portfolioId: TypedId<PortfolioId>
   ): TryEither<List<String>>
+
+  suspend fun findUniqueStocksForUser(userId: TypedId<UserId>): TryEither<List<String>>
 }
