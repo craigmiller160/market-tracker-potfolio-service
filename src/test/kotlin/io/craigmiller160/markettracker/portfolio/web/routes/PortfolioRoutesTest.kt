@@ -51,25 +51,18 @@ constructor(
   private val baseDate = LocalDate.now()
   private val sharesOwned: List<SharesOwned> =
       portfolios.flatMapIndexed { portfolioIndex, portfolio ->
-        val stocks =
-            stocks.map { stock ->
-              if (portfolioIndex % 2 == 0) {
-                stock
-              } else {
-                "$stock-$portfolioIndex"
-              }
-            }
-
-        stocks.mapIndexed { stockIndex, symbol ->
-          val dateOffset = DATE_RANGE_LENGTH * stockIndex
-          SharesOwned(
-              id = TypedId(),
-              portfolioId = portfolio.id,
-              userId = portfolio.userId,
-              dateRangeStart = baseDate.plusDays(dateOffset),
-              dateRangeEnd = baseDate.plusDays(dateOffset + DATE_RANGE_LENGTH),
-              symbol = symbol,
-              totalShares = BigDecimal("${stockIndex + 1}"))
+        stocks.flatMap { symbol ->
+          (0 until 100).map { index ->
+            val dateOffset = DATE_RANGE_LENGTH * index
+            SharesOwned(
+                id = TypedId(),
+                portfolioId = portfolio.id,
+                userId = portfolio.userId,
+                dateRangeStart = baseDate.plusDays(dateOffset),
+                dateRangeEnd = baseDate.plusDays(dateOffset + DATE_RANGE_LENGTH),
+                symbol = symbol,
+                totalShares = BigDecimal("${index + 1}"))
+          }
         }
       }
 
@@ -96,7 +89,6 @@ constructor(
 
   @Test
   fun `gets list of stocks in portfolio for user`() {
-    val expectedResponse = stocks.map { "$it-1" }.sorted()
     webTestClient
         .get()
         .uri("/portfolios/${portfolios[1].id}")
@@ -105,7 +97,7 @@ constructor(
         .expectStatus()
         .is2xxSuccessful
         .expectBody()
-        .json(objectMapper.writeValueAsString(expectedResponse))
+        .json(objectMapper.writeValueAsString(stocks))
   }
 
   @Test
@@ -144,7 +136,7 @@ constructor(
         .expectStatus()
         .is2xxSuccessful
         .expectBody()
-        .json(objectMapper.writeValueAsString(expectedResponse))
+        .json(objectMapper.writeValueAsString(stocks))
   }
 
   @Test
