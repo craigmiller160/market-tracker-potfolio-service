@@ -140,4 +140,39 @@ constructor(
         .expectBody()
         .json(objectMapper.writeValueAsString(expectedResponse))
   }
+
+  @Test
+  fun `get shares owned history for past week for stock in portfolio not owned by user`() {
+    TODO()
+  }
+
+  @Test
+  fun `get shares owned for today for stock in portfolio`() {
+    TODO()
+  }
+
+  @Test
+  fun `get shares owned for past week for stock in portfolio`() {
+    TODO()
+  }
+
+  @Test
+  fun `get shares owned for past month for stock in portfolio`() {
+    TODO()
+  }
+
+  @Test
+  fun `get shares owned for past three months for stock in portfolio`() {
+    TODO()
+  }
+
+  @Test
+  fun `get shares owned for past year for stock in portfolio`() {
+    TODO()
+  }
+
+  @Test
+  fun `get shares owned for past five years for stock in portfolio`() {
+    TODO()
+  }
 }
