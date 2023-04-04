@@ -48,7 +48,9 @@ class DatabaseClientPortfolioRepository(
           }
           .map { portfolio }
 
-  override suspend fun createPortfolios(portfolios: List<Portfolio>): TryEither<List<Portfolio>> =
+  override suspend fun createAllPortfolios(
+      portfolios: List<Portfolio>
+  ): TryEither<List<Portfolio>> =
       sqlLoader.loadSql(INSERT_PORTFOLIO_BATCH_SQL).coFlatMap(createAsBatch(portfolios)).map {
         portfolios
       }

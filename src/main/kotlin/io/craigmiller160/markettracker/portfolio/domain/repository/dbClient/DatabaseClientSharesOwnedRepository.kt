@@ -1,12 +1,16 @@
 package io.craigmiller160.markettracker.portfolio.domain.repository.dbClient
 
 import arrow.core.Either
+import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
+import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
+import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.models.dateRange
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.coFlatMap
+import io.craigmiller160.markettracker.portfolio.extensions.mapCatch
 import io.craigmiller160.markettracker.portfolio.extensions.toSqlBatches
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
@@ -21,6 +25,9 @@ class DatabaseClientSharesOwnedRepository(
 ) : SharesOwnedRepository {
   companion object {
     private const val INSERT_SHARES_OWNED_SQL = "sharesOwned/insertSharesOwnedBatch.sql"
+    private const val FIND_UNIQUE_STOCKS_IN_PORTFOLIO_SQL =
+        "sharesOwned/findUniqueStocksInPortfolio.sql"
+    private const val FIND_UNIQUE_STOCKS_FOR_USER_SQL = "sharesOwned/findUniqueStocksForUser.sql"
   }
   override suspend fun createAllSharesOwned(
       sharesOwned: List<SharesOwned>
@@ -54,4 +61,32 @@ class DatabaseClientSharesOwnedRepository(
           .toList()
     }
   }
+
+  override suspend fun findUniqueStocksInPortfolio(
+      userId: TypedId<UserId>,
+      portfolioId: TypedId<PortfolioId>
+  ): TryEither<List<String>> =
+      sqlLoader.loadSql(FIND_UNIQUE_STOCKS_IN_PORTFOLIO_SQL).mapCatch { sql ->
+        databaseClient
+            .sql(sql)
+            .bind("userId", userId.value)
+            .bind("portfolioId", portfolioId.value)
+            .map { row -> row.get("symbol")?.toString() }
+            .all()
+            .toIterable()
+            .toList()
+            .filterNotNull()
+      }
+
+  override suspend fun findUniqueStocksForUser(userId: TypedId<UserId>): TryEither<List<String>> =
+      sqlLoader.loadSql(FIND_UNIQUE_STOCKS_FOR_USER_SQL).mapCatch { sql ->
+        databaseClient
+            .sql(sql)
+            .bind("userId", userId.value)
+            .map { row -> row.get("symbol")?.toString() }
+            .all()
+            .toIterable()
+            .toList()
+            .filterNotNull()
+      }
 }
