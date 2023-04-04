@@ -22,7 +22,8 @@ class PortfolioHandler(
 
   suspend fun getSharesOwnedForPortfolioStock(request: ServerRequest): ServerResponse = TODO()
 
-  suspend fun getStocksForAllPortfoliosCombined(request: ServerRequest): ServerResponse = TODO()
+  suspend fun getStocksForAllPortfoliosCombined(request: ServerRequest): ServerResponse =
+      sharesOwnedService.findUniqueStocksForAllPortfoliosCombined().toResponse()
 
   suspend fun getSharesOwnedForAllPortfoliosCombinedStock(request: ServerRequest): ServerResponse =
       TODO()

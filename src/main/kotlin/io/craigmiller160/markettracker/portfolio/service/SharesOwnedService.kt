@@ -17,4 +17,6 @@ class SharesOwnedService(
       authorizationService.getUserId().let {
         sharesOwnedRepository.findUniqueStocksInPortfolio(it, portfolioId)
       }
+
+  suspend fun findUniqueStocksForAllPortfoliosCombined(): TryEither<List<String>> = TODO()
 }
