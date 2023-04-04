@@ -1,11 +1,10 @@
 package io.craigmiller160.markettracker.portfolio.web.swagger
 
-import io.craigmiller160.markettracker.portfolio.web.routes.RoutesHolder
 import io.craigmiller160.markettracker.portfolio.web.types.PortfolioResponse
 import io.craigmiller160.markettracker.portfolio.web.types.SharesOwnedResponse
 import java.util.UUID
 
-context(RoutesHolder)
+context(SwaggerRouterDsl)
 
 fun SwaggerOperationBuilder.addPortfolioListResponse(): SwaggerOperationBuilder =
     response(
@@ -13,7 +12,7 @@ fun SwaggerOperationBuilder.addPortfolioListResponse(): SwaggerOperationBuilder 
             .responseCode("200")
             .implementationArray(PortfolioResponse::class.java))
 
-context(RoutesHolder)
+context(SwaggerRouterDsl)
 
 fun SwaggerOperationBuilder.addStockListResponse(): SwaggerOperationBuilder =
     response(
@@ -21,19 +20,19 @@ fun SwaggerOperationBuilder.addStockListResponse(): SwaggerOperationBuilder =
             .responseCode("200")
             .implementationArray(String::class.java))
 
-context(RoutesHolder)
+context(SwaggerRouterDsl)
 
 fun SwaggerOperationBuilder.addPortfolioIdParameter(): SwaggerOperationBuilder =
     parameter(
         SwaggerBuilders.pathParamBuilder().name("portfolioId").implementation(UUID::class.java))
 
-context(RoutesHolder)
+context(SwaggerRouterDsl)
 
 fun SwaggerOperationBuilder.addStockSymbolParameter(): SwaggerOperationBuilder =
     parameter(
         SwaggerBuilders.pathParamBuilder().name("stockSymbol").implementation(String::class.java))
 
-context(RoutesHolder)
+context(SwaggerRouterDsl)
 
 fun SwaggerOperationBuilder.addSharesOwnedResponse(): SwaggerOperationBuilder =
     response(
