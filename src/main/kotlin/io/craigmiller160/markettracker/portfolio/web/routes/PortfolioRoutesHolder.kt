@@ -3,8 +3,8 @@ package io.craigmiller160.markettracker.portfolio.web.routes
 import io.craigmiller160.markettracker.portfolio.web.handlers.PortfolioHandler
 import io.craigmiller160.markettracker.portfolio.web.swagger.SwaggerBuilders
 import io.craigmiller160.markettracker.portfolio.web.swagger.SwaggerOperationBuilder
+import io.craigmiller160.markettracker.portfolio.web.swagger.addPortfolioListResponse
 import io.craigmiller160.markettracker.portfolio.web.swagger.coSwaggerRouter
-import io.craigmiller160.markettracker.portfolio.web.types.PortfolioResponse
 import io.craigmiller160.markettracker.portfolio.web.types.SharesOwnedResponse
 import java.util.UUID
 import org.springframework.context.annotation.Bean
@@ -13,7 +13,7 @@ import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.ServerResponse
 
 @Component
-class PortfolioRoutesHolder {
+class PortfolioRoutesHolder : RoutesHolder {
   @Bean
   fun portfolioRoutes(handler: PortfolioHandler): RouterFunction<ServerResponse> = coSwaggerRouter {
     GET("/portfolios", handler::getPortfolios) {
@@ -41,12 +41,6 @@ class PortfolioRoutesHolder {
               .addSharesOwnedResponse()
         }
   }
-
-  private fun SwaggerOperationBuilder.addPortfolioListResponse(): SwaggerOperationBuilder =
-      response(
-          SwaggerBuilders.responseBuilder()
-              .responseCode("200")
-              .implementationArray(PortfolioResponse::class.java))
 
   private fun SwaggerOperationBuilder.addStockListResponse(): SwaggerOperationBuilder =
       response(
