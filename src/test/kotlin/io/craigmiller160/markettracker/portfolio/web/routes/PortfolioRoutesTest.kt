@@ -12,9 +12,12 @@ import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolio
 import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.util.stream.Stream
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.reactive.server.WebTestClient
 
@@ -30,6 +33,9 @@ constructor(
 ) {
   companion object {
     private const val DATE_RANGE_LENGTH = 10L
+    @JvmStatic fun sharesOwnedForStockInPortfolio(): Stream<Any> = TODO()
+
+    @JvmStatic fun sharesOwnedForStockInCombinedPortfolios(): Stream<Any> = TODO()
   }
 
   private val portfolios: List<Portfolio> =
@@ -146,33 +152,15 @@ constructor(
     TODO()
   }
 
-  @Test
-  fun `get shares owned for today for stock in portfolio`() {
+  @MethodSource("sharesOwnedForStockInPortfolio")
+  @ParameterizedTest
+  fun `get shares owned for stock in portfolio`() {
     TODO()
   }
 
+  @MethodSource("sharesOwnedForStockInCombinedPortfolios")
   @Test
-  fun `get shares owned for past week for stock in portfolio`() {
-    TODO()
-  }
-
-  @Test
-  fun `get shares owned for past month for stock in portfolio`() {
-    TODO()
-  }
-
-  @Test
-  fun `get shares owned for past three months for stock in portfolio`() {
-    TODO()
-  }
-
-  @Test
-  fun `get shares owned for past year for stock in portfolio`() {
-    TODO()
-  }
-
-  @Test
-  fun `get shares owned for past five years for stock in portfolio`() {
+  fun `get shares owned for stock in all portfolios`() {
     TODO()
   }
 }
