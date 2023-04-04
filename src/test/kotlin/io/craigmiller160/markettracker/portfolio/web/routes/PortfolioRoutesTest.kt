@@ -10,7 +10,6 @@ import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepo
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
-import io.craigmiller160.markettracker.portfolio.web.types.PortfolioStockResponse
 import java.math.BigDecimal
 import java.time.LocalDate
 import kotlinx.coroutines.runBlocking
@@ -43,11 +42,10 @@ constructor(
             name = "Portfolio-$index")
       }
   private val stocks: List<String> = listOf("VTI", "VXUS", "VOO")
-  private val longerStocks: List<String> = stocks + "ABC"
   private val baseDate = LocalDate.now()
   private val sharesOwned: List<SharesOwned> =
       portfolios.flatMapIndexed { portfolioIndex, portfolio ->
-        val stocks = if (portfolioIndex == 1) longerStocks else stocks
+        val stocks = stocks.map { "$it-$portfolioIndex" }
 
         stocks.mapIndexed { stockIndex, symbol ->
           val dateOffset = DATE_RANGE_LENGTH * stockIndex
@@ -85,6 +83,7 @@ constructor(
 
   @Test
   fun `gets list of stocks in portfolio for user`() {
+    val expectedResponse = stocks.map { "$it-1" }.sorted()
     webTestClient
         .get()
         .uri("/portfolios/${portfolios[1].id}")
@@ -93,7 +92,7 @@ constructor(
         .expectStatus()
         .is2xxSuccessful
         .expectBody()
-        .json(objectMapper.writeValueAsString(longerStocks.sorted()))
+        .json(objectMapper.writeValueAsString(expectedResponse))
   }
 
   @Test
@@ -106,6 +105,6 @@ constructor(
         .expectStatus()
         .is2xxSuccessful
         .expectBody()
-        .json(objectMapper.writeValueAsString(listOf<PortfolioStockResponse>()))
+        .json(objectMapper.writeValueAsString(listOf<String>()))
   }
 }
