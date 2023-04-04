@@ -1,5 +1,7 @@
 package io.craigmiller160.markettracker.portfolio.web.handlers
 
+import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
+import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.service.PortfolioService
 import io.craigmiller160.markettracker.portfolio.service.SharesOwnedService
 import io.craigmiller160.markettracker.portfolio.web.response.toResponse
@@ -15,7 +17,8 @@ class PortfolioHandler(
   suspend fun getPortfolios(request: ServerRequest): ServerResponse =
       portfolioService.getPortfolios().toResponse()
 
-  suspend fun getStocksForPortfolio(request: ServerRequest): ServerResponse = TODO()
+  suspend fun getStocksForPortfolio(request: ServerRequest): ServerResponse =
+      sharesOwnedService.findUniqueStocksInPortfolio(request.portfolioId).toResponse()
 
   suspend fun getSharesOwnedForPortfolioStock(request: ServerRequest): ServerResponse = TODO()
 
@@ -23,4 +26,8 @@ class PortfolioHandler(
 
   suspend fun getSharesOwnedForAllPortfoliosCombinedStock(request: ServerRequest): ServerResponse =
       TODO()
+
+  // TODO move to separate file properly restricted with some kind of context
+  private val ServerRequest.portfolioId: TypedId<PortfolioId>
+    get() = pathVariable("portfolioId").let { TypedId(it) }
 }
