@@ -1,17 +1,11 @@
 package io.craigmiller160.markettracker.portfolio.web.routes
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
-import io.craigmiller160.markettracker.portfolio.domain.models.BasePortfolio
-import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
-import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioNameResponse
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
-import java.math.BigDecimal
-import java.time.LocalDate
 import java.util.stream.Stream
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
@@ -32,50 +26,23 @@ constructor(
     private val objectMapper: ObjectMapper
 ) {
   companion object {
-    private const val DATE_RANGE_LENGTH = 10L
     @JvmStatic fun sharesOwnedForStockInPortfolio(): Stream<Any> = TODO()
 
     @JvmStatic fun sharesOwnedForStockInCombinedPortfolios(): Stream<Any> = TODO()
   }
 
-  private val portfolios: List<Portfolio> =
-      (0 until 5).map { index ->
-        BasePortfolio(
-            id = TypedId(),
-            userId =
-                if (index == 0) TypedId(defaultUsers.secondaryUser.userId)
-                else TypedId(defaultUsers.primaryUser.userId),
-            name = "Portfolio-$index")
-      }
-  private val stocks: List<String> = listOf("VTI", "VXUS", "VOO")
-  private val baseDate = LocalDate.now()
-  private val sharesOwned: List<SharesOwned> =
-      portfolios.flatMapIndexed { portfolioIndex, portfolio ->
-        stocks.flatMap { symbol ->
-          (0 until 100).map { index ->
-            val dateOffset = DATE_RANGE_LENGTH * index
-            SharesOwned(
-                id = TypedId(),
-                portfolioId = portfolio.id,
-                userId = portfolio.userId,
-                dateRangeStart = baseDate.plusDays(dateOffset),
-                dateRangeEnd = baseDate.plusDays(dateOffset + DATE_RANGE_LENGTH),
-                symbol = symbol,
-                totalShares = BigDecimal("${index + 1}"))
-          }
-        }
-      }
+  private val data = createPortfolioRouteData(defaultUsers)
 
   @BeforeEach
   fun setup() {
     runBlocking {
-      portfolioRepo.createAllPortfolios(portfolios)
-      sharesOwnedRepo.createAllSharesOwned(sharesOwned)
+      portfolioRepo.createAllPortfolios(data.portfolios)
+      sharesOwnedRepo.createAllSharesOwned(data.sharesOwned)
     }
   }
   @Test
   fun `gets list of portfolio names for user`() {
-    val expectedResponse = portfolios.drop(1).map { it.toPortfolioNameResponse() }
+    val expectedResponse = data.portfolios.drop(1).map { it.toPortfolioNameResponse() }
     webTestClient
         .get()
         .uri("/portfolios")
@@ -91,20 +58,20 @@ constructor(
   fun `gets list of stocks in portfolio for user`() {
     webTestClient
         .get()
-        .uri("/portfolios/${portfolios[1].id}")
+        .uri("/portfolios/${data.portfolios[1].id}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
         .is2xxSuccessful
         .expectBody()
-        .json(objectMapper.writeValueAsString(stocks))
+        .json(objectMapper.writeValueAsString(data.uniqueStocks))
   }
 
   @Test
   fun `gets list of stocks in portfolio that the user does not own`() {
     webTestClient
         .get()
-        .uri("/portfolios/${portfolios[0].id}")
+        .uri("/portfolios/${data.portfolios[0].id}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -116,7 +83,7 @@ constructor(
   @Test
   fun `gets a list of unique stocks for all portfolios combined`() {
     val expectedResponse =
-        stocks
+        data.uniqueStocks
             .flatMap { stock ->
               (1..4).map { index ->
                 if (index % 2 == 0) {
@@ -136,7 +103,7 @@ constructor(
         .expectStatus()
         .is2xxSuccessful
         .expectBody()
-        .json(objectMapper.writeValueAsString(stocks))
+        .json(objectMapper.writeValueAsString(data.uniqueStocks))
   }
 
   @Test
