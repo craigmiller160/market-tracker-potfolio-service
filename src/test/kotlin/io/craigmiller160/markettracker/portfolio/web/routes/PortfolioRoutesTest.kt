@@ -43,11 +43,14 @@ constructor(
             name = "Portfolio-$index")
       }
   private val stocks: List<String> = listOf("VTI", "VXUS", "VOO")
+  private val longerStocks: List<String> = stocks + "ABC"
   private val baseDate = LocalDate.now()
   private val sharesOwned: List<SharesOwned> =
-      portfolios.flatMap { portfolio ->
-        stocks.mapIndexed { index, symbol ->
-          val dateOffset = DATE_RANGE_LENGTH * index
+      portfolios.flatMapIndexed { portfolioIndex, portfolio ->
+        val stocks = if (portfolioIndex == 1) longerStocks else stocks
+
+        stocks.mapIndexed { stockIndex, symbol ->
+          val dateOffset = DATE_RANGE_LENGTH * stockIndex
           SharesOwned(
               id = TypedId(),
               portfolioId = portfolio.id,
@@ -55,7 +58,7 @@ constructor(
               dateRangeStart = baseDate.plusDays(dateOffset),
               dateRangeEnd = baseDate.plusDays(dateOffset + DATE_RANGE_LENGTH),
               symbol = symbol,
-              totalShares = BigDecimal("${index + 1}"))
+              totalShares = BigDecimal("${stockIndex + 1}"))
         }
       }
 
@@ -90,7 +93,7 @@ constructor(
         .expectStatus()
         .is2xxSuccessful
         .expectBody()
-        .json(objectMapper.writeValueAsString(stocks.sorted()))
+        .json(objectMapper.writeValueAsString(longerStocks.sorted()))
   }
 
   @Test
