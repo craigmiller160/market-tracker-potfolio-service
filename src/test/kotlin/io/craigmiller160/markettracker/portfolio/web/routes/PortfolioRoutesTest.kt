@@ -82,7 +82,15 @@ constructor(
 
   @Test
   fun `gets list of stocks in portfolio for user`() {
-    TODO()
+    webTestClient
+        .get()
+        .uri("/portfolios/${portfolios[1].id}")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .is2xxSuccessful
+        .expectBody()
+        .json(objectMapper.writeValueAsString(stocks.sorted()))
   }
 
   @Test
