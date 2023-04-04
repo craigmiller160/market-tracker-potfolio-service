@@ -39,3 +39,8 @@ fun SwaggerOperationBuilder.addSharesOwnedResponse(): SwaggerOperationBuilder =
         SwaggerBuilders.responseBuilder()
             .responseCode("200")
             .implementationArray(SharesOwnedResponse::class.java))
+
+context(SwaggerRouterDsl)
+
+fun SwaggerOperationBuilder.addNoContentResponse(): SwaggerOperationBuilder =
+    response(SwaggerBuilders.responseBuilder().responseCode("204"))
