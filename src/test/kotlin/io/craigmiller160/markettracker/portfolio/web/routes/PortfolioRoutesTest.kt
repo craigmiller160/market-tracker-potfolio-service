@@ -45,7 +45,14 @@ constructor(
   private val baseDate = LocalDate.now()
   private val sharesOwned: List<SharesOwned> =
       portfolios.flatMapIndexed { portfolioIndex, portfolio ->
-        val stocks = stocks.map { "$it-$portfolioIndex" }
+        val stocks =
+            stocks.map { stock ->
+              if (portfolioIndex == 0) {
+                stock
+              } else {
+                "$stock-$portfolioIndex"
+              }
+            }
 
         stocks.mapIndexed { stockIndex, symbol ->
           val dateOffset = DATE_RANGE_LENGTH * stockIndex
@@ -111,7 +118,18 @@ constructor(
   @Test
   fun `gets a list of unique stocks for all portfolios combined`() {
     val expectedResponse =
-        stocks.flatMap { stock -> (1..4).map { index -> "$stock-$index" } }.sorted()
+        stocks
+            .flatMap { stock ->
+              (1..4).map { index ->
+                if (index == 0) {
+                  stock
+                } else {
+                  "$stock-$index"
+                }
+              }
+            }
+            .distinct()
+            .sorted()
     webTestClient
         .get()
         .uri("/portfolios/combined")
