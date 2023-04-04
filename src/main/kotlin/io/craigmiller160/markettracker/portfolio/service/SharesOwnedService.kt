@@ -7,8 +7,14 @@ import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import org.springframework.stereotype.Service
 
 @Service
-class SharesOwnedService(private val sharesOwnedRepository: SharesOwnedRepository) {
+class SharesOwnedService(
+    private val sharesOwnedRepository: SharesOwnedRepository,
+    private val authorizationService: AuthorizationService
+) {
   suspend fun findUniqueStocksInPortfolio(
       portfolioId: TypedId<PortfolioId>
-  ): TryEither<List<String>> = sharesOwnedRepository.findUniqueStocksInPortfolio(portfolioId)
+  ): TryEither<List<String>> =
+      authorizationService.getUserId().let {
+        sharesOwnedRepository.findUniqueStocksInPortfolio(it, portfolioId)
+      }
 }
