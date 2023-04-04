@@ -47,7 +47,7 @@ constructor(
       portfolios.flatMapIndexed { portfolioIndex, portfolio ->
         val stocks =
             stocks.map { stock ->
-              if (portfolioIndex == 0) {
+              if (portfolioIndex == 1) {
                 stock
               } else {
                 "$stock-$portfolioIndex"
@@ -121,7 +121,7 @@ constructor(
         stocks
             .flatMap { stock ->
               (1..4).map { index ->
-                if (index == 0) {
+                if (index == 1) {
                   stock
                 } else {
                   "$stock-$index"
