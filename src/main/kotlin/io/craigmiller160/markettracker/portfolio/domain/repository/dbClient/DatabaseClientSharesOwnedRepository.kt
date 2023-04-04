@@ -3,6 +3,7 @@ package io.craigmiller160.markettracker.portfolio.domain.repository.dbClient
 import arrow.core.Either
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
+import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.models.dateRange
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
@@ -61,11 +62,13 @@ class DatabaseClientSharesOwnedRepository(
   }
 
   override suspend fun findUniqueStocksInPortfolio(
+      userId: TypedId<UserId>,
       portfolioId: TypedId<PortfolioId>
   ): TryEither<List<String>> =
       sqlLoader.loadSql(FIND_UNIQUE_STOCKS_IN_PORTFOLIO_SQL).mapCatch { sql ->
         databaseClient
             .sql(sql)
+            .bind("userId", userId.value)
             .bind("portfolioId", portfolioId.value)
             .map { row -> row.get("symbol")?.toString() }
             .all()
