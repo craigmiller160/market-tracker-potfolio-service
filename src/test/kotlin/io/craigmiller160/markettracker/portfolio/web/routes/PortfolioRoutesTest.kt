@@ -107,4 +107,9 @@ constructor(
         .expectBody()
         .json(objectMapper.writeValueAsString(listOf<String>()))
   }
+
+  @Test
+  fun `gets a list of unique stocks for all portfolios combined`() {
+    TODO()
+  }
 }
