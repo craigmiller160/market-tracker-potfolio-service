@@ -45,12 +45,13 @@ private fun createResponseDates(params: SharesOwnedRouteParams): List<LocalDate>
   val endEpochSeconds = params.endDate.toEpochSecond(LocalTime.MIDNIGHT, ZoneOffset.UTC)
   val diffEpochSeconds = endEpochSeconds - startEpochSeconds
 
-  when (params.interval) {
-    SharesOwnedInterval.MINUTELY -> TimeUnit.SECONDS.toMinutes(diffEpochSeconds)
-    SharesOwnedInterval.DAILY -> TimeUnit.SECONDS.toDays(diffEpochSeconds)
-    SharesOwnedInterval.WEEKLY -> TimeUnit.SECONDS.toDays(diffEpochSeconds) / 7
-    SharesOwnedInterval.MONTHLY -> TimeUnit.SECONDS.toDays(diffEpochSeconds) / 30
-  }
+  val intervalCount =
+      when (params.interval) {
+        SharesOwnedInterval.MINUTELY -> TimeUnit.SECONDS.toMinutes(diffEpochSeconds)
+        SharesOwnedInterval.DAILY -> TimeUnit.SECONDS.toDays(diffEpochSeconds)
+        SharesOwnedInterval.WEEKLY -> TimeUnit.SECONDS.toDays(diffEpochSeconds) / 7
+        SharesOwnedInterval.MONTHLY -> TimeUnit.SECONDS.toDays(diffEpochSeconds) / 30
+      }
 
   TODO()
 }
