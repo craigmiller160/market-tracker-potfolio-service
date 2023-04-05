@@ -40,7 +40,7 @@ constructor(
             method = "GET",
             uri = "/throw-exception/missing-parameter",
             message = "Bad Request: Missing required parameter: stuff",
-            status = 500)
+            status = 400)
 
     webTestClient
         .get()
