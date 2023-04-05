@@ -6,6 +6,9 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.web.types.SharesOwnedResponse
 import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneOffset
+import java.util.concurrent.TimeUnit
 
 data class SharesOwnedRouteParams(
     val stockSymbol: String,
@@ -34,6 +37,20 @@ fun createSharesOwnedRouteData(
           }
           .sortedBy { it.dateRangeStart }
           .toList()
+  TODO()
+}
+
+private fun createResponseDates(params: SharesOwnedRouteParams): List<LocalDate> {
+  val startEpochSeconds = params.startDate.toEpochSecond(LocalTime.MIDNIGHT, ZoneOffset.UTC)
+  val endEpochSeconds = params.endDate.toEpochSecond(LocalTime.MIDNIGHT, ZoneOffset.UTC)
+  val diffEpochSeconds = endEpochSeconds - startEpochSeconds
+
+  when (params.interval) {
+    SharesOwnedInterval.MINUTELY -> TimeUnit.SECONDS.toMinutes(diffEpochSeconds)
+    SharesOwnedInterval.DAILY -> TimeUnit.SECONDS.toDays(diffEpochSeconds)
+    SharesOwnedInterval.WEEKLY -> TimeUnit.SECONDS.toDays(diffEpochSeconds) / 7
+    SharesOwnedInterval.MONTHLY -> TimeUnit.SECONDS.toDays(diffEpochSeconds) / 30
+  }
 
   TODO()
 }
