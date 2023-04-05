@@ -1,5 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.testcontainer
 
+import io.craigmiller160.markettracker.portfolio.web.exceptions.BadRequestException
 import io.craigmiller160.markettracker.portfolio.web.exceptions.MissingParameterException
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -16,5 +17,10 @@ class ExceptionThrowingController {
   @GetMapping("/missing-parameter")
   fun missingParameter() {
     throw MissingParameterException("stuff")
+  }
+
+  @GetMapping("/bad-request")
+  fun badRequest() {
+    throw BadRequestException("Dying")
   }
 }
