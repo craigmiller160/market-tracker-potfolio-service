@@ -6,6 +6,7 @@ import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepo
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
+import io.craigmiller160.markettracker.portfolio.web.types.ErrorResponse
 import java.util.stream.Stream
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
@@ -128,6 +129,12 @@ constructor(
   fun `return bad request exceptions for missing parameters for getting shares owned for stock in portfolio`(
       params: SharesOwnedBadRequestParams
   ) {
+    val response =
+        ErrorResponse(
+            method = "GET",
+            uri = "/portfolios/combined/VTI/shares?${params.queryString}",
+            message = "Bad Request: ${params.message}",
+            status = 400)
     webTestClient
         .get()
         .uri("/portfolios/${data.portfolios[1].id.value}/VTI/shares?${params.queryString}")
@@ -135,7 +142,8 @@ constructor(
         .exchange()
         .expectStatus()
         .isBadRequest
-    TODO()
+        .expectBody()
+        .json(objectMapper.writeValueAsString(response))
   }
 
   @MethodSource("sharesOwnedForStockInCombinedPortfolios")
@@ -149,6 +157,12 @@ constructor(
   fun `return bad request exceptions for missing parameters for getting shares owned for stock in all portfolios`(
       params: SharesOwnedBadRequestParams
   ) {
+    val response =
+        ErrorResponse(
+            method = "GET",
+            uri = "/portfolios/combined/VTI/shares?${params.queryString}",
+            message = "Bad Request: ${params.message}",
+            status = 400)
     webTestClient
         .get()
         .uri("/portfolios/combined/VTI/shares?${params.queryString}")
@@ -156,7 +170,8 @@ constructor(
         .exchange()
         .expectStatus()
         .isBadRequest
-    TODO()
+        .expectBody()
+        .json(objectMapper.writeValueAsString(response))
   }
 }
 
