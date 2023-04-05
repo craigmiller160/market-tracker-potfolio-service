@@ -1,10 +1,13 @@
 package io.craigmiller160.markettracker.portfolio.web.handlers
 
+import arrow.core.Either
+import arrow.core.getOrElse
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.service.PortfolioService
 import io.craigmiller160.markettracker.portfolio.service.SharesOwnedService
+import io.craigmiller160.markettracker.portfolio.web.exceptions.BadRequestException
 import io.craigmiller160.markettracker.portfolio.web.exceptions.MissingParameterException
 import io.craigmiller160.markettracker.portfolio.web.response.toResponse
 import java.time.LocalDate
@@ -44,10 +47,14 @@ class PortfolioHandler(
   }
 
   private val ServerRequest.portfolioId: TypedId<PortfolioId>
-    get() = pathVariable("portfolioId").let { TypedId(it) }
+    get() =
+        Either.catch { pathVariable("portfolioId").let { TypedId<PortfolioId>(it) } }
+            .getOrElse { throw BadRequestException("Error parsing portfolioId", it) }
 
   private val ServerRequest.stockSymbol: String
-    get() = pathVariable("stockSymbol")
+    get() =
+        Either.catch { pathVariable("stockSymbol") }
+            .getOrElse { throw BadRequestException("Error parsing stockSymbol", it) }
 
   private val ServerRequest.startDate: LocalDate
     get() =
