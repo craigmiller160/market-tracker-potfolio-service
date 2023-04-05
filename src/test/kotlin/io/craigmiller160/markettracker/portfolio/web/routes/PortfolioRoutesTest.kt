@@ -29,6 +29,12 @@ constructor(
     @JvmStatic fun sharesOwnedForStockInPortfolio(): Stream<Any> = TODO()
 
     @JvmStatic fun sharesOwnedForStockInCombinedPortfolios(): Stream<Any> = TODO()
+
+    @JvmStatic
+    fun sharesOwnedBadRequestParams(): Stream<Any> =
+        Stream.of(
+            SharesOwnedBadRequestParams(
+                "2022-01-01", "2022-01-02", null, "Missing required parameter: interval"))
   }
 
   private val data = createPortfolioRouteData(defaultUsers)
@@ -117,11 +123,14 @@ constructor(
     TODO()
   }
 
-  @Test
-  fun `return bad request exceptions for missing parameters for getting shares owned for stock in portfolio`() {
+  @MethodSource("sharesOwnedBadRequestParams")
+  @ParameterizedTest
+  fun `return bad request exceptions for missing parameters for getting shares owned for stock in portfolio`(
+      params: SharesOwnedBadRequestParams
+  ) {
     webTestClient
         .get()
-        .uri("/portfolios/${data.portfolios[1].id.value}/VTI/shares")
+        .uri("/portfolios/${data.portfolios[1].id.value}/VTI/shares?${params.queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -135,11 +144,14 @@ constructor(
     TODO()
   }
 
-  @Test
-  fun `return bad request exceptions for missing parameters for getting shares owned for stock in all portfolios`() {
+  @MethodSource("sharesOwnedBadRequestParams")
+  @ParameterizedTest
+  fun `return bad request exceptions for missing parameters for getting shares owned for stock in all portfolios`(
+      params: SharesOwnedBadRequestParams
+  ) {
     webTestClient
         .get()
-        .uri("/portfolios/${data.portfolios[1].id.value}/combined/shares")
+        .uri("/portfolios/combined/VTI/shares?${params.queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -147,3 +159,19 @@ constructor(
     TODO()
   }
 }
+
+data class SharesOwnedBadRequestParams(
+    val startDate: String?,
+    val endDate: String?,
+    val interval: String?,
+    val message: String
+)
+
+val SharesOwnedBadRequestParams.queryString: String
+  get() =
+      sequenceOf(
+              startDate?.let { "startDate=$it" },
+              endDate?.let { "endDate=$it" },
+              interval?.let { "interval=$it" })
+          .filterNotNull()
+          .joinToString("&")
