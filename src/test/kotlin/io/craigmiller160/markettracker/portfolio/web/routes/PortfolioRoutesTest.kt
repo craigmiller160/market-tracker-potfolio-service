@@ -117,9 +117,19 @@ constructor(
     TODO()
   }
 
+  @Test
+  fun `return bad request exceptions for missing parameters for getting shares owned for stock in portfolio`() {
+    TODO()
+  }
+
   @MethodSource("sharesOwnedForStockInCombinedPortfolios")
   @Test
   fun `get shares owned for stock in all portfolios`() {
+    TODO()
+  }
+
+  @Test
+  fun `return bad request exceptions for missing parameters for getting shares owned for stock in all portfolios`() {
     TODO()
   }
 }

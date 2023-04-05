@@ -32,4 +32,9 @@ constructor(
         .expectBody()
         .json(objectMapper.writeValueAsString(response))
   }
+
+  @Test
+  fun `bad request exception`() {
+    TODO()
+  }
 }
