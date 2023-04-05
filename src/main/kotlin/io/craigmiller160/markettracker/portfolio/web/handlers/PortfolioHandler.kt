@@ -48,6 +48,8 @@ class PortfolioHandler(
     TODO()
   }
 
+  // TODO cleanup these functions a bit more
+
   private val ServerRequest.portfolioId: TypedId<PortfolioId>
     get() =
         Either.catch { pathVariable("portfolioId").let { TypedId<PortfolioId>(it) } }
@@ -75,13 +77,31 @@ class PortfolioHandler(
 
   private val ServerRequest.endDate: LocalDate
     get() =
-        queryParam("endDate")
-            .map { LocalDate.parse(it) }
-            .orElseThrow { MissingParameterException("endDate") }
+        either
+            .eager {
+              val startDateString =
+                  queryParam("endDate")
+                      .leftIfEmpty()
+                      .mapLeft { MissingParameterException("endDate") }
+                      .bind()
+              Either.catch { LocalDate.parse(startDateString) }
+                  .mapLeft { BadRequestException("Error parsing endDate", it) }
+                  .bind()
+            }
+            .getOrElse { throw it }
 
   private val ServerRequest.interval: SharesOwnedInterval
     get() =
-        queryParam("interval")
-            .map { SharesOwnedInterval.valueOf(it) }
-            .orElseThrow { MissingParameterException("interval") }
+        either
+            .eager {
+              val startDateString =
+                  queryParam("interval")
+                      .leftIfEmpty()
+                      .mapLeft { MissingParameterException("interval") }
+                      .bind()
+              Either.catch { SharesOwnedInterval.valueOf(startDateString) }
+                  .mapLeft { BadRequestException("Error parsing interval", it) }
+                  .bind()
+            }
+            .getOrElse { throw it }
 }
