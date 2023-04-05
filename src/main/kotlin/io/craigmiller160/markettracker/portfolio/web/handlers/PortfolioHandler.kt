@@ -1,10 +1,12 @@
 package io.craigmiller160.markettracker.portfolio.web.handlers
 
 import arrow.core.Either
+import arrow.core.continuations.either
 import arrow.core.getOrElse
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
+import io.craigmiller160.markettracker.portfolio.extensions.leftIfEmpty
 import io.craigmiller160.markettracker.portfolio.service.PortfolioService
 import io.craigmiller160.markettracker.portfolio.service.SharesOwnedService
 import io.craigmiller160.markettracker.portfolio.web.exceptions.BadRequestException
@@ -58,9 +60,18 @@ class PortfolioHandler(
 
   private val ServerRequest.startDate: LocalDate
     get() =
-        queryParam("startDate")
-            .map { LocalDate.parse(it) }
-            .orElseThrow { MissingParameterException("startDate") }
+        either
+            .eager {
+              val startDateString =
+                  queryParam("startDate")
+                      .leftIfEmpty()
+                      .mapLeft { MissingParameterException("startDate") }
+                      .bind()
+              Either.catch { LocalDate.parse(startDateString) }
+                  .mapLeft { BadRequestException("Error parsing startDate", it) }
+                  .bind()
+            }
+            .getOrElse { throw it }
 
   private val ServerRequest.endDate: LocalDate
     get() =
