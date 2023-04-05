@@ -5,6 +5,7 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.service.PortfolioService
 import io.craigmiller160.markettracker.portfolio.service.SharesOwnedService
+import io.craigmiller160.markettracker.portfolio.web.exceptions.MissingParameterException
 import io.craigmiller160.markettracker.portfolio.web.response.toResponse
 import java.time.LocalDate
 import org.springframework.stereotype.Component
@@ -37,14 +38,20 @@ class PortfolioHandler(
     get() = pathVariable("stockSymbol")
 
   private val ServerRequest.startDate: LocalDate
-    get() = queryParam("startDate").map { LocalDate.parse(it) }.orElse(null) // TODO need solution
+    get() =
+        queryParam("startDate")
+            .map { LocalDate.parse(it) }
+            .orElseThrow { MissingParameterException("startDate") }
 
   private val ServerRequest.endDate: LocalDate
-    get() = queryParam("endDate").map { LocalDate.parse(it) }.orElse(null) // TODO need solution
+    get() =
+        queryParam("endDate")
+            .map { LocalDate.parse(it) }
+            .orElseThrow { MissingParameterException("endDate") }
 
   private val ServerRequest.interval: SharesOwnedInterval
     get() =
         queryParam("interval")
             .map { SharesOwnedInterval.valueOf(it) }
-            .orElse(null) // TODO need solution
+            .orElseThrow { MissingParameterException("interval") }
 }
