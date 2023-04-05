@@ -35,7 +35,11 @@ constructor(
     fun sharesOwnedBadRequestParams(): Stream<Any> =
         Stream.of(
             SharesOwnedBadRequestParams(
-                "2022-01-01", "2022-01-02", null, "Missing required parameter: interval"))
+                "2022-01-01", "2022-01-02", null, "Missing required parameter: interval"),
+            SharesOwnedBadRequestParams(
+                "2022-01-01", null, "DAILY", "Missing required parameter: endDate"),
+            SharesOwnedBadRequestParams(
+                null, "2022-01-02", "DAILY", "Missing required parameter: startDate"))
   }
 
   private val data = createPortfolioRouteData(defaultUsers)
