@@ -140,7 +140,7 @@ constructor(
     val response =
         ErrorResponse(
             method = "GET",
-            uri = "/portfolios/combined/VTI/shares?${params.queryString}",
+            uri = "/portfolios/${data.portfolios[1].id.value}/VTI/shares?${params.queryString}",
             message = "Bad Request: ${params.message}",
             status = 400)
     webTestClient
