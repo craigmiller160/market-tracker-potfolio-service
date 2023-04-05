@@ -34,7 +34,22 @@ constructor(
   }
 
   @Test
-  fun `bad request exception`() {
-    TODO()
+  fun `missing parameter exception`() {
+    val response =
+        ErrorResponse(
+            method = "GET",
+            uri = "/throw-exception/missing-parameter",
+            message = "Bad Request: Missing required parameter: stuff",
+            status = 500)
+
+    webTestClient
+        .get()
+        .uri("/throw-exception/missing-parameter")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .isEqualTo(400)
+        .expectBody()
+        .json(objectMapper.writeValueAsString(response))
   }
 }
