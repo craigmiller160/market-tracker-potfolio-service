@@ -36,7 +36,6 @@ class PortfolioHandler(
       sharesOwnedService.findUniqueStocksForAllPortfoliosCombined().toResponse()
 
   suspend fun getSharesOwnedForAllPortfoliosCombinedStock(request: ServerRequest): ServerResponse {
-    val portfolioId = request.portfolioId
     val stockSymbol = request.stockSymbol
     val startDate = request.startDate
     val endDate = request.endDate
