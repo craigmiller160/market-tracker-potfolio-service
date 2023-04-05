@@ -119,6 +119,13 @@ constructor(
 
   @Test
   fun `return bad request exceptions for missing parameters for getting shares owned for stock in portfolio`() {
+    webTestClient
+        .get()
+        .uri("/portfolios/${data.portfolios[1].id.value}/VTI/shares")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .isBadRequest
     TODO()
   }
 
@@ -130,6 +137,13 @@ constructor(
 
   @Test
   fun `return bad request exceptions for missing parameters for getting shares owned for stock in all portfolios`() {
+    webTestClient
+        .get()
+        .uri("/portfolios/${data.portfolios[1].id.value}/combined/shares")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .isBadRequest
     TODO()
   }
 }
