@@ -39,7 +39,11 @@ constructor(
             SharesOwnedBadRequestParams(
                 "2022-01-01", null, "DAILY", "Missing required parameter: endDate"),
             SharesOwnedBadRequestParams(
-                null, "2022-01-02", "DAILY", "Missing required parameter: startDate"))
+                null, "2022-01-02", "DAILY", "Missing required parameter: startDate"),
+            SharesOwnedBadRequestParams(
+                "2022-01-01", "2022-01-02", "abc", "Error parsing interval"),
+            SharesOwnedBadRequestParams("2022-01-01", "abc", "DAILY", "Error parsing endDate"),
+            SharesOwnedBadRequestParams("abc", "2022-01-02", "DAILY", "Error parsing startDate"))
   }
 
   private val data = createPortfolioRouteData(defaultUsers)
