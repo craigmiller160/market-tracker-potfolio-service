@@ -1,6 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.web.types
 
 import java.math.BigDecimal
-import java.time.LocalDate
+import java.time.ZonedDateTime
 
-data class SharesOwnedResponse(val date: LocalDate, val shares: BigDecimal)
+data class SharesOwnedResponse(val date: ZonedDateTime, val shares: BigDecimal)

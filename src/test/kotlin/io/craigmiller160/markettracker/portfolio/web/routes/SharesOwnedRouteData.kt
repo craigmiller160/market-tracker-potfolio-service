@@ -6,6 +6,7 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.web.types.SharesOwnedResponse
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
 data class SharesOwnedRouteParams(
@@ -38,16 +39,35 @@ fun createSharesOwnedRouteData(
   TODO()
 }
 
-private fun createResponseDates(params: SharesOwnedRouteParams): List<LocalDate> {
-  val intervalCount: Long =
-      when (params.interval) {
-        SharesOwnedInterval.MINUTELY ->
-            ChronoUnit.MINUTES.between(
-                params.startDate.atStartOfDay(), params.endDate.atStartOfDay())
-        SharesOwnedInterval.DAILY -> ChronoUnit.DAYS.between(params.startDate, params.endDate)
-        SharesOwnedInterval.WEEKLY -> ChronoUnit.WEEKS.between(params.startDate, params.endDate)
-        SharesOwnedInterval.MONTHLY -> ChronoUnit.MONTHS.between(params.startDate, params.endDate)
-      }
+private fun createResponseDates(params: SharesOwnedRouteParams): List<LocalDateTime> {
+  val (intervalCount, modifier) = getValuesForInterval(params)
+  val base = params.startDate.atStartOfDay()
 
-  TODO()
+  return (0 until intervalCount).map { index -> modifier(base, index) }
 }
+
+private fun getValuesForInterval(params: SharesOwnedRouteParams): IntervalValues =
+    when (params.interval) {
+      SharesOwnedInterval.MINUTELY ->
+          IntervalValues(
+              intervalCount =
+                  ChronoUnit.MINUTES.between(
+                      params.startDate.atStartOfDay(), params.endDate.atStartOfDay()),
+              modifier = { base, index -> base.plusMinutes(index) })
+      SharesOwnedInterval.DAILY ->
+          IntervalValues(
+              intervalCount = ChronoUnit.DAYS.between(params.startDate, params.endDate),
+              modifier = { base, index -> base.plusDays(index) })
+      SharesOwnedInterval.WEEKLY ->
+          IntervalValues(
+              intervalCount = ChronoUnit.WEEKS.between(params.startDate, params.endDate),
+              modifier = { base, index -> base.plusWeeks(index) })
+      SharesOwnedInterval.MONTHLY ->
+          IntervalValues(
+              intervalCount = ChronoUnit.MONTHS.between(params.startDate, params.endDate),
+              modifier = { base, index -> base.plusMonths(index) })
+    }
+
+private typealias TimestampModifier = (LocalDateTime, Long) -> LocalDateTime
+
+private data class IntervalValues(val intervalCount: Long, val modifier: TimestampModifier)
