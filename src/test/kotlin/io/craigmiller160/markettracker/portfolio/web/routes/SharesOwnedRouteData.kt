@@ -6,9 +6,7 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.web.types.SharesOwnedResponse
 import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneOffset
-import java.util.concurrent.TimeUnit
+import java.time.temporal.ChronoUnit
 
 data class SharesOwnedRouteParams(
     val stockSymbol: String,
@@ -41,16 +39,14 @@ fun createSharesOwnedRouteData(
 }
 
 private fun createResponseDates(params: SharesOwnedRouteParams): List<LocalDate> {
-  val startEpochSeconds = params.startDate.toEpochSecond(LocalTime.MIDNIGHT, ZoneOffset.UTC)
-  val endEpochSeconds = params.endDate.toEpochSecond(LocalTime.MIDNIGHT, ZoneOffset.UTC)
-  val diffEpochSeconds = endEpochSeconds - startEpochSeconds
-
-  val intervalCount =
+  val intervalCount: Long =
       when (params.interval) {
-        SharesOwnedInterval.MINUTELY -> TimeUnit.SECONDS.toMinutes(diffEpochSeconds)
-        SharesOwnedInterval.DAILY -> TimeUnit.SECONDS.toDays(diffEpochSeconds)
-        SharesOwnedInterval.WEEKLY -> TimeUnit.SECONDS.toDays(diffEpochSeconds) / 7
-        SharesOwnedInterval.MONTHLY -> TimeUnit.SECONDS.toDays(diffEpochSeconds) / 30
+        SharesOwnedInterval.MINUTELY ->
+            ChronoUnit.MINUTES.between(
+                params.startDate.atStartOfDay(), params.endDate.atStartOfDay())
+        SharesOwnedInterval.DAILY -> ChronoUnit.DAYS.between(params.startDate, params.endDate)
+        SharesOwnedInterval.WEEKLY -> ChronoUnit.WEEKS.between(params.startDate, params.endDate)
+        SharesOwnedInterval.MONTHLY -> ChronoUnit.MONTHS.between(params.startDate, params.endDate)
       }
 
   TODO()
