@@ -5,6 +5,7 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.web.types.SharesOwnedResponse
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -36,7 +37,10 @@ fun createSharesOwnedRouteData(
           }
           .sortedBy { it.dateRangeStart }
           .toList()
-  TODO()
+
+  return createResponseDates(params).map { date ->
+    SharesOwnedResponse(date = date, shares = BigDecimal(""))
+  }
 }
 
 private fun createResponseDates(params: SharesOwnedRouteParams): List<LocalDateTime> {

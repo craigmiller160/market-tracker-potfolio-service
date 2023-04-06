@@ -1,6 +1,7 @@
 package io.craigmiller160.markettracker.portfolio.web.types
 
 import java.math.BigDecimal
-import java.time.ZonedDateTime
+import java.time.LocalDateTime
 
-data class SharesOwnedResponse(val date: ZonedDateTime, val shares: BigDecimal)
+// TODO rename the property and make ZDT probably... Actually look at what the UI requires
+data class SharesOwnedResponse(val date: LocalDateTime, val shares: BigDecimal)
