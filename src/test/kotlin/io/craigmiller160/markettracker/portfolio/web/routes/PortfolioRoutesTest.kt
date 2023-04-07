@@ -1,12 +1,15 @@
 package io.craigmiller160.markettracker.portfolio.web.routes
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioNameResponse
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
+import io.craigmiller160.markettracker.portfolio.testutils.userTypedId
 import io.craigmiller160.markettracker.portfolio.web.types.ErrorResponse
+import java.time.LocalDate
 import java.util.stream.Stream
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
@@ -123,6 +126,16 @@ constructor(
 
   @Test
   fun `get shares owned history for past week for stock in portfolio not owned by user`() {
+    val params =
+        SharesOwnedRouteParams(
+            stockSymbol = "VTI",
+            startDate = LocalDate.now(),
+            endDate = LocalDate.now().plusMonths(3),
+            interval = SharesOwnedInterval.DAILY,
+            userId = defaultUsers.primaryUser.userTypedId,
+            portfolioId = data.portfolios[1].id)
+    val result = createSharesOwnedRouteData(data, params)
+    println(result)
     TODO()
   }
 
