@@ -135,7 +135,10 @@ constructor(
             userId = defaultUsers.primaryUser.userTypedId,
             portfolioId = data.portfolios[1].id)
     val result = createSharesOwnedRouteData(data, params)
-    println(result)
+    println("START: ${LocalDate.now()}")
+    println("END: ${LocalDate.now().plusMonths(3)}")
+    val json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result)
+    println(json)
     TODO()
   }
 

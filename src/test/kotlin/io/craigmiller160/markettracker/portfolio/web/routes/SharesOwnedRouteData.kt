@@ -39,7 +39,7 @@ fun createSharesOwnedRouteData(
           .toList()
 
   return createResponseDates(params).map { date ->
-    SharesOwnedResponse(date = date, shares = BigDecimal(""))
+    SharesOwnedResponse(date = date, shares = BigDecimal("0"))
   }
 }
 
