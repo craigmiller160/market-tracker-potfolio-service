@@ -16,7 +16,6 @@ data class PortfolioRouteData(
 
 private val STOCKS: List<String> = listOf("VTI", "VXUS", "VOO")
 private val BASE_DATE = LocalDate.now()
-private const val DATE_RANGE_LENGTH = 10L
 
 fun createPortfolioRouteData(
     defaultUsers: DefaultUsers,
@@ -24,7 +23,7 @@ fun createPortfolioRouteData(
     numRecords: Int
 ): PortfolioRouteData {
   val portfolios = createPortfolios(defaultUsers)
-  val sharesOwned = createSharesOwned(portfolios)
+  val sharesOwned = createSharesOwned(portfolios, offsetDays, numRecords)
   return PortfolioRouteData(
       uniqueStocks = STOCKS, portfolios = portfolios, sharesOwned = sharesOwned)
 }
@@ -39,17 +38,21 @@ private fun createPortfolios(defaultUsers: DefaultUsers): List<Portfolio> =
           name = "Portfolio-$index")
     }
 
-private fun createSharesOwned(portfolios: List<Portfolio>): List<SharesOwned> =
-    portfolios.flatMapIndexed { portfolioIndex, portfolio ->
+private fun createSharesOwned(
+    portfolios: List<Portfolio>,
+    offsetDays: Int,
+    numRecords: Int
+): List<SharesOwned> =
+    portfolios.flatMap { portfolio ->
       STOCKS.flatMap { symbol ->
-        (0 until 100).map { index ->
-          val dateOffset = DATE_RANGE_LENGTH * index
+        (0 until numRecords).map { index ->
+          val dateOffset = offsetDays.toLong() * index
           SharesOwned(
               id = TypedId(),
               portfolioId = portfolio.id,
               userId = portfolio.userId,
               dateRangeStart = BASE_DATE.plusDays(dateOffset),
-              dateRangeEnd = BASE_DATE.plusDays(dateOffset + DATE_RANGE_LENGTH),
+              dateRangeEnd = BASE_DATE.plusDays(dateOffset + numRecords),
               symbol = symbol,
               totalShares = BigDecimal("${index + 1}"))
         }
