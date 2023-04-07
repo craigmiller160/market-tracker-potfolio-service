@@ -57,19 +57,17 @@ fun createSharesOwnedRouteData(
 
 private fun createResponseDates(params: SharesOwnedRouteParams): List<LocalDateTime> {
   val (intervalCount, modifier) = getValuesForInterval(params)
-  val base = params.startDate.atStartOfDay()
+  val base =
+      if (params.interval == SharesOwnedInterval.SINGLE) params.endDate.atStartOfDay()
+      else params.startDate.atStartOfDay()
 
   return (0 until intervalCount).map { index -> modifier(base, index) }
 }
 
 private fun getValuesForInterval(params: SharesOwnedRouteParams): IntervalValues =
     when (params.interval) {
-      SharesOwnedInterval.MINUTELY ->
-          IntervalValues(
-              intervalCount =
-                  ChronoUnit.MINUTES.between(
-                      params.startDate.atStartOfDay(), params.endDate.atStartOfDay()),
-              modifier = { base, index -> base.plusMinutes(index) })
+      SharesOwnedInterval.SINGLE ->
+          IntervalValues(intervalCount = 1, modifier = { base, _ -> base })
       SharesOwnedInterval.DAILY ->
           IntervalValues(
               intervalCount = ChronoUnit.DAYS.between(params.startDate, params.endDate),
