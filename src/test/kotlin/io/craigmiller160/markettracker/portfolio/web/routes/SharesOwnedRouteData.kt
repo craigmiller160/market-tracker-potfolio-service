@@ -10,6 +10,13 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
+data class CoreSharesOwnedRouteParams(
+    val stockSymbol: String,
+    val startDate: LocalDate,
+    val endDate: LocalDate,
+    val interval: SharesOwnedInterval
+)
+
 data class SharesOwnedRouteParams(
     val stockSymbol: String,
     val startDate: LocalDate,

@@ -1,12 +1,14 @@
 package io.craigmiller160.markettracker.portfolio.web.routes
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioNameResponse
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
 import io.craigmiller160.markettracker.portfolio.web.types.ErrorResponse
+import java.time.LocalDate
 import java.util.stream.Stream
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
@@ -27,9 +29,21 @@ constructor(
     private val objectMapper: ObjectMapper
 ) {
   companion object {
-    @JvmStatic fun sharesOwnedForStockInPortfolio(): Stream<Any> = TODO()
-
-    @JvmStatic fun sharesOwnedForStockInCombinedPortfolios(): Stream<Any> = TODO()
+    @JvmStatic
+    fun sharesOwnedForStock(): Stream<CoreSharesOwnedRouteParams> =
+        Stream.of(
+            CoreSharesOwnedRouteParams(
+                "VTI", LocalDate.now(), LocalDate.now().plusDays(1), SharesOwnedInterval.SINGLE),
+            CoreSharesOwnedRouteParams(
+                "VTI", LocalDate.now(), LocalDate.now().plusDays(7), SharesOwnedInterval.DAILY),
+            CoreSharesOwnedRouteParams(
+                "VTI", LocalDate.now(), LocalDate.now().plusMonths(1), SharesOwnedInterval.DAILY),
+            CoreSharesOwnedRouteParams(
+                "VTI", LocalDate.now(), LocalDate.now().plusMonths(3), SharesOwnedInterval.DAILY),
+            CoreSharesOwnedRouteParams(
+                "VTI", LocalDate.now(), LocalDate.now().plusYears(1), SharesOwnedInterval.WEEKLY),
+            CoreSharesOwnedRouteParams(
+                "VTI", LocalDate.now(), LocalDate.now().plusYears(5), SharesOwnedInterval.MONTHLY))
 
     @JvmStatic
     fun sharesOwnedBadRequestParams(): Stream<Any> =
@@ -126,7 +140,7 @@ constructor(
     TODO()
   }
 
-  @MethodSource("sharesOwnedForStockInPortfolio")
+  @MethodSource("sharesOwnedForStock")
   @ParameterizedTest
   fun `get shares owned for stock in portfolio`() {
     TODO()
@@ -154,7 +168,7 @@ constructor(
         .json(objectMapper.writeValueAsString(response))
   }
 
-  @MethodSource("sharesOwnedForStockInCombinedPortfolios")
+  @MethodSource("sharesOwnedForStock")
   @ParameterizedTest
   fun `get shares owned for stock in all portfolios`() {
     TODO()
