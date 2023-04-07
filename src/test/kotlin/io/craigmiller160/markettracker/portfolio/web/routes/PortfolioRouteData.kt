@@ -18,7 +18,11 @@ private val STOCKS: List<String> = listOf("VTI", "VXUS", "VOO")
 private val BASE_DATE = LocalDate.now()
 private const val DATE_RANGE_LENGTH = 10L
 
-fun createPortfolioRouteData(defaultUsers: DefaultUsers): PortfolioRouteData {
+fun createPortfolioRouteData(
+    defaultUsers: DefaultUsers,
+    offsetDays: Int,
+    numRecords: Int
+): PortfolioRouteData {
   val portfolios = createPortfolios(defaultUsers)
   val sharesOwned = createSharesOwned(portfolios)
   return PortfolioRouteData(

@@ -11,7 +11,6 @@ import io.craigmiller160.markettracker.portfolio.web.types.ErrorResponse
 import java.time.LocalDate
 import java.util.stream.Stream
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -60,17 +59,18 @@ constructor(
             SharesOwnedBadRequestParams("abc", "2022-01-02", "DAILY", "Error parsing startDate"))
   }
 
-  private val data = createPortfolioRouteData(defaultUsers)
-
-  @BeforeEach
-  fun setup() {
+  private fun createData(offsetDays: Int, numRecords: Int): PortfolioRouteData {
+    val data = createPortfolioRouteData(defaultUsers, offsetDays, numRecords)
     runBlocking {
       portfolioRepo.createAllPortfolios(data.portfolios)
       sharesOwnedRepo.createAllSharesOwned(data.sharesOwned)
     }
+    return data
   }
+
   @Test
   fun `gets list of portfolio names for user`() {
+    val data = createData(10, 100)
     val expectedResponse = data.portfolios.drop(1).map { it.toPortfolioNameResponse() }
     webTestClient
         .get()
@@ -85,6 +85,7 @@ constructor(
 
   @Test
   fun `gets list of stocks in portfolio for user`() {
+    val data = createData(10, 100)
     webTestClient
         .get()
         .uri("/portfolios/${data.portfolios[1].id}")
@@ -98,6 +99,7 @@ constructor(
 
   @Test
   fun `gets list of stocks in portfolio that the user does not own`() {
+    val data = createData(10, 100)
     webTestClient
         .get()
         .uri("/portfolios/${data.portfolios[0].id}")
@@ -111,6 +113,7 @@ constructor(
 
   @Test
   fun `gets a list of unique stocks for all portfolios combined`() {
+    val data = createData(10, 100)
     val expectedResponse =
         data.uniqueStocks
             .flatMap { stock ->
@@ -151,6 +154,7 @@ constructor(
   fun `return bad request exceptions for missing parameters for getting shares owned for stock in portfolio`(
       params: SharesOwnedBadRequestParams
   ) {
+    val data = createData(10, 100)
     val response =
         ErrorResponse(
             method = "GET",
