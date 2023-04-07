@@ -142,7 +142,7 @@ constructor(
 
   @MethodSource("sharesOwnedForStock")
   @ParameterizedTest
-  fun `get shares owned for stock in portfolio`() {
+  fun `get shares owned for stock in portfolio`(coreParams: CoreSharesOwnedRouteParams) {
     TODO()
   }
 
@@ -170,7 +170,7 @@ constructor(
 
   @MethodSource("sharesOwnedForStock")
   @ParameterizedTest
-  fun `get shares owned for stock in all portfolios`() {
+  fun `get shares owned for stock in all portfolios`(coreParams: CoreSharesOwnedRouteParams) {
     TODO()
   }
 
