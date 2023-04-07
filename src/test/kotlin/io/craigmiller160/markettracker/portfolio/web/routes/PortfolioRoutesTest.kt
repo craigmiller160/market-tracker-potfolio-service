@@ -155,7 +155,7 @@ constructor(
   }
 
   @MethodSource("sharesOwnedForStockInCombinedPortfolios")
-  @Test
+  @ParameterizedTest
   fun `get shares owned for stock in all portfolios`() {
     TODO()
   }
