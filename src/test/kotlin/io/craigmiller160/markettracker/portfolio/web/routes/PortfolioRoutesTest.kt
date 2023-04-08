@@ -11,6 +11,7 @@ import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolio
 import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
 import io.craigmiller160.markettracker.portfolio.testutils.userTypedId
 import io.craigmiller160.markettracker.portfolio.web.types.ErrorResponse
+import io.craigmiller160.markettracker.portfolio.web.types.SharesOwnedResponse
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.stream.Stream
@@ -145,7 +146,22 @@ constructor(
 
   @Test
   fun `get shares owned history for past week for stock in portfolio not owned by user`() {
-    TODO()
+    val coreParams =
+        CoreSharesOwnedRouteParams(
+            "VTI", LocalDate.now(), LocalDate.now().plusYears(5), SharesOwnedInterval.MONTHLY)
+    val numRecords = getNumRecordsForInterval(coreParams)
+    val data = createData(10, numRecords)
+    val params = coreParams.withKeys(defaultUsers.primaryUser.userTypedId, data.portfolios[0].id)
+
+    webTestClient
+        .get()
+        .uri("/portfolios/${params.portfolioId}/${params.stockSymbol}?${params.queryString}")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .is2xxSuccessful
+        .expectBody()
+        .json(objectMapper.writeValueAsString(listOf<SharesOwnedResponse>()))
   }
 
   @MethodSource("sharesOwnedForStock")
