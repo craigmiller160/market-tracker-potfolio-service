@@ -9,6 +9,9 @@ class MockRow(private val map: Map<String, Any?>) : Row {
   }
 
   override fun <T : Any?> get(name: String, type: Class<T>): T? {
+    if (!map.containsKey(name)) {
+      throw NoSuchElementException("Column name $name does not exist")
+    }
     val value = map[name] ?: return null
     if (!type.isAssignableFrom(value.javaClass)) {
       throw ClassCastException("Invalid type: ${type.name}")
