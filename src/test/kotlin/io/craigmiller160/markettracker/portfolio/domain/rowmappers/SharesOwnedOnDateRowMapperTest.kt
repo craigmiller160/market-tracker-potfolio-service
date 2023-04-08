@@ -23,14 +23,28 @@ class SharesOwnedOnDateRowMapperTest {
 
       val base =
           mapOf(
-              "userId" to userId, "date" to date, "symbol" to symbol, "totalShares" to totalShares)
-      val portfolioBase = base + mapOf("portfolioId" to portfolioId)
+              "user_id" to userId,
+              "date" to date,
+              "symbol" to symbol,
+              "total_shares" to totalShares)
+      val portfolioBase = base + mapOf("portfolio_id" to portfolioId)
 
       val record =
           SharesOwnedOnDate(
               userId = TypedId(userId), date = date, symbol = symbol, totalShares = totalShares)
       val portfolioRecord = record.copy(portfolioId = TypedId(portfolioId))
-      return Stream.of(base to Either.Right(record), portfolioBase to Either.Right(portfolioRecord))
+      return Stream.of(
+          base to Either.Right(record),
+          portfolioBase to Either.Right(portfolioRecord),
+          base + mapOf("user_id" to null) to nullLeft("user_id"),
+          base + mapOf("date" to null) to nullLeft("date"),
+          base + mapOf("symbol" to null) to nullLeft("symbol"),
+          base + mapOf("totalShares" to null) to nullLeft("totalShares"),
+          base + mapOf("user_id" to 123) to typeLeft("user_id", UUID::class.java),
+          base + mapOf("date" to 123) to typeLeft("date", LocalDate::class.java),
+          base + mapOf("symbol" to 123) to typeLeft("symbol", String::class.java),
+          base + mapOf("total_shares" to "hello") to
+              typeLeft("total_shares", BigDecimal::class.java))
     }
   }
 }
