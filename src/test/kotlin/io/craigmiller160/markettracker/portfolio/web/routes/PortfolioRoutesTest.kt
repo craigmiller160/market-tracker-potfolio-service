@@ -172,6 +172,8 @@ constructor(
     val params = coreParams.withKeys(defaultUsers.primaryUser.userTypedId, data.portfolios[1].id)
     val expectedResponse = createSharesOwnedRouteData(data, params)
 
+    // TODO expectedResponse, the first entry in a new date range contains the old range's share
+    // value. Fix this
     webTestClient
         .get()
         .uri("/portfolios/${params.portfolioId}/${params.stockSymbol}/shares?${params.queryString}")
