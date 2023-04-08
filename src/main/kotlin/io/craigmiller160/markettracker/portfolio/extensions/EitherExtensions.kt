@@ -14,6 +14,7 @@ suspend fun <A, B, C> Either<A, B>.coFlatMap(block: suspend (B) -> Either<A, C>)
 fun <T> T?.leftIfNull(message: String = ""): TryEither<T> =
     this?.let { Either.Right(it) } ?: Either.Left(NullPointerException("Value is null: $message"))
 
+@Suppress("USELESS_CAST")
 fun <T> Optional<T>.leftIfEmpty(message: String = ""): TryEither<T> =
     this.map { Either.Right(it) as Either<Throwable, T> }
         .orElse(Either.Left(NullPointerException("Value is null: $message")))
