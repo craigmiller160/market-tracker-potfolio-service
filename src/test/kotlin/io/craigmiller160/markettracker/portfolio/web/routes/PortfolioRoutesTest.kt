@@ -1,5 +1,7 @@
 package io.craigmiller160.markettracker.portfolio.web.routes
 
+import arrow.core.flatMap
+import arrow.core.getOrElse
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioNameResponse
@@ -59,13 +61,14 @@ constructor(
             SharesOwnedBadRequestParams("abc", "2022-01-02", "DAILY", "Error parsing startDate"))
   }
 
-  private fun createData(offsetDays: Int, numRecords: Int): PortfolioRouteData {
-    val data = createPortfolioRouteData(defaultUsers, offsetDays, numRecords)
-    runBlocking {
-      portfolioRepo.createAllPortfolios(data.portfolios)
-      sharesOwnedRepo.createAllSharesOwned(data.sharesOwned)
+  private fun createData(offsetDays: Int, numRecords: Int): PortfolioRouteData = runBlocking {
+    createPortfolioRouteData(defaultUsers, offsetDays, numRecords).let { data ->
+      portfolioRepo
+          .createAllPortfolios(data.portfolios)
+          .flatMap { sharesOwnedRepo.createAllSharesOwned(data.sharesOwned) }
+          .map { data }
+          .getOrElse { throw it }
     }
-    return data
   }
 
   @Test
