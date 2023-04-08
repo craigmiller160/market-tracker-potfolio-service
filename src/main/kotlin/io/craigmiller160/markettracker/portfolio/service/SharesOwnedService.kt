@@ -39,4 +39,18 @@ class SharesOwnedService(
                 userId, portfolioId, stockSymbol, startDate, endDate, interval)
           }
           .map { results -> results.map { it.toSharesOwnedResponse() } }
+
+  suspend fun getSharesOwnedForUserStock(
+      stockSymbol: String,
+      startDate: LocalDate,
+      endDate: LocalDate,
+      interval: SharesOwnedInterval
+  ): TryEither<List<SharesOwnedResponse>> =
+      authorizationService
+          .getUserId()
+          .let { userId ->
+            sharesOwnedRepository.getSharesOwnedAtIntervalForUser(
+                userId, stockSymbol, startDate, endDate, interval)
+          }
+          .map { results -> results.map { it.toSharesOwnedResponse() } }
 }
