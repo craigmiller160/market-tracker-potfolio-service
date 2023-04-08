@@ -72,6 +72,7 @@ class CraigMillerDownloaderService(
               .sequence()
         }
         .flatMap { responsesToPortfolios(it) }
+        .also { log.info("Completed download of Craig Miller portfolio data") }
   }
 
   private fun responsesToPortfolios(

@@ -7,6 +7,7 @@ import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepo
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.github.craigmiller160.fpresultkt.transaction.extensions.executeAndAwaitEither
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.reactive.TransactionalOperator
 
@@ -16,12 +17,13 @@ class PersistDownloadService(
     private val sharesOwnedRepository: SharesOwnedRepository,
     private val transactionOperator: TransactionalOperator
 ) {
+  private val log = LoggerFactory.getLogger(javaClass)
   suspend fun persistPortfolios(
       portfolios: List<PortfolioWithHistory>
-  ): TryEither<List<PortfolioWithHistory>> =
-      transactionOperator.executeAndAwaitEither {
-        portfolios.map { createPortfolio(it) }.sequence()
-      }
+  ): TryEither<List<PortfolioWithHistory>> {
+    log.info("Persisting portfolio data")
+    transactionOperator.executeAndAwaitEither { portfolios.map { createPortfolio(it) }.sequence() }
+  }
 
   private suspend fun createPortfolio(
       portfolio: PortfolioWithHistory
