@@ -32,4 +32,44 @@ constructor(
         .expectBody()
         .json(objectMapper.writeValueAsString(response))
   }
+
+  @Test
+  fun `missing parameter exception`() {
+    val response =
+        ErrorResponse(
+            method = "GET",
+            uri = "/throw-exception/missing-parameter",
+            message = "Bad Request: Missing required parameter: stuff",
+            status = 400)
+
+    webTestClient
+        .get()
+        .uri("/throw-exception/missing-parameter")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .isEqualTo(400)
+        .expectBody()
+        .json(objectMapper.writeValueAsString(response))
+  }
+
+  @Test
+  fun `bad request exception`() {
+    val response =
+        ErrorResponse(
+            method = "GET",
+            uri = "/throw-exception/bad-request",
+            message = "Bad Request: Dying",
+            status = 400)
+
+    webTestClient
+        .get()
+        .uri("/throw-exception/bad-request")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .isEqualTo(400)
+        .expectBody()
+        .json(objectMapper.writeValueAsString(response))
+  }
 }

@@ -70,6 +70,6 @@ tasks.withType<Test> {
 
 configure<SpotlessExtension> {
     kotlin {
-        ktfmt()
+        ktfmt("0.43")
     }
 }
