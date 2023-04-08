@@ -26,6 +26,21 @@ data class SharesOwnedRouteParams(
     val portfolioId: TypedId<PortfolioId>? = null
 )
 
+fun CoreSharesOwnedRouteParams.withKeys(
+    userId: TypedId<UserId>,
+    portfolioId: TypedId<PortfolioId>? = null
+): SharesOwnedRouteParams =
+    SharesOwnedRouteParams(
+        stockSymbol = this.stockSymbol,
+        startDate = this.startDate,
+        endDate = this.endDate,
+        interval = this.interval,
+        userId = userId,
+        portfolioId = portfolioId)
+
+val SharesOwnedRouteParams.queryString: String
+  get() = "stockSymbol=$stockSymbol&startDate=$startDate&endDate=$endDate&interval=$interval"
+
 fun createSharesOwnedRouteData(
     data: PortfolioRouteData,
     params: SharesOwnedRouteParams

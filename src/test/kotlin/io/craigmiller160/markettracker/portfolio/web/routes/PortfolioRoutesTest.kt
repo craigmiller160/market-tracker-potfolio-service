@@ -9,8 +9,10 @@ import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepo
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
+import io.craigmiller160.markettracker.portfolio.testutils.userTypedId
 import io.craigmiller160.markettracker.portfolio.web.types.ErrorResponse
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import java.util.stream.Stream
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
@@ -149,8 +151,30 @@ constructor(
   @MethodSource("sharesOwnedForStock")
   @ParameterizedTest
   fun `get shares owned for stock in portfolio`(coreParams: CoreSharesOwnedRouteParams) {
-    TODO()
+    val numRecords = getNumRecordsForInterval(coreParams)
+    val data = createData(10, numRecords)
+    val params = coreParams.withKeys(defaultUsers.primaryUser.userTypedId, data.portfolios[1].id)
+    val expectedResponse = createSharesOwnedRouteData(data, params)
+
+    webTestClient
+        .get()
+        .uri("/portfolios/${params.portfolioId}/${params.stockSymbol}?${params.queryString}")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .is2xxSuccessful
+        .expectBody()
+        .json(objectMapper.writeValueAsString(expectedResponse))
   }
+
+  private fun getNumRecordsForInterval(params: CoreSharesOwnedRouteParams): Int =
+      when (params.interval) {
+        SharesOwnedInterval.SINGLE -> 100
+        SharesOwnedInterval.DAILY -> ChronoUnit.DAYS.between(params.startDate, params.endDate) + 10
+        SharesOwnedInterval.WEEKLY -> ChronoUnit.DAYS.between(params.startDate, params.endDate) + 10
+        SharesOwnedInterval.MONTHLY ->
+            ChronoUnit.WEEKS.between(params.startDate, params.endDate) + 10
+      }.toInt()
 
   @MethodSource("sharesOwnedBadRequestParams")
   @ParameterizedTest
