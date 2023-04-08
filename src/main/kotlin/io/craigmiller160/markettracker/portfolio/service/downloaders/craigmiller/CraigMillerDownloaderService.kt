@@ -53,7 +53,6 @@ class CraigMillerDownloaderService(
     const val TOKEN_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:jwt-bearer"
     const val GRANT_TYPE_KEY = "grant_type"
     const val ASSERTION_KEY = "assertion"
-    val MAX_DATE: LocalDate = LocalDate.of(2100, 1, 1)
     val RELEVANT_ACTIONS = listOf(Action.BONUS, Action.BUY, Action.SELL)
   }
 
@@ -124,7 +123,7 @@ class CraigMillerDownloaderService(
             userId = downloaderConfig.userId,
             portfolioId = portfolioId,
             dateRangeStart = record.date,
-            dateRangeEnd = CraigMillerDownloaderService.MAX_DATE,
+            dateRangeEnd = DownloaderService.MAX_DATE,
             symbol = record.symbol,
             totalShares = record.shares)
     OwnershipContext(
@@ -155,7 +154,7 @@ class CraigMillerDownloaderService(
               userId = downloaderConfig.userId,
               portfolioId = portfolioId,
               dateRangeStart = record.record.date,
-              dateRangeEnd = MAX_DATE,
+              dateRangeEnd = DownloaderService.MAX_DATE,
               symbol = record.record.symbol,
               totalShares = totalShares)
 
