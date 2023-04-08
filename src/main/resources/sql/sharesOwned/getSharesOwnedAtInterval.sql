@@ -1,6 +1,10 @@
 WITH the_dates AS (
-    SELECT date_trunc('day', dd)::date AS the_date
-    FROM generate_series(:startDate::date, :endDate::date, :interval::interval) dd
+    SELECT CAST(date_trunc('day', dd) AS date) AS the_date
+    FROM generate_series(
+        CAST(:startDate AS date),
+        CAST(:endDate AS date),
+        CAST(:interval AS interval)
+    ) dd
 )
 SELECT td.the_date AS date, so.user_id, so.symbol, so.total_shares
 {{#portfolioId}}
