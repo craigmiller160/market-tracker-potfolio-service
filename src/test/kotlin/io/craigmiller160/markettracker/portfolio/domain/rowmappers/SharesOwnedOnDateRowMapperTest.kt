@@ -38,7 +38,7 @@ class SharesOwnedOnDateRowMapperTest {
           base + mapOf("user_id" to null) to nullLeft("user_id"),
           base + mapOf("date" to null) to nullLeft("date"),
           base + mapOf("symbol" to null) to nullLeft("symbol"),
-          base + mapOf("totalShares" to null) to nullLeft("totalShares"),
+          base + mapOf("total_shares" to null) to nullLeft("total_shares"),
           base + mapOf("user_id" to 123) to typeLeft("user_id", UUID::class.java),
           base + mapOf("date" to 123) to typeLeft("date", LocalDate::class.java),
           base + mapOf("symbol" to 123) to typeLeft("symbol", String::class.java),
