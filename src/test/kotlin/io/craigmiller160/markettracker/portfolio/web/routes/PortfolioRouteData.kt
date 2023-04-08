@@ -52,7 +52,7 @@ private fun createSharesOwned(
               portfolioId = portfolio.id,
               userId = portfolio.userId,
               dateRangeStart = BASE_DATE.plusDays(dateOffset),
-              dateRangeEnd = BASE_DATE.plusDays(dateOffset + numRecords),
+              dateRangeEnd = BASE_DATE.plusDays(dateOffset + offsetDays),
               symbol = symbol,
               totalShares = BigDecimal("${index + 1}"))
         }
