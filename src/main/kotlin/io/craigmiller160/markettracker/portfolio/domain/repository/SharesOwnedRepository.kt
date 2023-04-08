@@ -26,4 +26,12 @@ interface SharesOwnedRepository {
       endDate: LocalDate,
       interval: SharesOwnedInterval
   ): TryEither<List<PortfolioSharesOwnedOnDate>>
+
+  suspend fun getSharesOwnedAtIntervalForUser(
+      userId: TypedId<UserId>,
+      stockSymbol: String,
+      startDate: LocalDate,
+      endDate: LocalDate,
+      interval: SharesOwnedInterval
+  ): TryEither<List<PortfolioSharesOwnedOnDate>>
 }

@@ -103,4 +103,14 @@ class DatabaseClientSharesOwnedRepository(
   ): TryEither<List<PortfolioSharesOwnedOnDate>> {
     TODO("Not yet implemented")
   }
+
+  override suspend fun getSharesOwnedAtIntervalForUser(
+      userId: TypedId<UserId>,
+      stockSymbol: String,
+      startDate: LocalDate,
+      endDate: LocalDate,
+      interval: SharesOwnedInterval
+  ): TryEither<List<PortfolioSharesOwnedOnDate>> {
+    TODO("Not yet implemented")
+  }
 }
