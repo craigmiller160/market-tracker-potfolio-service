@@ -34,7 +34,9 @@ class PortfolioHandler(
     val startDate = request.startDate
     val endDate = request.endDate
     val interval = request.interval
-    TODO()
+    return sharesOwnedService
+        .getSharesOwnedForPortfolioStock(portfolioId, stockSymbol, startDate, endDate, interval)
+        .toResponse()
   }
 
   suspend fun getStocksForAllPortfoliosCombined(request: ServerRequest): ServerResponse =
@@ -45,7 +47,9 @@ class PortfolioHandler(
     val startDate = request.startDate
     val endDate = request.endDate
     val interval = request.interval
-    TODO()
+    return sharesOwnedService
+        .getSharesOwnedForUserStock(stockSymbol, startDate, endDate, interval)
+        .toResponse()
   }
 
   // TODO cleanup these functions a bit more
