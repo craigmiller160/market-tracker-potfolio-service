@@ -3,7 +3,6 @@ package io.craigmiller160.markettracker.portfolio.domain.rowmappers
 import arrow.core.Either
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedOnDate
-import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.UUID
@@ -11,12 +10,10 @@ import java.util.stream.Stream
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-private typealias Data = Pair<Map<String, Any?>, TryEither<SharesOwnedOnDate>>
-
 class SharesOwnedOnDateRowMapperTest {
   companion object {
     @JvmStatic
-    fun data(): Stream<Data> {
+    fun data(): Stream<RowMapperData<SharesOwnedOnDate>> {
       val userId = UUID.randomUUID()
       val portfolioId = UUID.randomUUID()
       val date = LocalDate.of(2020, 1, 1)
@@ -52,7 +49,7 @@ class SharesOwnedOnDateRowMapperTest {
 
   @ParameterizedTest
   @MethodSource("data")
-  fun `maps SharesOwnedOnDate from row`(data: Data) {
-    TODO()
+  fun `maps SharesOwnedOnDate from row`(data: RowMapperData<SharesOwnedOnDate>) {
+    validateRowMapper(sharesOwnedOnDateRowMapper, data)
   }
 }
