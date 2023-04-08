@@ -30,6 +30,7 @@ class DatabaseClientSharesOwnedRepository(
   companion object {
     private const val INSERT_SHARES_OWNED_SQL = "sharesOwned/insertSharesOwnedBatch.sql"
     private const val FIND_UNIQUE_STOCKS_SQL = "sharesOwned/findUniqueStocks.sql"
+    private const val GET_SHARES_OWNED_AT_INTERVAL_SQL = "sharesOwned/getSharesOwnedAtInterval.sql"
   }
   override suspend fun createAllSharesOwned(
       sharesOwned: List<SharesOwned>
@@ -106,6 +107,15 @@ class DatabaseClientSharesOwnedRepository(
       endDate: LocalDate,
       interval: SharesOwnedInterval
   ): TryEither<List<PortfolioSharesOwnedOnDate>> {
+    sqlLoader
+        .loadSqlMustacheTemplate(GET_SHARES_OWNED_AT_INTERVAL_SQL)
+        .flatMap { template -> template.executeWithSectionsEnabled("portfolioId") }
+        .mapCatch { sql ->
+          databaseClient
+              .sql(sql)
+              .bind("userId", userId.value)
+              .bind("portfolioId", portfolioId.value)
+        }
     TODO("Not yet implemented")
   }
 
@@ -116,6 +126,10 @@ class DatabaseClientSharesOwnedRepository(
       endDate: LocalDate,
       interval: SharesOwnedInterval
   ): TryEither<List<PortfolioSharesOwnedOnDate>> {
+    sqlLoader
+        .loadSqlMustacheTemplate(GET_SHARES_OWNED_AT_INTERVAL_SQL)
+        .flatMap { template -> template.executeWithSectionsEnabled() }
+        .mapCatch { sql -> databaseClient.sql(sql).bind("userId", userId.value) }
     TODO("Not yet implemented")
   }
 }
