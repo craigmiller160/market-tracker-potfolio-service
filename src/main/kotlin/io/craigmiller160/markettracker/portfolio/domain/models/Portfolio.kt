@@ -11,5 +11,5 @@ interface Portfolio {
   val name: String
 }
 
-fun Portfolio.toPortfolioNameResponse(): PortfolioResponse =
+fun Portfolio.toPortfolioResponse(): PortfolioResponse =
     PortfolioResponse(id = this.id, name = this.name)

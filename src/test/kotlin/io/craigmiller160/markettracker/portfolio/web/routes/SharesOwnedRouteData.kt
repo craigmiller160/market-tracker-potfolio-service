@@ -66,7 +66,8 @@ fun createSharesOwnedRouteData(
           date >= record.dateRangeStart.atStartOfDay() && date <= record.dateRangeEnd.atStartOfDay()
         }
 
-    SharesOwnedResponse(date = date, shares = sharesOwnedRecord?.totalShares ?: BigDecimal("0"))
+    SharesOwnedResponse(
+        date = date, totalShares = sharesOwnedRecord?.totalShares ?: BigDecimal("0"))
   }
 }
 

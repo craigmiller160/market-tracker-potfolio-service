@@ -4,7 +4,7 @@ import arrow.core.flatMap
 import arrow.core.getOrElse
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
-import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioNameResponse
+import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioResponse
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
@@ -77,7 +77,7 @@ constructor(
   @Test
   fun `gets list of portfolio names for user`() {
     val data = createData(10, 100)
-    val expectedResponse = data.portfolios.drop(1).map { it.toPortfolioNameResponse() }
+    val expectedResponse = data.portfolios.drop(1).map { it.toPortfolioResponse() }
     webTestClient
         .get()
         .uri("/portfolios")
