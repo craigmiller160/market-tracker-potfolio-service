@@ -1,6 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.service
 
-import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioNameResponse
+import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioResponse
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.web.types.PortfolioResponse
@@ -13,6 +13,6 @@ class PortfolioService(
 ) {
   suspend fun getPortfolios(): TryEither<List<PortfolioResponse>> =
       portfolioRepository.findAllForUser(authorizationService.getUserId()).map { portfolios ->
-        portfolios.map { it.toPortfolioNameResponse() }
+        portfolios.map { it.toPortfolioResponse() }
       }
 }

@@ -5,7 +5,7 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.BasePortfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
-import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioNameResponse
+import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioResponse
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
@@ -76,7 +76,7 @@ constructor(
   }
   @Test
   fun `gets list of portfolio names for user`() {
-    val expectedResponse = portfolios.drop(1).map { it.toPortfolioNameResponse() }
+    val expectedResponse = portfolios.drop(1).map { it.toPortfolioResponse() }
     webTestClient
         .get()
         .uri("/portfolios")
