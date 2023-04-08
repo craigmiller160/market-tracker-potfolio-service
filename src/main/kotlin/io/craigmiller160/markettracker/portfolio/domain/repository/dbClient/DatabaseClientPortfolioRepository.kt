@@ -63,7 +63,6 @@ class DatabaseClientPortfolioRepository(
                 .bind("userId", userId.value)
                 .map(portfolioRowMapper)
                 .all()
-                .toFlux()
                 .asFlow()
           }
           .flatMap { it.toList().sequence() }

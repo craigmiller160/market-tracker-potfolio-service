@@ -2,6 +2,7 @@ package io.craigmiller160.markettracker.portfolio.domain.repository.dbClient
 
 import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
@@ -10,6 +11,7 @@ import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterv
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedOnDate
 import io.craigmiller160.markettracker.portfolio.domain.models.dateRange
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
+import io.craigmiller160.markettracker.portfolio.domain.rowmappers.sharesOwnedOnDateRowMapper
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.coFlatMap
@@ -106,18 +108,20 @@ class DatabaseClientSharesOwnedRepository(
       startDate: LocalDate,
       endDate: LocalDate,
       interval: SharesOwnedInterval
-  ): TryEither<List<SharesOwnedOnDate>> {
-    sqlLoader
-        .loadSqlMustacheTemplate(GET_SHARES_OWNED_AT_INTERVAL_SQL)
-        .flatMap { template -> template.executeWithSectionsEnabled("portfolioId") }
-        .mapCatch { sql ->
-          databaseClient
-              .sql(sql)
-              .bind("userId", userId.value)
-              .bind("portfolioId", portfolioId.value)
-        }
-    TODO("Not yet implemented")
-  }
+  ): TryEither<List<SharesOwnedOnDate>> =
+      sqlLoader
+          .loadSqlMustacheTemplate(GET_SHARES_OWNED_AT_INTERVAL_SQL)
+          .flatMap { template -> template.executeWithSectionsEnabled("portfolioId") }
+          .mapCatch { sql ->
+            databaseClient
+                .sql(sql)
+                .bind("userId", userId.value)
+                .bind("portfolioId", portfolioId.value)
+                .map(sharesOwnedOnDateRowMapper)
+                .all()
+                .asFlow()
+          }
+          .coFlatMap { flow -> flow.toList().sequence() }
 
   override suspend fun getSharesOwnedAtIntervalForUser(
       userId: TypedId<UserId>,
@@ -125,11 +129,17 @@ class DatabaseClientSharesOwnedRepository(
       startDate: LocalDate,
       endDate: LocalDate,
       interval: SharesOwnedInterval
-  ): TryEither<List<SharesOwnedOnDate>> {
-    sqlLoader
-        .loadSqlMustacheTemplate(GET_SHARES_OWNED_AT_INTERVAL_SQL)
-        .flatMap { template -> template.executeWithSectionsEnabled() }
-        .mapCatch { sql -> databaseClient.sql(sql).bind("userId", userId.value) }
-    TODO("Not yet implemented")
-  }
+  ): TryEither<List<SharesOwnedOnDate>> =
+      sqlLoader
+          .loadSqlMustacheTemplate(GET_SHARES_OWNED_AT_INTERVAL_SQL)
+          .flatMap { template -> template.executeWithSectionsEnabled() }
+          .mapCatch { sql ->
+            databaseClient
+                .sql(sql)
+                .bind("userId", userId.value)
+                .map(sharesOwnedOnDateRowMapper)
+                .all()
+                .asFlow()
+          }
+          .coFlatMap { flow -> flow.toList().sequence() }
 }
