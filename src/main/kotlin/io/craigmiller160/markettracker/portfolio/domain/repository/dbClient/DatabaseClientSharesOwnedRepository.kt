@@ -1,6 +1,7 @@
 package io.craigmiller160.markettracker.portfolio.domain.repository.dbClient
 
 import arrow.core.Either
+import arrow.core.flatMap
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
@@ -25,9 +26,7 @@ class DatabaseClientSharesOwnedRepository(
 ) : SharesOwnedRepository {
   companion object {
     private const val INSERT_SHARES_OWNED_SQL = "sharesOwned/insertSharesOwnedBatch.sql"
-    private const val FIND_UNIQUE_STOCKS_IN_PORTFOLIO_SQL =
-        "sharesOwned/findUniqueStocksInPortfolio.sql"
-    private const val FIND_UNIQUE_STOCKS_FOR_USER_SQL = "sharesOwned/findUniqueStocksForUser.sql"
+    private const val FIND_UNIQUE_STOCKS_SQL = "sharesOwned/findUniqueStocks.sql"
   }
   override suspend fun createAllSharesOwned(
       sharesOwned: List<SharesOwned>
@@ -66,27 +65,33 @@ class DatabaseClientSharesOwnedRepository(
       userId: TypedId<UserId>,
       portfolioId: TypedId<PortfolioId>
   ): TryEither<List<String>> =
-      sqlLoader.loadSql(FIND_UNIQUE_STOCKS_IN_PORTFOLIO_SQL).mapCatch { sql ->
-        databaseClient
-            .sql(sql)
-            .bind("userId", userId.value)
-            .bind("portfolioId", portfolioId.value)
-            .map { row -> row.get("symbol")?.toString() }
-            .all()
-            .toIterable()
-            .toList()
-            .filterNotNull()
-      }
+      sqlLoader
+          .loadSqlMustacheTemplate(FIND_UNIQUE_STOCKS_SQL)
+          .flatMap { template -> template.executeWithSectionsEnabled("portfolioId") }
+          .mapCatch { sql ->
+            databaseClient
+                .sql(sql)
+                .bind("userId", userId.value)
+                .bind("portfolioId", portfolioId.value)
+                .map { row -> row.get("symbol")?.toString() }
+                .all()
+                .toIterable()
+                .toList()
+                .filterNotNull()
+          }
 
   override suspend fun findUniqueStocksForUser(userId: TypedId<UserId>): TryEither<List<String>> =
-      sqlLoader.loadSql(FIND_UNIQUE_STOCKS_FOR_USER_SQL).mapCatch { sql ->
-        databaseClient
-            .sql(sql)
-            .bind("userId", userId.value)
-            .map { row -> row.get("symbol")?.toString() }
-            .all()
-            .toIterable()
-            .toList()
-            .filterNotNull()
-      }
+      sqlLoader
+          .loadSqlMustacheTemplate(FIND_UNIQUE_STOCKS_SQL)
+          .flatMap { template -> template.executeWithSectionsEnabled() }
+          .mapCatch { sql ->
+            databaseClient
+                .sql(sql)
+                .bind("userId", userId.value)
+                .map { row -> row.get("symbol")?.toString() }
+                .all()
+                .toIterable()
+                .toList()
+                .filterNotNull()
+          }
 }
