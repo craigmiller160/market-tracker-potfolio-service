@@ -7,7 +7,6 @@ import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterv
 import io.craigmiller160.markettracker.portfolio.web.types.SharesOwnedResponse
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
 data class CoreSharesOwnedRouteParams(
@@ -62,20 +61,16 @@ fun createSharesOwnedRouteData(
 
   return createResponseDates(params).map { date ->
     val sharesOwnedRecord =
-        sharesOwned.find { record ->
-          date >= record.dateRangeStart.atStartOfDay() && date <= record.dateRangeEnd.atStartOfDay()
-        }
+        sharesOwned.find { record -> date >= record.dateRangeStart && date <= record.dateRangeEnd }
 
     SharesOwnedResponse(
         date = date, totalShares = sharesOwnedRecord?.totalShares ?: BigDecimal("0"))
   }
 }
 
-private fun createResponseDates(params: SharesOwnedRouteParams): List<LocalDateTime> {
+private fun createResponseDates(params: SharesOwnedRouteParams): List<LocalDate> {
   val (intervalCount, modifier) = getValuesForInterval(params)
-  val base =
-      if (params.interval == SharesOwnedInterval.SINGLE) params.endDate.atStartOfDay()
-      else params.startDate.atStartOfDay()
+  val base = if (params.interval == SharesOwnedInterval.SINGLE) params.endDate else params.startDate
 
   return (0 until intervalCount).map { index -> modifier(base, index) }
 }
@@ -98,6 +93,6 @@ private fun getValuesForInterval(params: SharesOwnedRouteParams): IntervalValues
               modifier = { base, index -> base.plusMonths(index) })
     }
 
-private typealias TimestampModifier = (LocalDateTime, Long) -> LocalDateTime
+private typealias TimestampModifier = (LocalDate, Long) -> LocalDate
 
 private data class IntervalValues(val intervalCount: Long, val modifier: TimestampModifier)
