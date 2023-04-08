@@ -2,7 +2,7 @@ WITH the_dates AS (
     SELECT date_trunc('day', dd)::date AS the_date
     FROM generate_series(:startDate::date, :endDate::date, :interval::interval) dd
 )
-SELECT td.the_date, so.user_id, so.symbol, so.total_shares
+SELECT td.the_date AS date, so.user_id, so.symbol, so.total_shares
 {{#portfolioId}}
 so.portfolio_id
 {{/portfolioId}}
