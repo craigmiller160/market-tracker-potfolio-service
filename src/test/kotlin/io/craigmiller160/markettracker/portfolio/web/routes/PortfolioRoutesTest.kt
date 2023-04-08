@@ -54,16 +54,15 @@ constructor(
   @Test
   fun `gets list of stocks in portfolio for user`() {
     val data = createData(10, 100)
-    val expectedResponse = data.uniqueStocks.map { "$it-1" }.sorted()
     webTestClient
         .get()
-        .uri("/portfolios/$data.{portfolios[1].id}")
+        .uri("/portfolios/${data.portfolios[1].id}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
         .is2xxSuccessful
         .expectBody()
-        .json(objectMapper.writeValueAsString(expectedResponse))
+        .json(objectMapper.writeValueAsString(data.uniqueStocks))
   }
 
   @Test
@@ -104,6 +103,6 @@ constructor(
         .expectStatus()
         .is2xxSuccessful
         .expectBody()
-        .json(objectMapper.writeValueAsString(expectedResponse))
+        .json(objectMapper.writeValueAsString(data.uniqueStocks))
   }
 }
