@@ -201,8 +201,23 @@ constructor(
 
   @MethodSource("sharesOwnedForStock")
   @ParameterizedTest
-  fun `get shares owned for stock in all portfolios`(coreParams: CoreSharesOwnedRouteParams) {
-    TODO()
+  fun `get shares owned for stock in all portfolios combined`(
+      coreParams: CoreSharesOwnedRouteParams
+  ) {
+    val numRecords = getNumRecordsForInterval(coreParams)
+    val data = createData(10, numRecords)
+    val params = coreParams.withKeys(defaultUsers.primaryUser.userTypedId)
+    val expectedResponse = createSharesOwnedRouteData(data, params)
+
+    webTestClient
+        .get()
+        .uri("/portfolios/combined/${params.stockSymbol}?${params.queryString}")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .is2xxSuccessful
+        .expectBody()
+        .json(objectMapper.writeValueAsString(expectedResponse))
   }
 
   @MethodSource("sharesOwnedBadRequestParams")
