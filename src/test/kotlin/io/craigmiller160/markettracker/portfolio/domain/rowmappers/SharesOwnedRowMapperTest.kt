@@ -11,7 +11,6 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.r2dbc.spi.RowMetadata
-import java.lang.IllegalArgumentException
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.UUID
@@ -64,14 +63,6 @@ class SharesOwnedRowMapperTest {
           base + mapOf("symbol" to 1) to typeLeft("symbol", String::class.java),
           base + mapOf("total_shares" to 1) to typeLeft("total_shares", BigDecimal::class.java))
     }
-
-    private fun typeLeft(column: String, type: Class<*>): Either<Throwable, SharesOwned> =
-        Either.Left(
-            IllegalArgumentException(
-                "Error getting column $column", ClassCastException("Invalid type: ${type.name}")))
-
-    private fun nullLeft(column: String): Either<Throwable, SharesOwned> =
-        Either.Left(NullPointerException("Value is null: Missing $column column"))
   }
 
   private val metadata: RowMetadata = mockk()
