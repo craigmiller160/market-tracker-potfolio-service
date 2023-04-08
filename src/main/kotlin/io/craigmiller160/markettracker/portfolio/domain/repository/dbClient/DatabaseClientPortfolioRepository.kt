@@ -13,7 +13,6 @@ import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.coFlatMap
 import io.craigmiller160.markettracker.portfolio.extensions.mapCatch
 import io.craigmiller160.markettracker.portfolio.extensions.toSqlBatches
-import kotlinx.coroutines.flow.flatMap
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.r2dbc.core.DatabaseClient
