@@ -9,9 +9,10 @@ import org.springframework.stereotype.Service
 
 @Service
 class AuthorizationService {
-  suspend fun getUserId(): TypedId<UserId> {
-    val jwt =
-        ReactiveSecurityContextHolder.getContext().awaitSingle().authentication.principal as Jwt
-    return TypedId(jwt.subject)
-  }
+  suspend fun getUserId(): TypedId<UserId> =
+      ReactiveSecurityContextHolder.getContext()
+          .awaitSingle()
+          .authentication
+          .let { it.principal as Jwt }
+          .let { TypedId(it.subject) }
 }
