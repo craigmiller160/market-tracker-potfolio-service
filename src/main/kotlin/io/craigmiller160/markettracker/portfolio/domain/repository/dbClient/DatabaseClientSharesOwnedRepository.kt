@@ -116,6 +116,7 @@ class DatabaseClientSharesOwnedRepository(
             databaseClient
                 .sql(sql)
                 .bind("userId", userId.value)
+                .bind("symbol", stockSymbol)
                 .bind("portfolioId", portfolioId.value)
                 .bind("startDate", startDate)
                 .bind("endDate", endDate)
@@ -140,6 +141,7 @@ class DatabaseClientSharesOwnedRepository(
             databaseClient
                 .sql(sql)
                 .bind("userId", userId.value)
+                .bind("symbol", stockSymbol)
                 .bind("startDate", startDate)
                 .bind("endDate", endDate)
                 .bind("interval", interval.sql)

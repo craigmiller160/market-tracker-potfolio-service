@@ -10,6 +10,7 @@ td.the_date AS date, so.user_id, so.symbol, so.total_shares
 FROM the_dates td
 JOIN shares_owned so ON td.the_date <@ so.date_range
 WHERE so.user_id = :userId
+AND so.symbol = :symbol
 {{#portfolioId}}
 AND so.portfolio_id = :portfolioId
 {{/portfolioId}}
