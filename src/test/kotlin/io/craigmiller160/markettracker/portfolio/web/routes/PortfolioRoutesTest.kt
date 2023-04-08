@@ -155,7 +155,7 @@ constructor(
 
     webTestClient
         .get()
-        .uri("/portfolios/${params.portfolioId}/${params.stockSymbol}?${params.queryString}")
+        .uri("/portfolios/${params.portfolioId}/${params.stockSymbol}/shares?${params.queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -174,7 +174,7 @@ constructor(
 
     webTestClient
         .get()
-        .uri("/portfolios/${params.portfolioId}/${params.stockSymbol}?${params.queryString}")
+        .uri("/portfolios/${params.portfolioId}/${params.stockSymbol}/shares?${params.queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -227,7 +227,7 @@ constructor(
 
     webTestClient
         .get()
-        .uri("/portfolios/combined/${params.stockSymbol}?${params.queryString}")
+        .uri("/portfolios/combined/${params.stockSymbol}/shares?${params.queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
