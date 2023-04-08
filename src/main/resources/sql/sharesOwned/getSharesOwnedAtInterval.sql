@@ -1,10 +1,6 @@
 WITH the_dates AS (
-    SELECT CAST(date_trunc('day', dd) AS date) AS the_date
-    FROM generate_series(
-        CAST(:startDate AS date),
-        CAST(:endDate AS date),
-        CAST(:interval AS interval)
-    ) dd
+    SELECT date_trunc('day', dd)::date AS the_date
+    FROM generate_series(:startDate::date, :endDate::date, :interval::interval) dd
 )
 SELECT
 {{#portfolioId}}
