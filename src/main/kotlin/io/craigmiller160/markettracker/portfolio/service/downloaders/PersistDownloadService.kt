@@ -22,7 +22,9 @@ class PersistDownloadService(
       portfolios: List<PortfolioWithHistory>
   ): TryEither<List<PortfolioWithHistory>> {
     log.info("Persisting portfolio data")
-    transactionOperator.executeAndAwaitEither { portfolios.map { createPortfolio(it) }.sequence() }
+    return transactionOperator.executeAndAwaitEither {
+      portfolios.map { createPortfolio(it) }.sequence()
+    }
   }
 
   private suspend fun createPortfolio(
