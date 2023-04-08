@@ -30,7 +30,7 @@ private val METADATA: RowMetadata =
 fun <T> validateRowMapper(rowMapper: RowMapper<T>, data: RowMapperData<T>) {
   val (map, expected) = data
   val row = MockRow(map)
-  val actual = portfolioRowMapper(row, METADATA)
+  val actual = rowMapper(row, METADATA)
   when (expected) {
     is Either.Right -> actual.shouldBeRight(expected.value)
     is Either.Left -> {
