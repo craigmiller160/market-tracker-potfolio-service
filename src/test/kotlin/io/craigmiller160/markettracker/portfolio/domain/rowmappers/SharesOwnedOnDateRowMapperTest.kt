@@ -8,6 +8,8 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.UUID
 import java.util.stream.Stream
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 
 private typealias Data = Pair<Map<String, Any?>, TryEither<SharesOwnedOnDate>>
 
@@ -46,5 +48,11 @@ class SharesOwnedOnDateRowMapperTest {
           base + mapOf("total_shares" to "hello") to
               typeLeft("total_shares", BigDecimal::class.java))
     }
+  }
+
+  @ParameterizedTest
+  @MethodSource("data")
+  fun `maps SharesOwnedOnDate from row`(data: Data) {
+    TODO()
   }
 }
