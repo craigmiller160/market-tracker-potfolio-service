@@ -5,9 +5,9 @@ import arrow.core.flatMap
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
-import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioSharesOwnedOnDate
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
+import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedOnDate
 import io.craigmiller160.markettracker.portfolio.domain.models.dateRange
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
@@ -106,7 +106,7 @@ class DatabaseClientSharesOwnedRepository(
       startDate: LocalDate,
       endDate: LocalDate,
       interval: SharesOwnedInterval
-  ): TryEither<List<PortfolioSharesOwnedOnDate>> {
+  ): TryEither<List<SharesOwnedOnDate>> {
     sqlLoader
         .loadSqlMustacheTemplate(GET_SHARES_OWNED_AT_INTERVAL_SQL)
         .flatMap { template -> template.executeWithSectionsEnabled("portfolioId") }
@@ -125,7 +125,7 @@ class DatabaseClientSharesOwnedRepository(
       startDate: LocalDate,
       endDate: LocalDate,
       interval: SharesOwnedInterval
-  ): TryEither<List<PortfolioSharesOwnedOnDate>> {
+  ): TryEither<List<SharesOwnedOnDate>> {
     sqlLoader
         .loadSqlMustacheTemplate(GET_SHARES_OWNED_AT_INTERVAL_SQL)
         .flatMap { template -> template.executeWithSectionsEnabled() }

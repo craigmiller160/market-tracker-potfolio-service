@@ -3,9 +3,9 @@ package io.craigmiller160.markettracker.portfolio.domain.repository
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
-import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioSharesOwnedOnDate
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
+import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedOnDate
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import java.time.LocalDate
 
@@ -25,7 +25,7 @@ interface SharesOwnedRepository {
       startDate: LocalDate,
       endDate: LocalDate,
       interval: SharesOwnedInterval
-  ): TryEither<List<PortfolioSharesOwnedOnDate>>
+  ): TryEither<List<SharesOwnedOnDate>>
 
   suspend fun getSharesOwnedAtIntervalForUser(
       userId: TypedId<UserId>,
@@ -33,5 +33,5 @@ interface SharesOwnedRepository {
       startDate: LocalDate,
       endDate: LocalDate,
       interval: SharesOwnedInterval
-  ): TryEither<List<PortfolioSharesOwnedOnDate>>
+  ): TryEither<List<SharesOwnedOnDate>>
 }
