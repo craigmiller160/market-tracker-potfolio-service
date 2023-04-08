@@ -28,9 +28,7 @@ class DatabaseClientSharesOwnedRepository(
 ) : SharesOwnedRepository {
   companion object {
     private const val INSERT_SHARES_OWNED_SQL = "sharesOwned/insertSharesOwnedBatch.sql"
-    private const val FIND_UNIQUE_STOCKS_IN_PORTFOLIO_SQL =
-        "sharesOwned/findUniqueStocksInPortfolio.sql"
-    private const val FIND_UNIQUE_STOCKS_FOR_USER_SQL = "sharesOwned/findUniqueStocksForUser.sql"
+    private const val FIND_UNIQUE_STOCKS_SQL = "sharesOwned/findUniqueStocks.sql"
   }
   override suspend fun createAllSharesOwned(
       sharesOwned: List<SharesOwned>
@@ -69,7 +67,7 @@ class DatabaseClientSharesOwnedRepository(
       userId: TypedId<UserId>,
       portfolioId: TypedId<PortfolioId>
   ): TryEither<List<String>> =
-      sqlLoader.loadSql(FIND_UNIQUE_STOCKS_IN_PORTFOLIO_SQL).mapCatch { sql ->
+      sqlLoader.loadSql(FIND_UNIQUE_STOCKS_SQL).mapCatch { sql ->
         databaseClient
             .sql(sql)
             .bind("userId", userId.value)
