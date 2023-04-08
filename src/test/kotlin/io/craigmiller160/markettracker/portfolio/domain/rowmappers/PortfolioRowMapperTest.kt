@@ -29,27 +29,12 @@ class PortfolioRowMapperTest {
       val portfolio = BasePortfolio(id = TypedId(id), userId = TypedId(userId), name = name)
       return Stream.of(
           base to Either.Right(portfolio),
-          base + mapOf("id" to null) to
-              Either.Left(NullPointerException("Value is null: Missing id column")),
-          base + mapOf("user_id" to null) to
-              Either.Left(NullPointerException("Value is null: Missing user_id column")),
-          base + mapOf("name" to null) to
-              Either.Left(NullPointerException("Value is null: Missing name column")),
-          base + mapOf("id" to "Hello") to
-              Either.Left(
-                  IllegalArgumentException(
-                      "Error getting column id",
-                      ClassCastException("Invalid type: java.util.UUID"))),
-          base + mapOf("user_id" to "Hello") to
-              Either.Left(
-                  IllegalArgumentException(
-                      "Error getting column user_id",
-                      ClassCastException("Invalid type: java.util.UUID"))),
-          base + mapOf("name" to 123) to
-              Either.Left(
-                  IllegalArgumentException(
-                      "Error getting column name",
-                      ClassCastException("Invalid type: java.lang.String"))))
+          base + mapOf("id" to null) to nullLeft("id"),
+          base + mapOf("user_id" to null) to nullLeft("user_id"),
+          base + mapOf("name" to null) to nullLeft("name"),
+          base + mapOf("id" to "Hello") to typeLeft("id", UUID::class.java),
+          base + mapOf("user_id" to "Hello") to typeLeft("user_id", String::class.java),
+          base + mapOf("name" to 123) to typeLeft("name", String::class.java))
     }
   }
 
