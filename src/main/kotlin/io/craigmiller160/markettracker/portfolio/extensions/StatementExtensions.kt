@@ -11,10 +11,15 @@ private fun <T> List<T>.mapToStatementBatch(
     block: (T, Statement) -> Statement
 ): List<StatementBatchBinder> = map { record -> { stmt: Statement -> block(record, stmt) } }
 
-private fun List<StatementBatchBinder>.reduceStatementBatches(statement: Statement): Statement =
-    reduce { first, second ->
-      { stmt ->
-        first(stmt).add()
-        second(stmt)
-      }
-    }(statement)
+private fun List<StatementBatchBinder>.reduceStatementBatches(statement: Statement): Statement {
+  if (isEmpty()) {
+    return statement
+  }
+
+  return reduce { first, second ->
+    { stmt ->
+      first(stmt).add()
+      second(stmt)
+    }
+  }(statement)
+}

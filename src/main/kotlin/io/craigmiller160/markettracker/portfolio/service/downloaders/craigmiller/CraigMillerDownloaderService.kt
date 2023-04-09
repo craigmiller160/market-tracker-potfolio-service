@@ -72,6 +72,7 @@ class CraigMillerDownloaderService(
               .sequence()
         }
         .flatMap { responsesToPortfolios(it) }
+        .also { log.info("Completed download of Craig Miller portfolio data") }
   }
 
   private fun responsesToPortfolios(
@@ -167,7 +168,7 @@ class CraigMillerDownloaderService(
                   } else {
                     lastSharesOwned?.let { lastSharesOwnedReal ->
                       list[list.size - 1] =
-                          lastSharesOwnedReal.copy(dateRangeEnd = record.record.date.minusDays(1))
+                          lastSharesOwnedReal.copy(dateRangeEnd = record.record.date)
                     }
                     list += newSharesOwned
                   }

@@ -10,6 +10,7 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
+import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlinx.coroutines.runBlocking
@@ -98,16 +99,14 @@ constructor(
         ->
         Either.catch {
               val expected = expectedSharesOwned[innerIndex]
-              actual.userId.shouldBeEqualComparingTo(expected.userId)
-              actual.portfolioId.shouldBeEqualComparingTo(expected.portfolioId)
-              actual.dateRangeStart.shouldBeEqualComparingTo(expected.dateRangeStart)
-              actual.dateRangeEnd.shouldBeEqualComparingTo(expected.dateRangeEnd)
-              actual.symbol.shouldBeEqualComparingTo(expected.symbol)
+              actual.userId.shouldBe(expected.userId)
+              actual.portfolioId.shouldBe(expected.portfolioId)
+              actual.dateRangeStart.shouldBe(expected.dateRangeStart)
+              actual.dateRangeEnd.shouldBe(expected.dateRangeEnd)
+              actual.symbol.shouldBe(expected.symbol)
               actual.totalShares.shouldBeEqualComparingTo(expected.totalShares)
             }
-            .shouldBeRight {
-              "Error validating record $innerIndex"
-            } // TODO make sure this has the desired affect
+            .shouldBeRight { ex -> "Error validating record $innerIndex: ${ex.message}" }
       }
     }
   }

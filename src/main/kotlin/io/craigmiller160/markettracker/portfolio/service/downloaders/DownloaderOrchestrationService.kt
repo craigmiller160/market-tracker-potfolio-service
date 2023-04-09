@@ -13,10 +13,13 @@ class DownloaderOrchestrationService(
 ) {
   private val log = LoggerFactory.getLogger(javaClass)
 
-  suspend fun download(): TryEither<Unit> =
-      craigMillerDownloaderService
-          .download()
-          .flatMap { persistDownloadService.persistPortfolios(it) }
-          .mapLeft { ex -> ex.also { log.error("Error downloading portfolio data", it) } }
-          .map { Unit }
+  suspend fun download(): TryEither<Unit> {
+    log.info("Beginning to download all portfolio data")
+    return craigMillerDownloaderService
+        .download()
+        .flatMap { persistDownloadService.persistPortfolios(it) }
+        .mapLeft { ex -> ex.also { log.error("Error downloading portfolio data", it) } }
+        .map { Unit }
+        .also { log.info("Finished downloading all portfolio data") }
+  }
 }
