@@ -31,7 +31,7 @@ val TEST_DATA: List<SharesOwned> = createTestData {
   }
   shares {
     start = LocalDate.of(2020, 6, 15)
-    end = LocalDate.of(2020, 6, 21)
+    end = LocalDate.of(2020, 6, 22)
     symbol = "VYM"
     amount = BigDecimal("2")
   }
@@ -54,7 +54,7 @@ val TEST_DATA: List<SharesOwned> = createTestData {
   }
   shares {
     start = LocalDate.of(2020, 7, 8)
-    end = LocalDate.of(2020, 8, 18)
+    end = LocalDate.of(2020, 8, 19)
     symbol = "SPYG"
     amount = BigDecimal("4")
   }
