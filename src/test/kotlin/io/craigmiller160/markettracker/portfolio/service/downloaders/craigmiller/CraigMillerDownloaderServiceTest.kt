@@ -9,6 +9,7 @@ import io.craigmiller160.markettracker.portfolio.testutils.DataLoader
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -103,7 +104,7 @@ constructor(
               actual.dateRangeStart.shouldBe(expected.dateRangeStart)
               actual.dateRangeEnd.shouldBe(expected.dateRangeEnd)
               actual.symbol.shouldBe(expected.symbol)
-              actual.totalShares.shouldBe(expected.totalShares)
+              actual.totalShares.shouldBeEqualComparingTo(expected.totalShares)
             }
             .shouldBeRight { ex -> "Error validating record $innerIndex: ${ex.message}" }
       }
