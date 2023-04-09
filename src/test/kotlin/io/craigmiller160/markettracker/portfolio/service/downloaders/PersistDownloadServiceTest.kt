@@ -108,7 +108,7 @@ constructor(
   private suspend fun insertSharesOwned(portfolio: Portfolio) =
       databaseClient
           .sql(
-              "INSERT INTO shares_owned (id, user_id, portfolio_id, date_range, symbol, total_shares) VALUES (:id, :userId, :portfolioId, :dateRange, :symbol, :totalShares)")
+              "INSERT INTO shares_owned (id, user_id, portfolio_id, date_range, symbol, total_shares) VALUES (:id, :userId, :portfolioId, :dateRange::daterange, :symbol, :totalShares)")
           .bind("id", UUID.randomUUID())
           .bind("userId", portfolio.userId.value)
           .bind("portfolioId", portfolio.id.value)
