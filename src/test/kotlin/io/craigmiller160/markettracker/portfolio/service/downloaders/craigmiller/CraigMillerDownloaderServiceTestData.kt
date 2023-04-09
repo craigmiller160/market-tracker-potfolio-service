@@ -9,7 +9,7 @@ import java.time.LocalDate
 val TEST_DATA: List<SharesOwned> = createTestData {
   shares {
     start = LocalDate.of(2020, 6, 4)
-    end = LocalDate.of(2020, 6, 18)
+    end = LocalDate.of(2020, 6, 19)
     symbol = "COTY"
     amount = BigDecimal("1")
   }
@@ -25,7 +25,7 @@ val TEST_DATA: List<SharesOwned> = createTestData {
   }
   shares {
     start = LocalDate.of(2020, 6, 10)
-    end = LocalDate.of(2020, 6, 14)
+    end = LocalDate.of(2020, 6, 15)
     symbol = "VYM"
     amount = BigDecimal("1")
   }
@@ -37,7 +37,7 @@ val TEST_DATA: List<SharesOwned> = createTestData {
   }
   shares {
     start = LocalDate.of(2020, 6, 22)
-    end = LocalDate.of(2020, 10, 17)
+    end = LocalDate.of(2020, 10, 18)
     symbol = "VYM"
     amount = BigDecimal("4")
   }
@@ -48,7 +48,7 @@ val TEST_DATA: List<SharesOwned> = createTestData {
   }
   shares {
     start = LocalDate.of(2020, 7, 7)
-    end = LocalDate.of(2020, 7, 7)
+    end = LocalDate.of(2020, 7, 8)
     symbol = "SPYG"
     amount = BigDecimal("2")
   }
@@ -65,7 +65,7 @@ val TEST_DATA: List<SharesOwned> = createTestData {
   }
   shares {
     start = LocalDate.of(2020, 7, 8)
-    end = LocalDate.of(2020, 10, 17)
+    end = LocalDate.of(2020, 10, 18)
     symbol = "VOOV"
     amount = BigDecimal("1")
   }
@@ -76,7 +76,7 @@ val TEST_DATA: List<SharesOwned> = createTestData {
   }
   shares {
     start = LocalDate.of(2020, 7, 8)
-    end = LocalDate.of(2020, 10, 17)
+    end = LocalDate.of(2020, 10, 18)
     symbol = "VTI"
     amount = BigDecimal("1")
   }
