@@ -105,9 +105,7 @@ constructor(
               actual.symbol.shouldBeEqualComparingTo(expected.symbol)
               actual.totalShares.shouldBeEqualComparingTo(expected.totalShares)
             }
-            .shouldBeRight {
-              "Error validating record $innerIndex"
-            } // TODO make sure this has the desired affect
+            .shouldBeRight { ex -> "Error validating record $innerIndex: ${ex.message}" }
       }
     }
   }
