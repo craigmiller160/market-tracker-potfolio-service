@@ -166,6 +166,10 @@ class CraigMillerDownloaderService(
                   if (replaceLastSharesOwned) {
                     list[list.size - 1] = newSharesOwned
                   } else {
+                    lastSharesOwned?.let { lastSharesOwnedReal ->
+                      list[list.size - 1] =
+                          lastSharesOwnedReal.copy(dateRangeEnd = record.record.date)
+                    }
                     list += newSharesOwned
                   }
                 }
