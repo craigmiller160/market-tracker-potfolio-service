@@ -1,5 +1,7 @@
 package io.craigmiller160.markettracker.portfolio.web.routes
 
+import arrow.core.fold
+import arrow.typeclasses.Monoid
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
@@ -8,6 +10,9 @@ import io.craigmiller160.markettracker.portfolio.web.types.SharesOwnedResponse
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.mutate
+import kotlinx.collections.immutable.persistentListOf
 
 data class CoreSharesOwnedRouteParams(
     val stockSymbol: String,
@@ -59,14 +64,38 @@ fun createSharesOwnedRouteData(
           .sortedBy { it.dateRangeStart }
           .toList()
 
-  return createResponseDates(params).map { date ->
-    val sharesOwnedRecord =
-        sharesOwned.find { record -> date >= record.dateRangeStart && date < record.dateRangeEnd }
+  return createResponseDates(params)
+      .map { date ->
+        val sharesOwnedRecord =
+            sharesOwned.find { record ->
+              date >= record.dateRangeStart && date < record.dateRangeEnd
+            }
 
-    SharesOwnedResponse(
-        date = date, totalShares = sharesOwnedRecord?.totalShares ?: BigDecimal("0"))
-  }
+        SharesOwnedResponse(
+            date = date, totalShares = sharesOwnedRecord?.totalShares ?: BigDecimal("0"))
+      }
+      .map { persistentListOf(it) }
+      .fold(orderedSharesOwnedMonoid)
 }
+
+private val orderedSharesOwnedMonoid: Monoid<PersistentList<SharesOwnedResponse>> =
+    object : Monoid<PersistentList<SharesOwnedResponse>> {
+      override fun empty(): PersistentList<SharesOwnedResponse> = persistentListOf()
+      override fun PersistentList<SharesOwnedResponse>.combine(
+          other: PersistentList<SharesOwnedResponse>
+      ): PersistentList<SharesOwnedResponse> {
+        val last = this.last()
+        val record = other.first()
+        if (last.date == record.date) {
+          return this.mutate { builder ->
+            builder[builder.size - 1] =
+                last.copy(totalShares = last.totalShares + record.totalShares)
+          }
+        }
+
+        return this.mutate { builder -> builder += record }
+      }
+    }
 
 private fun createResponseDates(params: SharesOwnedRouteParams): List<LocalDate> {
   val (intervalCount, modifier) = getValuesForInterval(params)
