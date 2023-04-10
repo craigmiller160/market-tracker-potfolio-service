@@ -2,17 +2,22 @@ package io.craigmiller160.markettracker.portfolio.domain.repository.dbClient
 
 import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
+import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
+import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedOnDate
 import io.craigmiller160.markettracker.portfolio.domain.models.dateRange
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
+import io.craigmiller160.markettracker.portfolio.domain.rowmappers.sharesOwnedOnDateRowMapper
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.coFlatMap
 import io.craigmiller160.markettracker.portfolio.extensions.mapCatch
 import io.craigmiller160.markettracker.portfolio.extensions.toSqlBatches
+import java.time.LocalDate
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
