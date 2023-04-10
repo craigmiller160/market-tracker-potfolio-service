@@ -84,6 +84,10 @@ private val orderedSharesOwnedMonoid: Monoid<PersistentList<SharesOwnedResponse>
       override fun PersistentList<SharesOwnedResponse>.combine(
           other: PersistentList<SharesOwnedResponse>
       ): PersistentList<SharesOwnedResponse> {
+        if (this.isEmpty()) {
+          return other
+        }
+
         val last = this.last()
         val record = other.first()
         if (last.date == record.date) {
