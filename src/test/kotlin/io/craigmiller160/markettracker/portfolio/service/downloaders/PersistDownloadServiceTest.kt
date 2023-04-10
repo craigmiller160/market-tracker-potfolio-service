@@ -64,7 +64,7 @@ constructor(
   @Test
   fun `the portfolios are all persisted`() {
     runBlocking {
-      insertPortfolio().let { insertSharesOwned(it) }
+      insertPortfolio(USER_ID).let { insertSharesOwned(it) }
       getPortfolios().shouldHaveSize(1)
       getSharesOwned().shouldHaveSize(1)
 
@@ -93,8 +93,8 @@ constructor(
     }
   }
 
-  private suspend fun insertPortfolio(): Portfolio {
-    val portfolio = BasePortfolio(id = TypedId(), userId = TypedId(), name = "TestPortfolio")
+  private suspend fun insertPortfolio(userId: TypedId<UserId>): Portfolio {
+    val portfolio = BasePortfolio(id = TypedId(), userId = userId, name = "TestPortfolio")
     databaseClient
         .sql("INSERT INTO portfolios (id, user_id, name) VALUES (:id, :userId, :name)")
         .bind("id", portfolio.id.value)
