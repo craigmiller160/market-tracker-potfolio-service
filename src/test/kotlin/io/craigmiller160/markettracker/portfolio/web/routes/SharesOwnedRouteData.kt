@@ -61,7 +61,7 @@ fun createSharesOwnedRouteData(
 
   return createResponseDates(params).map { date ->
     val sharesOwnedRecord =
-        sharesOwned.find { record -> date >= record.dateRangeStart && date <= record.dateRangeEnd }
+        sharesOwned.find { record -> date >= record.dateRangeStart && date < record.dateRangeEnd }
 
     SharesOwnedResponse(
         date = date, totalShares = sharesOwnedRecord?.totalShares ?: BigDecimal("0"))
