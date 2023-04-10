@@ -12,5 +12,5 @@ interface PortfolioRepository {
 
   suspend fun findAllForUser(userId: TypedId<UserId>): TryEither<List<Portfolio>>
 
-  suspend fun deleteAllPortfolios(): TryEither<Unit>
+  suspend fun deleteAllPortfoliosForUsers(userIds: List<TypedId<UserId>>): TryEither<Unit>
 }

@@ -69,9 +69,16 @@ class DatabaseClientPortfolioRepository(
           }
           .flatMap { it.toList().sequence() }
 
-  override suspend fun deleteAllPortfolios(): TryEither<Unit> =
+  override suspend fun deleteAllPortfoliosForUsers(
+      userIds: List<TypedId<UserId>>
+  ): TryEither<Unit> =
       sqlLoader.loadSql(DELETE_ALL_PORTFOLIOS_SQL).mapCatch { sql ->
-        databaseClient.sql(sql).fetch().rowsUpdated().awaitSingle()
+        databaseClient
+            .sql(sql)
+            .bind("userIds", userIds.map { it.value })
+            .fetch()
+            .rowsUpdated()
+            .awaitSingle()
       }
 
   private suspend fun createAsBatch(
