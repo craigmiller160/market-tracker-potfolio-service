@@ -30,7 +30,7 @@ class DatabaseClientPortfolioRepository(
     private const val INSERT_PORTFOLIO_SQL = "portfolio/insertPortfolio.sql"
     private const val INSERT_PORTFOLIO_BATCH_SQL = "portfolio/insertPortfolioBatch.sql"
     private const val FIND_ALL_FOR_USER_SQL = "portfolio/findAllForUser.sql"
-    private const val DELETE_ALL_PORTFOLIOS_SQL = "portfolio/deleteAllPortfolios.sql"
+    private const val DELETE_ALL_PORTFOLIOS_SQL = "portfolio/deleteAllPortfoliosForUserIds.sql"
   }
 
   override suspend fun createPortfolio(portfolio: Portfolio): TryEither<Portfolio> =
