@@ -15,6 +15,7 @@ import io.craigmiller160.markettracker.portfolio.extensions.mapCatch
 import io.craigmiller160.markettracker.portfolio.extensions.toSqlBatches
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.awaitRowsUpdated
 import org.springframework.stereotype.Repository
@@ -29,6 +30,7 @@ class DatabaseClientPortfolioRepository(
     private const val INSERT_PORTFOLIO_SQL = "portfolio/insertPortfolio.sql"
     private const val INSERT_PORTFOLIO_BATCH_SQL = "portfolio/insertPortfolioBatch.sql"
     private const val FIND_ALL_FOR_USER_SQL = "portfolio/findAllForUser.sql"
+    private const val DELETE_ALL_PORTFOLIOS_SQL = "portfolio/deleteAllPortfoliosForUserIds.sql"
   }
 
   override suspend fun createPortfolio(portfolio: Portfolio): TryEither<Portfolio> =
@@ -66,6 +68,18 @@ class DatabaseClientPortfolioRepository(
                 .asFlow()
           }
           .flatMap { it.toList().sequence() }
+
+  override suspend fun deleteAllPortfoliosForUsers(
+      userIds: List<TypedId<UserId>>
+  ): TryEither<Unit> =
+      sqlLoader.loadSql(DELETE_ALL_PORTFOLIOS_SQL).mapCatch { sql ->
+        databaseClient
+            .sql(sql)
+            .bind("userIds", userIds.map { it.value })
+            .fetch()
+            .rowsUpdated()
+            .awaitSingle()
+      }
 
   private suspend fun createAsBatch(
       portfolios: List<Portfolio>

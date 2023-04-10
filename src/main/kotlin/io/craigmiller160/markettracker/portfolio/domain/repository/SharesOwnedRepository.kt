@@ -34,4 +34,6 @@ interface SharesOwnedRepository {
       endDate: LocalDate,
       interval: SharesOwnedInterval
   ): TryEither<List<SharesOwnedOnDate>>
+
+  suspend fun deleteAllSharesOwnedForUsers(userIds: List<TypedId<UserId>>): TryEither<Unit>
 }
