@@ -10,9 +10,6 @@ import io.craigmiller160.markettracker.portfolio.web.types.SharesOwnedResponse
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
-import kotlinx.collections.immutable.PersistentList
-import kotlinx.collections.immutable.mutate
-import kotlinx.collections.immutable.persistentListOf
 
 data class CoreSharesOwnedRouteParams(
     val stockSymbol: String,
@@ -79,30 +76,6 @@ private val totalSharesMonoid: Monoid<BigDecimal> =
     object : Monoid<BigDecimal> {
       override fun empty(): BigDecimal = BigDecimal("0")
       override fun BigDecimal.combine(b: BigDecimal): BigDecimal = this.add(b)
-    }
-
-// TODO delete if unused
-private val orderedSharesOwnedMonoid: Monoid<PersistentList<SharesOwnedResponse>> =
-    object : Monoid<PersistentList<SharesOwnedResponse>> {
-      override fun empty(): PersistentList<SharesOwnedResponse> = persistentListOf()
-      override fun PersistentList<SharesOwnedResponse>.combine(
-          other: PersistentList<SharesOwnedResponse>
-      ): PersistentList<SharesOwnedResponse> {
-        if (this.isEmpty()) {
-          return other
-        }
-
-        val last = this.last()
-        val record = other.first()
-        if (last.date == record.date) {
-          return this.mutate { builder ->
-            builder[builder.size - 1] =
-                last.copy(totalShares = last.totalShares + record.totalShares)
-          }
-        }
-
-        return this.mutate { builder -> builder += record }
-      }
     }
 
 private fun createResponseDates(params: SharesOwnedRouteParams): List<LocalDate> {
