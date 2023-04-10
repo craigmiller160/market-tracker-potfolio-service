@@ -4,6 +4,7 @@ import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
+import io.craigmiller160.markettracker.portfolio.domain.models.BasePortfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
@@ -16,8 +17,10 @@ import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.util.UUID
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -61,8 +64,9 @@ constructor(
   @Test
   fun `the portfolios are all persisted`() {
     runBlocking {
-      getPortfolios().shouldHaveSize(0)
-      getSharesOwned().shouldHaveSize(0)
+      insertPortfolio(USER_ID).let { insertSharesOwned(it) }
+      getPortfolios().shouldHaveSize(1)
+      getSharesOwned().shouldHaveSize(1)
 
       persistDownloadService.persistPortfolios(DATA).shouldBeRight()
 
@@ -88,6 +92,32 @@ constructor(
       }
     }
   }
+
+  private suspend fun insertPortfolio(userId: TypedId<UserId>): Portfolio {
+    val portfolio = BasePortfolio(id = TypedId(), userId = userId, name = "TestPortfolio")
+    databaseClient
+        .sql("INSERT INTO portfolios (id, user_id, name) VALUES (:id, :userId, :name)")
+        .bind("id", portfolio.id.value)
+        .bind("userId", portfolio.userId.value)
+        .bind("name", portfolio.name)
+        .fetch()
+        .rowsUpdated()
+        .awaitSingle()
+    return portfolio
+  }
+  private suspend fun insertSharesOwned(portfolio: Portfolio) =
+      databaseClient
+          .sql(
+              "INSERT INTO shares_owned (id, user_id, portfolio_id, date_range, symbol, total_shares) VALUES (:id, :userId, :portfolioId, :dateRange::daterange, :symbol, :totalShares)")
+          .bind("id", UUID.randomUUID())
+          .bind("userId", portfolio.userId.value)
+          .bind("portfolioId", portfolio.id.value)
+          .bind("symbol", "VTI")
+          .bind("totalShares", BigDecimal("1"))
+          .bind("dateRange", "[2022-01-01,2022-01-02)")
+          .fetch()
+          .rowsUpdated()
+          .awaitSingle()
 
   private suspend fun getPortfolios(): List<Portfolio> =
       databaseClient

@@ -15,6 +15,7 @@ import io.craigmiller160.markettracker.portfolio.extensions.mapCatch
 import io.craigmiller160.markettracker.portfolio.extensions.toSqlBatches
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.stereotype.Repository
 import reactor.kotlin.core.publisher.toFlux
@@ -27,6 +28,7 @@ class DatabaseClientSharesOwnedRepository(
   companion object {
     private const val INSERT_SHARES_OWNED_SQL = "sharesOwned/insertSharesOwnedBatch.sql"
     private const val FIND_UNIQUE_STOCKS_SQL = "sharesOwned/findUniqueStocks.sql"
+    private const val DELETE_ALL_SHARES_OWNED_SQL = "sharesOwned/deleteAllSharesOwnedForUsers.sql"
   }
   override suspend fun createAllSharesOwned(
       sharesOwned: List<SharesOwned>
@@ -94,4 +96,16 @@ class DatabaseClientSharesOwnedRepository(
                 .toList()
                 .filterNotNull()
           }
+
+  override suspend fun deleteAllSharesOwnedForUsers(
+      userIds: List<TypedId<UserId>>
+  ): TryEither<Unit> =
+      sqlLoader.loadSql(DELETE_ALL_SHARES_OWNED_SQL).mapCatch { sql ->
+        databaseClient
+            .sql(sql)
+            .bind("userIds", userIds.map { it.value })
+            .fetch()
+            .rowsUpdated()
+            .awaitSingle()
+      }
 }

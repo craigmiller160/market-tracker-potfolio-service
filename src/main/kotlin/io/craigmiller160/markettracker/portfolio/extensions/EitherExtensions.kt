@@ -19,6 +19,6 @@ fun <T> Optional<T>.leftIfEmpty(message: String = ""): TryEither<T> =
     this.map { Either.Right(it) as Either<Throwable, T> }
         .orElse(Either.Left(NullPointerException("Value is null: $message")))
 
-fun <B, C> TryEither<B>.mapCatch(block: (B) -> C): TryEither<C> = flatMap { value ->
+inline fun <B, C> TryEither<B>.mapCatch(block: (B) -> C): TryEither<C> = flatMap { value ->
   Either.catch { block(value) }
 }
