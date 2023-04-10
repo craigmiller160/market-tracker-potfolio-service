@@ -64,20 +64,24 @@ fun createSharesOwnedRouteData(
           .sortedBy { it.dateRangeStart }
           .toList()
 
-  return createResponseDates(params)
-      .map { date ->
-        val sharesOwnedRecord =
-            sharesOwned.find { record ->
-              date >= record.dateRangeStart && date < record.dateRangeEnd
-            }
+  return createResponseDates(params).map { date ->
+    val totalShares =
+        sharesOwned
+            .filter { record -> date >= record.dateRangeStart && date < record.dateRangeEnd }
+            .map { it.totalShares }
+            .fold(totalSharesMonoid)
 
-        SharesOwnedResponse(
-            date = date, totalShares = sharesOwnedRecord?.totalShares ?: BigDecimal("0"))
-      }
-      .map { persistentListOf(it) }
-      .fold(orderedSharesOwnedMonoid)
+    SharesOwnedResponse(date = date, totalShares = totalShares)
+  }
 }
 
+private val totalSharesMonoid: Monoid<BigDecimal> =
+    object : Monoid<BigDecimal> {
+      override fun empty(): BigDecimal = BigDecimal("0")
+      override fun BigDecimal.combine(b: BigDecimal): BigDecimal = this.add(b)
+    }
+
+// TODO delete if unused
 private val orderedSharesOwnedMonoid: Monoid<PersistentList<SharesOwnedResponse>> =
     object : Monoid<PersistentList<SharesOwnedResponse>> {
       override fun empty(): PersistentList<SharesOwnedResponse> = persistentListOf()
