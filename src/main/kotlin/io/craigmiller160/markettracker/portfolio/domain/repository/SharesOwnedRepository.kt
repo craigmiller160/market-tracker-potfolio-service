@@ -14,4 +14,6 @@ interface SharesOwnedRepository {
   ): TryEither<List<String>>
 
   suspend fun findUniqueStocksForUser(userId: TypedId<UserId>): TryEither<List<String>>
+
+  suspend fun deleteAllSharesOwned(): TryEither<Unit>
 }
