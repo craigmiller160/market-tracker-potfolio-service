@@ -227,6 +227,8 @@ constructor(
     val params = coreParams.withKeys(defaultUsers.primaryUser.userTypedId)
     val expectedResponse = createSharesOwnedRouteData(data, params)
 
+    println("EXPECTED RESPONSE: ${objectMapper.writeValueAsString(expectedResponse)}")
+
     webTestClient
         .get()
         .uri("/portfolios/combined/${params.stockSymbol}/shares?${params.queryString}")
