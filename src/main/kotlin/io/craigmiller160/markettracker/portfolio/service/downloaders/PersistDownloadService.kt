@@ -2,6 +2,7 @@ package io.craigmiller160.markettracker.portfolio.service.downloaders
 
 import arrow.core.flatMap
 import arrow.core.sequence
+import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
@@ -23,15 +24,25 @@ class PersistDownloadService(
   ): TryEither<List<PortfolioWithHistory>> {
     log.info("Persisting portfolio data")
     return transactionOperator.executeAndAwaitEither {
-      portfolios.map { createPortfolio(it) }.sequence()
+      deletePortfolios(portfolios).flatMap { portfolios.map { createPortfolio(it) }.sequence() }
+    }
+  }
+
+  private suspend fun deletePortfolios(portfolios: List<Portfolio>): TryEither<Unit> {
+    val userIds = portfolios.asSequence().map { it.userId }.distinct().toList()
+    log.debug("Deleting all data for users ${userIds}")
+    return sharesOwnedRepository.deleteAllSharesOwnedForUsers(userIds).flatMap {
+      portfolioRepository.deleteAllPortfoliosForUsers(userIds)
     }
   }
 
   private suspend fun createPortfolio(
       portfolio: PortfolioWithHistory
-  ): TryEither<PortfolioWithHistory> =
-      portfolioRepository
-          .createPortfolio(portfolio)
-          .flatMap { sharesOwnedRepository.createAllSharesOwned(portfolio.ownershipHistory) }
-          .map { portfolio }
+  ): TryEither<PortfolioWithHistory> {
+    log.debug("Writing data for portfolio ${portfolio.id} for user ${portfolio.userId}")
+    return portfolioRepository
+        .createPortfolio(portfolio)
+        .flatMap { sharesOwnedRepository.createAllSharesOwned(portfolio.ownershipHistory) }
+        .map { portfolio }
+  }
 }
