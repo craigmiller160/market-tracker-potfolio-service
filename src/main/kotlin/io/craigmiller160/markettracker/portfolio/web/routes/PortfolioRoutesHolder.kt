@@ -26,7 +26,7 @@ class PortfolioRoutesHolder {
       it.operationId("getStocksForAllPortfoliosCombined").addStockListResponse()
     }
     GET(
-        "/portfolios/combined/{stockSymbol}/shares",
+        "/portfolios/combined/{stockSymbol}/history",
         handler::getSharesOwnedForAllPortfoliosCombinedStock) {
           it.operationId("getSharesOwnedForAllPortfoliosCombinedStock")
               .addStockSymbolParameter()
@@ -39,7 +39,7 @@ class PortfolioRoutesHolder {
       it.operationId("getStocksForPortfolio").addPortfolioIdParameter().addStockListResponse()
     }
     GET(
-        "/portfolios/{portfolioId}/{stockSymbol}/shares",
+        "/portfolios/{portfolioId}/{stockSymbol}/history",
         handler::getSharesOwnedForPortfolioStock) {
           it.operationId("getSharesOwnedForPortfolioStock")
               .addPortfolioIdParameter()
