@@ -155,7 +155,8 @@ constructor(
 
     webTestClient
         .get()
-        .uri("/portfolios/${params.portfolioId}/${params.stockSymbol}/shares?${params.queryString}")
+        .uri(
+            "/portfolios/${params.portfolioId}/${params.stockSymbol}/history?${params.queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -176,7 +177,8 @@ constructor(
 
     webTestClient
         .get()
-        .uri("/portfolios/${params.portfolioId}/${params.stockSymbol}/shares?${params.queryString}")
+        .uri(
+            "/portfolios/${params.portfolioId}/${params.stockSymbol}/history?${params.queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -203,12 +205,12 @@ constructor(
     val response =
         ErrorResponse(
             method = "GET",
-            uri = "/portfolios/${data.portfolios[1].id.value}/VTI/shares?${params.queryString}",
+            uri = "/portfolios/${data.portfolios[1].id.value}/VTI/history?${params.queryString}",
             message = "Bad Request: ${params.message}",
             status = 400)
     webTestClient
         .get()
-        .uri("/portfolios/${data.portfolios[1].id.value}/VTI/shares?${params.queryString}")
+        .uri("/portfolios/${data.portfolios[1].id.value}/VTI/history?${params.queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -231,7 +233,7 @@ constructor(
 
     webTestClient
         .get()
-        .uri("/portfolios/combined/${params.stockSymbol}/shares?${params.queryString}")
+        .uri("/portfolios/combined/${params.stockSymbol}/history?${params.queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -248,12 +250,12 @@ constructor(
     val response =
         ErrorResponse(
             method = "GET",
-            uri = "/portfolios/combined/VTI/shares?${params.queryString}",
+            uri = "/portfolios/combined/VTI/history?${params.queryString}",
             message = "Bad Request: ${params.message}",
             status = 400)
     webTestClient
         .get()
-        .uri("/portfolios/combined/VTI/shares?${params.queryString}")
+        .uri("/portfolios/combined/VTI/history?${params.queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
