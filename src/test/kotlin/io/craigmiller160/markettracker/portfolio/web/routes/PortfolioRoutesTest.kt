@@ -3,13 +3,22 @@ package io.craigmiller160.markettracker.portfolio.web.routes
 import arrow.core.flatMap
 import arrow.core.getOrElse
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioResponse
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
+import io.craigmiller160.markettracker.portfolio.testutils.userTypedId
+import io.craigmiller160.markettracker.portfolio.web.types.ErrorResponse
+import io.craigmiller160.markettracker.portfolio.web.types.SharesOwnedResponse
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
+import java.util.stream.Stream
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.reactive.server.WebTestClient
 
@@ -24,7 +33,35 @@ constructor(
     private val objectMapper: ObjectMapper
 ) {
   companion object {
-    private const val DATE_RANGE_LENGTH = 10L
+    @JvmStatic
+    fun sharesOwnedForStock(): Stream<CoreSharesOwnedRouteParams> =
+        Stream.of(
+            CoreSharesOwnedRouteParams(
+                "VTI", LocalDate.now(), LocalDate.now().plusDays(1), SharesOwnedInterval.SINGLE),
+            CoreSharesOwnedRouteParams(
+                "VTI", LocalDate.now(), LocalDate.now().plusDays(7), SharesOwnedInterval.DAILY),
+            CoreSharesOwnedRouteParams(
+                "VTI", LocalDate.now(), LocalDate.now().plusMonths(1), SharesOwnedInterval.DAILY),
+            CoreSharesOwnedRouteParams(
+                "VTI", LocalDate.now(), LocalDate.now().plusMonths(3), SharesOwnedInterval.DAILY),
+            CoreSharesOwnedRouteParams(
+                "VTI", LocalDate.now(), LocalDate.now().plusYears(1), SharesOwnedInterval.WEEKLY),
+            CoreSharesOwnedRouteParams(
+                "VTI", LocalDate.now(), LocalDate.now().plusYears(5), SharesOwnedInterval.MONTHLY))
+
+    @JvmStatic
+    fun sharesOwnedBadRequestParams(): Stream<Any> =
+        Stream.of(
+            SharesOwnedBadRequestParams(
+                "2022-01-01", "2022-01-02", null, "Missing required parameter: interval"),
+            SharesOwnedBadRequestParams(
+                "2022-01-01", null, "DAILY", "Missing required parameter: endDate"),
+            SharesOwnedBadRequestParams(
+                null, "2022-01-02", "DAILY", "Missing required parameter: startDate"),
+            SharesOwnedBadRequestParams(
+                "2022-01-01", "2022-01-02", "abc", "Error parsing interval"),
+            SharesOwnedBadRequestParams("2022-01-01", "abc", "DAILY", "Error parsing endDate"),
+            SharesOwnedBadRequestParams("abc", "2022-01-02", "DAILY", "Error parsing startDate"))
   }
 
   private fun createData(offsetDays: Int, numRecords: Int): PortfolioRouteData = runBlocking {
@@ -36,6 +73,7 @@ constructor(
           .getOrElse { throw it }
     }
   }
+
   @Test
   fun `gets list of portfolio names for user`() {
     val data = createData(10, 100)
@@ -105,4 +143,138 @@ constructor(
         .expectBody()
         .json(objectMapper.writeValueAsString(data.uniqueStocks))
   }
+
+  @Test
+  fun `get shares owned history for past week for stock in portfolio not owned by user`() {
+    val coreParams =
+        CoreSharesOwnedRouteParams(
+            "VTI", LocalDate.now(), LocalDate.now().plusYears(5), SharesOwnedInterval.MONTHLY)
+    val numRecords = getNumRecordsForInterval(coreParams)
+    val data = createData(10, numRecords)
+    val params = coreParams.withKeys(defaultUsers.primaryUser.userTypedId, data.portfolios[0].id)
+
+    webTestClient
+        .get()
+        .uri("/portfolios/${params.portfolioId}/${params.stockSymbol}/shares?${params.queryString}")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .is2xxSuccessful
+        .expectBody()
+        .json(objectMapper.writeValueAsString(listOf<SharesOwnedResponse>()))
+  }
+
+  @MethodSource("sharesOwnedForStock")
+  @ParameterizedTest
+  fun `get shares owned for stock in portfolio`(coreParams: CoreSharesOwnedRouteParams) {
+    val numRecords = getNumRecordsForInterval(coreParams)
+    val data = createData(10, numRecords)
+    val params = coreParams.withKeys(defaultUsers.primaryUser.userTypedId, data.portfolios[1].id)
+    val expectedResponse = createSharesOwnedRouteData(data, params)
+
+    println("EXPECTED RESPONSE: ${objectMapper.writeValueAsString(expectedResponse)}")
+
+    webTestClient
+        .get()
+        .uri("/portfolios/${params.portfolioId}/${params.stockSymbol}/shares?${params.queryString}")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .is2xxSuccessful
+        .expectBody()
+        .json(objectMapper.writeValueAsString(expectedResponse))
+  }
+
+  private fun getNumRecordsForInterval(params: CoreSharesOwnedRouteParams): Int =
+      when (params.interval) {
+        SharesOwnedInterval.SINGLE -> 100
+        SharesOwnedInterval.DAILY -> ChronoUnit.DAYS.between(params.startDate, params.endDate) + 10
+        SharesOwnedInterval.WEEKLY -> ChronoUnit.DAYS.between(params.startDate, params.endDate) + 10
+        SharesOwnedInterval.MONTHLY ->
+            ChronoUnit.WEEKS.between(params.startDate, params.endDate) + 10
+      }.toInt()
+
+  @MethodSource("sharesOwnedBadRequestParams")
+  @ParameterizedTest
+  fun `return bad request exceptions for missing parameters for getting shares owned for stock in portfolio`(
+      params: SharesOwnedBadRequestParams
+  ) {
+    val data = createData(10, 100)
+    val response =
+        ErrorResponse(
+            method = "GET",
+            uri = "/portfolios/${data.portfolios[1].id.value}/VTI/shares?${params.queryString}",
+            message = "Bad Request: ${params.message}",
+            status = 400)
+    webTestClient
+        .get()
+        .uri("/portfolios/${data.portfolios[1].id.value}/VTI/shares?${params.queryString}")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .isBadRequest
+        .expectBody()
+        .json(objectMapper.writeValueAsString(response))
+  }
+
+  @MethodSource("sharesOwnedForStock")
+  @ParameterizedTest
+  fun `get shares owned for stock in all portfolios combined`(
+      coreParams: CoreSharesOwnedRouteParams
+  ) {
+    val numRecords = getNumRecordsForInterval(coreParams)
+    val data = createData(10, numRecords)
+    val params = coreParams.withKeys(defaultUsers.primaryUser.userTypedId)
+    val expectedResponse = createSharesOwnedRouteData(data, params)
+
+    println("EXPECTED RESPONSE: ${objectMapper.writeValueAsString(expectedResponse)}")
+
+    webTestClient
+        .get()
+        .uri("/portfolios/combined/${params.stockSymbol}/shares?${params.queryString}")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .is2xxSuccessful
+        .expectBody()
+        .json(objectMapper.writeValueAsString(expectedResponse))
+  }
+
+  @MethodSource("sharesOwnedBadRequestParams")
+  @ParameterizedTest
+  fun `return bad request exceptions for missing parameters for getting shares owned for stock in all portfolios`(
+      params: SharesOwnedBadRequestParams
+  ) {
+    val response =
+        ErrorResponse(
+            method = "GET",
+            uri = "/portfolios/combined/VTI/shares?${params.queryString}",
+            message = "Bad Request: ${params.message}",
+            status = 400)
+    webTestClient
+        .get()
+        .uri("/portfolios/combined/VTI/shares?${params.queryString}")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .isBadRequest
+        .expectBody()
+        .json(objectMapper.writeValueAsString(response))
+  }
 }
+
+data class SharesOwnedBadRequestParams(
+    val startDate: String?,
+    val endDate: String?,
+    val interval: String?,
+    val message: String
+)
+
+val SharesOwnedBadRequestParams.queryString: String
+  get() =
+      sequenceOf(
+              startDate?.let { "startDate=$it" },
+              endDate?.let { "endDate=$it" },
+              interval?.let { "interval=$it" })
+          .filterNotNull()
+          .joinToString("&")
