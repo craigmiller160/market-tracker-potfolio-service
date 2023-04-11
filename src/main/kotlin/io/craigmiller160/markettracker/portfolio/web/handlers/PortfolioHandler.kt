@@ -1,16 +1,12 @@
 package io.craigmiller160.markettracker.portfolio.web.handlers
 
-import arrow.core.Either
-import arrow.core.continuations.either
-import arrow.core.getOrElse
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
-import io.craigmiller160.markettracker.portfolio.extensions.leftIfEmpty
+import io.craigmiller160.markettracker.portfolio.extensions.pathVariable
+import io.craigmiller160.markettracker.portfolio.extensions.requiredQueryParam
 import io.craigmiller160.markettracker.portfolio.service.PortfolioService
 import io.craigmiller160.markettracker.portfolio.service.SharesOwnedService
-import io.craigmiller160.markettracker.portfolio.web.exceptions.BadRequestException
-import io.craigmiller160.markettracker.portfolio.web.exceptions.MissingParameterException
 import io.craigmiller160.markettracker.portfolio.web.response.toResponse
 import java.time.LocalDate
 import org.springframework.stereotype.Component
@@ -52,60 +48,18 @@ class PortfolioHandler(
         .toResponse()
   }
 
-  // TODO cleanup these functions a bit more
-
   private val ServerRequest.portfolioId: TypedId<PortfolioId>
-    get() =
-        Either.catch { pathVariable("portfolioId").let { TypedId<PortfolioId>(it) } }
-            .getOrElse { throw BadRequestException("Error parsing portfolioId", it) }
+    get() = pathVariable("portfolioId", ::TypedId)
 
   private val ServerRequest.stockSymbol: String
-    get() =
-        Either.catch { pathVariable("stockSymbol") }
-            .getOrElse { throw BadRequestException("Error parsing stockSymbol", it) }
+    get() = pathVariable("stockSymbol") // TODO need to handle exception
 
   private val ServerRequest.startDate: LocalDate
-    get() =
-        either
-            .eager {
-              val startDateString =
-                  queryParam("startDate")
-                      .leftIfEmpty()
-                      .mapLeft { MissingParameterException("startDate") }
-                      .bind()
-              Either.catch { LocalDate.parse(startDateString) }
-                  .mapLeft { BadRequestException("Error parsing startDate", it) }
-                  .bind()
-            }
-            .getOrElse { throw it }
+    get() = requiredQueryParam("startDate", LocalDate::parse)
 
   private val ServerRequest.endDate: LocalDate
-    get() =
-        either
-            .eager {
-              val startDateString =
-                  queryParam("endDate")
-                      .leftIfEmpty()
-                      .mapLeft { MissingParameterException("endDate") }
-                      .bind()
-              Either.catch { LocalDate.parse(startDateString) }
-                  .mapLeft { BadRequestException("Error parsing endDate", it) }
-                  .bind()
-            }
-            .getOrElse { throw it }
+    get() = requiredQueryParam("endDate", LocalDate::parse)
 
   private val ServerRequest.interval: SharesOwnedInterval
-    get() =
-        either
-            .eager {
-              val startDateString =
-                  queryParam("interval")
-                      .leftIfEmpty()
-                      .mapLeft { MissingParameterException("interval") }
-                      .bind()
-              Either.catch { SharesOwnedInterval.valueOf(startDateString) }
-                  .mapLeft { BadRequestException("Error parsing interval", it) }
-                  .bind()
-            }
-            .getOrElse { throw it }
+    get() = requiredQueryParam("interval", SharesOwnedInterval::valueOf)
 }
