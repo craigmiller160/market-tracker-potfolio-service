@@ -15,10 +15,7 @@ fun <T> ServerRequest.requiredQueryParam(name: String, parser: (String) -> T): T
     either
         .eager {
           val paramString =
-              queryParam(name)
-                  .leftIfEmpty()
-                  .mapLeft { MissingParameterException("startDate") }
-                  .bind()
+              queryParam(name).leftIfEmpty().mapLeft { MissingParameterException(name) }.bind()
           Either.catch { parser(paramString) }
               .mapLeft { BadRequestException("Error parsing $name", it) }
               .bind()
