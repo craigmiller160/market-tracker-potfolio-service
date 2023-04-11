@@ -52,7 +52,7 @@ class PortfolioHandler(
     get() = pathVariable("portfolioId", ::TypedId)
 
   private val ServerRequest.stockSymbol: String
-    get() = pathVariable("stockSymbol") // TODO need to handle exception
+    get() = pathVariable("stockSymbol") { it }
 
   private val ServerRequest.startDate: LocalDate
     get() = requiredQueryParam("startDate", LocalDate::parse)
