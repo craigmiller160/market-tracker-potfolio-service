@@ -2,6 +2,7 @@ package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmille
 
 import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.fold
 import arrow.core.sequence
 import arrow.typeclasses.Monoid
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -12,6 +13,7 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
+import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
@@ -110,7 +112,7 @@ class CraigMillerDownloaderService(
           .filter { RELEVANT_ACTIONS.contains(it.action) }
           .sortedWith(CraigMillerTransactionRecord.comparator)
           .map(initialRecord(portfolioId))
-          .reduce(reduceOwnershipContext(portfolioId))
+          .fold(ownershipContextMonoid(downloaderConfig.userId, portfolioId))
           .sharesOwnedMap
           .values
           .flatten()
@@ -130,55 +132,6 @@ class CraigMillerDownloaderService(
     OwnershipContext(
         sharesOwnedMap = persistentMapOf(record.symbol to persistentListOf(sharesOwned)),
         record = record)
-  }
-
-  // TODO replace with Monoid
-  private fun reduceOwnershipContext(
-      portfolioId: TypedId<PortfolioId>
-  ): (OwnershipContext, OwnershipContext) -> OwnershipContext {
-    return { accumulator, record ->
-      val sharesOwnedList = accumulator.sharesOwnedMap[record.record?.symbol] ?: persistentListOf()
-      val lastSharesOwned = sharesOwnedList.lastOrNull()
-      val lastTotalShares = lastSharesOwned?.totalShares ?: BigDecimal("0")
-      val replaceLastSharesOwned =
-          lastSharesOwned?.dateRangeStart == record.record?.date ?: DownloaderService.MIN_DATE
-
-      val totalShares =
-          when (record.record?.action) {
-            Action.BUY,
-            Action.BONUS -> lastTotalShares + record.record.shares
-            Action.SELL -> lastTotalShares - record.record.shares
-            else -> BigDecimal("0")
-          }
-
-      val newSharesOwned =
-          SharesOwned(
-              id = TypedId(),
-              userId = downloaderConfig.userId,
-              portfolioId = portfolioId,
-              dateRangeStart = record.record?.date ?: DownloaderService.MIN_DATE,
-              dateRangeEnd = DownloaderService.MAX_DATE,
-              symbol = record.record?.symbol ?: "",
-              totalShares = totalShares)
-
-      val newMap =
-          accumulator.sharesOwnedMap.mutate { map ->
-            map[record.record?.symbol ?: ""] =
-                sharesOwnedList.mutate { list ->
-                  if (replaceLastSharesOwned) {
-                    list[list.size - 1] = newSharesOwned
-                  } else {
-                    lastSharesOwned?.let { lastSharesOwnedReal ->
-                      list[list.size - 1] =
-                          lastSharesOwnedReal.copy(
-                              dateRangeEnd = record.record?.date ?: DownloaderService.MAX_DATE)
-                    }
-                    list += newSharesOwned
-                  }
-                }
-          }
-      OwnershipContext(sharesOwnedMap = newMap)
-    }
   }
 
   private suspend fun getAccessToken(
@@ -254,11 +207,54 @@ private data class OwnershipContext(
     val record: CraigMillerTransactionRecord? = null
 )
 
-private fun ownershipContextMonoid(portfolioId: TypedId<PortfolioId>): Monoid<OwnershipContext> =
+private fun ownershipContextMonoid(
+    userId: TypedId<UserId>,
+    portfolioId: TypedId<PortfolioId>
+): Monoid<OwnershipContext> =
     object : Monoid<OwnershipContext> {
       override fun empty(): OwnershipContext = OwnershipContext(sharesOwnedMap = persistentMapOf())
 
-      override fun OwnershipContext.combine(b: OwnershipContext): OwnershipContext {
-        TODO("Not yet implemented")
+      override fun OwnershipContext.combine(record: OwnershipContext): OwnershipContext {
+        val sharesOwnedList = this.sharesOwnedMap[record.record?.symbol] ?: persistentListOf()
+        val lastSharesOwned = sharesOwnedList.lastOrNull()
+        val lastTotalShares = lastSharesOwned?.totalShares ?: BigDecimal("0")
+        val replaceLastSharesOwned =
+            lastSharesOwned?.dateRangeStart == record.record?.date ?: DownloaderService.MIN_DATE
+
+        val totalShares =
+            when (record.record?.action) {
+              Action.BUY,
+              Action.BONUS -> lastTotalShares + record.record.shares
+              Action.SELL -> lastTotalShares - record.record.shares
+              else -> BigDecimal("0")
+            }
+
+        val newSharesOwned =
+            SharesOwned(
+                id = TypedId(),
+                userId = userId,
+                portfolioId = portfolioId,
+                dateRangeStart = record.record?.date ?: DownloaderService.MIN_DATE,
+                dateRangeEnd = DownloaderService.MAX_DATE,
+                symbol = record.record?.symbol ?: "",
+                totalShares = totalShares)
+
+        val newMap =
+            this.sharesOwnedMap.mutate { map ->
+              map[record.record?.symbol ?: ""] =
+                  sharesOwnedList.mutate { list ->
+                    if (replaceLastSharesOwned) {
+                      list[list.size - 1] = newSharesOwned
+                    } else {
+                      lastSharesOwned?.let { lastSharesOwnedReal ->
+                        list[list.size - 1] =
+                            lastSharesOwnedReal.copy(
+                                dateRangeEnd = record.record?.date ?: DownloaderService.MAX_DATE)
+                      }
+                      list += newSharesOwned
+                    }
+                  }
+            }
+        return OwnershipContext(sharesOwnedMap = newMap)
       }
     }
