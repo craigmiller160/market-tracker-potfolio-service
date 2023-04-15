@@ -2,9 +2,12 @@ package io.craigmiller160.markettracker.portfolio.domain.client
 
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 
 @MarketTrackerPortfolioIntegrationTest
-class CoroutineDatabaseClientTest {
+class CoroutineDatabaseClientTest
+@Autowired
+constructor(private val client: CoroutineDatabaseClient) {
   @Test
   fun `query without params`() {
     TODO()
