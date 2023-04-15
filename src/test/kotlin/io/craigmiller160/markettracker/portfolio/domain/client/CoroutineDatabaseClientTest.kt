@@ -51,12 +51,28 @@ constructor(
 
   @Test
   fun `update without params`() {
-    TODO()
+    runBlocking {
+      insertPortfolio("abc")
+      insertPortfolio("def")
+    }
+
+    val result = runBlocking { coroutineClient.update("UPDATE portfolios SET name = name || '2'") }
+    result.shouldBeRight(2L)
   }
 
   @Test
   fun `update with params`() {
-    TODO()
+    val firstId = runBlocking {
+      val first = insertPortfolio("abc")
+      insertPortfolio("def")
+      first.id.value
+    }
+
+    val result = runBlocking {
+      coroutineClient.update(
+          "UPDATE portfolios SET name = name || '2' WHERE id = :id", mapOf("id" to firstId))
+    }
+    result.shouldBeRight(1L)
   }
 
   @Test
