@@ -5,6 +5,7 @@ import io.craigmiller160.markettracker.portfolio.domain.models.BasePortfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.kotest.assertions.arrow.core.shouldBeRight
+import java.util.UUID
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
@@ -77,12 +78,25 @@ constructor(
 
   @Test
   fun `batch update without params`() {
-    TODO()
+    val result = runBlocking {
+      coroutineClient.batchUpdate(
+          "INSERT INTO portfolios (id, user_id, name) VALUES (:id, :userId, :name)")
+    }
+    result.shouldBeRight(listOf())
   }
 
   @Test
   fun `batch update with params`() {
-    TODO()
+    val params =
+        (0 until 3).map {
+          mapOf("id" to UUID.randomUUID(), "userId" to UUID.randomUUID(), "name" to "name-$it")
+        }
+
+    val result = runBlocking {
+      coroutineClient.batchUpdate(
+          "INSERT INTO portfolios (id, user_id, name) VALUES (:id, :userId, :name)", params)
+    }
+    result.shouldBeRight(listOf(1L, 1L, 1L))
   }
 
   private suspend fun insertPortfolio(name: String): Portfolio {
