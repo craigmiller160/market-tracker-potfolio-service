@@ -9,7 +9,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     kotlin("jvm")
     kotlin("plugin.spring")
-    id("io.craigmiller160.gradle.defaults") version "1.0.0-SNAPSHOT"
+    id("io.craigmiller160.gradle.defaults") version "1.1.0"
     id("com.diffplug.spotless") version "6.17.0"
     `maven-publish`
 }
