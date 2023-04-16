@@ -8,7 +8,8 @@ import java.lang.NullPointerException
 import java.util.UUID
 import java.util.stream.Stream
 import kotlin.reflect.KClass
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 
 class RowTest {
   companion object {
@@ -30,42 +31,27 @@ class RowTest {
             RowValues(KEY, VALUE, Int::class, classCastLeft(Int::class)),
             RowValues(KEY, VALUE, Int::class, nullLeft(KEY)))
   }
-  @Test
-  fun `get optional, not null, with valid type`() {
-    val row = Row(mapOf(KEY to VALUE))
-    val result = row.getOptional(KEY, VALUE_TYPE)
-    result.shouldBeRight(VALUE)
+
+  @ParameterizedTest
+  @MethodSource("getOptionalValues")
+  fun `get optional`(values: RowValues) {
+    val row = Row(mapOf(values.key to values.value))
+    val result = row.getOptional(values.key, values.valueType)
+    when (values.expected) {
+      is Either.Right<*> -> result.shouldBeRight(values.expected.value)
+      is Either.Left<*> -> result.shouldBeLeft(values.expected.value)
+    }
   }
 
-  @Test
-  fun `get optional, not null, with invalid type`() {
-    val row = Row(mapOf(KEY to VALUE))
-    val result = row.getOptional(KEY, Int::class)
-    result.shouldBeLeft(ClassCastException("Value cannot be cast to ${Int::class.qualifiedName}"))
-  }
-
-  @Test
-  fun `get optional, is null`() {
-    val row = Row(mapOf(KEY to null))
-    val result = row.getOptional(KEY, Int::class)
-    result.shouldBeRight(null)
-  }
-
-  @Test
-  fun `get required, not null, with valid type`() {
-    val row = Row(mapOf(KEY to VALUE))
-    val result = row.getRequired(KEY, VALUE_TYPE)
-    result.shouldBeRight(VALUE)
-  }
-
-  @Test
-  fun `get required, not null, with invalid type`() {
-    TODO()
-  }
-
-  @Test
-  fun `get required, is null`() {
-    TODO()
+  @ParameterizedTest
+  @MethodSource("getRequiredValues")
+  fun `get required`(values: RowValues) {
+    val row = Row(mapOf(values.key to values.value))
+    val result = row.getRequired(values.key, values.valueType)
+    when (values.expected) {
+      is Either.Right<*> -> result.shouldBeRight(values.expected.value)
+      is Either.Left<*> -> result.shouldBeLeft(values.expected.value)
+    }
   }
 }
 
