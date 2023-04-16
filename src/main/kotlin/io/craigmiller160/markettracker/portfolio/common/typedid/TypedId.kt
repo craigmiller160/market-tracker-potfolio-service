@@ -5,9 +5,8 @@ import java.util.UUID
 
 @JvmInline
 @Schema(implementation = UUID::class)
-value class TypedId<T>(val value: UUID = UUID.randomUUID()) : Comparable<TypedId<T>> {
-  constructor() : this(UUID.randomUUID())
-  constructor(value: String) : this(UUID.fromString(value))
+value class TypedId<T>(val value: UUID = UUID.randomUUID())
 
-  override fun compareTo(other: TypedId<T>): Int = value.compareTo(other.value)
-}
+fun <T> UUID.toTypedId(): TypedId<T> = TypedId(this)
+
+fun <T> String.toTypedId(): TypedId<T> = TypedId(UUID.fromString(this))
