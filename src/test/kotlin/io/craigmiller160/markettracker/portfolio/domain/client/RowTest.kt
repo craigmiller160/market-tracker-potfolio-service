@@ -29,7 +29,7 @@ class RowTest {
         Stream.of(
             RowValues(KEY, VALUE, VALUE_TYPE, Either.Right(VALUE)),
             RowValues(KEY, VALUE, Int::class, classCastLeft(Int::class)),
-            RowValues(KEY, VALUE, Int::class, nullLeft(KEY)))
+            RowValues(KEY, null, Int::class, nullLeft(KEY)))
   }
 
   @ParameterizedTest
