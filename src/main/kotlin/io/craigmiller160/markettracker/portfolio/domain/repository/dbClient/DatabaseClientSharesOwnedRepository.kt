@@ -93,8 +93,7 @@ class DatabaseClientSharesOwnedRepository(
     return sqlLoader
         .loadSqlMustacheTemplate(GET_SHARES_OWNED_AT_INTERVAL_SQL)
         .flatMap { template -> template.executeWithSectionsEnabled("portfolioId") }
-        .flatMap { sql -> databaseClient.query(sql, params) }
-        .flatMap { list -> list.map(sharesOwnedOnDateRowMapper).sequence() }
+        .flatMap { sql -> databaseClient.query(sql, sharesOwnedOnDateRowMapper, params) }
   }
 
   override suspend fun getSharesOwnedAtIntervalForUser(
@@ -115,8 +114,7 @@ class DatabaseClientSharesOwnedRepository(
     return sqlLoader
         .loadSqlMustacheTemplate(GET_SHARES_OWNED_AT_INTERVAL_SQL)
         .flatMap { template -> template.executeWithSectionsEnabled() }
-        .flatMap { sql -> databaseClient.query(sql, params) }
-        .flatMap { list -> list.map(sharesOwnedOnDateRowMapper).sequence() }
+        .flatMap { sql -> databaseClient.query(sql, sharesOwnedOnDateRowMapper, params) }
   }
 
   override suspend fun deleteAllSharesOwnedForUsers(
