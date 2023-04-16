@@ -6,6 +6,7 @@ import arrow.typeclasses.Monoid
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.DatabaseClient.GenericExecuteSpec
 
@@ -24,9 +25,15 @@ class CoroutineDatabaseClient(private val databaseClient: DatabaseClient) {
             .toList()
       }
 
-  suspend fun update(sql: String, params: Map<String, Any> = mapOf()): TryEither<Long> {
-    TODO()
-  }
+  suspend fun update(sql: String, params: Map<String, Any> = mapOf()): TryEither<Long> =
+      Either.catch {
+        databaseClient
+            .sql(sql)
+            .let { executeSpec -> paramsToExecuteSpecBinder(params).let { fn -> fn(executeSpec) } }
+            .fetch()
+            .rowsUpdated()
+            .awaitSingle()
+      }
 
   suspend fun batchUpdate(
       sql: String,
