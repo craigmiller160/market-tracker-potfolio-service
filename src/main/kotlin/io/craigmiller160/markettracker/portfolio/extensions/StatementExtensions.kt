@@ -4,6 +4,7 @@ import io.r2dbc.spi.Statement
 
 private typealias StatementBatchBinder = (Statement) -> Statement
 
+// TODO delete this whole file
 fun <T> List<T>.toSqlBatches(statement: Statement, block: (T, Statement) -> Statement): Statement =
     mapToStatementBatch(block).reduceStatementBatches(statement)
 

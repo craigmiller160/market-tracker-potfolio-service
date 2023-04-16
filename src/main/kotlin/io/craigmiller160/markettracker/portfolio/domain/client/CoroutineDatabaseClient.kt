@@ -2,6 +2,7 @@ package io.craigmiller160.markettracker.portfolio.domain.client
 
 import arrow.core.Either
 import arrow.core.fold
+import arrow.core.right
 import arrow.typeclasses.Monoid
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.r2dbc.spi.Statement
@@ -39,17 +40,25 @@ class CoroutineDatabaseClient(private val databaseClient: DatabaseClient) {
   suspend fun batchUpdate(
       sql: String,
       paramBatches: List<List<Any>> = listOf()
-  ): TryEither<List<Long>> =
-      Either.catch {
-        databaseClient.inConnectionMany { conn ->
-          val statement = conn.createStatement(sql)
-          TODO()
-        }
+  ): TryEither<List<Long>> {
+    if (paramBatches.isEmpty()) {
+      return Either.right(listOf())
+    }
 
-        paramBatches.map { params -> }
+    return Either.catch {
+      databaseClient.inConnectionMany { conn ->
+        conn.createStatement(sql).let { statement ->
+          paramBatches.map { params -> paramsToStatementBinder(params).let { fn -> fn(statement) } }
+        }
 
         TODO()
       }
+
+      paramBatches.map { params -> }
+
+      TODO()
+    }
+  }
 }
 
 private typealias StatementBinder = (Statement) -> Statement
@@ -57,8 +66,17 @@ private typealias StatementBinder = (Statement) -> Statement
 private val statementBinderMonoid =
     object : Monoid<StatementBinder> {
       override fun empty(): StatementBinder = { it }
-      override fun (StatementBinder).combine(b: StatementBinder): StatementBinder = { stmt ->
+      override fun StatementBinder.combine(b: StatementBinder): StatementBinder = { stmt ->
         this(stmt).let(b)
+      }
+    }
+
+private val statementBatchBinderMonoid =
+    object : Monoid<StatementBinder> {
+      override fun empty(): StatementBinder = { it }
+      override fun StatementBinder.combine(b: StatementBinder): StatementBinder = { stmt ->
+        this(stmt).add()
+        b(stmt)
       }
     }
 
@@ -66,6 +84,13 @@ private fun paramsToStatementBinder(params: List<Any>): StatementBinder =
     params
         .mapIndexed { index, value -> { stmt: Statement -> stmt.bind(index, value) } }
         .fold(statementBinderMonoid)
+
+private fun paramBatchesToStatementBinder(paramBatches: List<List<Any>>): StatementBinder =
+    paramBatches
+        .map { params ->
+          { stmt: Statement -> paramsToStatementBinder(params).let { fn -> fn(stmt) } }
+        }
+        .fold(statementBatchBinderMonoid)
 
 private typealias ExecuteSpecBinder = (GenericExecuteSpec) -> GenericExecuteSpec
 
