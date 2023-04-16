@@ -23,9 +23,9 @@ class PortfolioRowMapperTest {
           base + mapOf("id" to null) to nullLeft("id"),
           base + mapOf("user_id" to null) to nullLeft("user_id"),
           base + mapOf("name" to null) to nullLeft("name"),
-          base + mapOf("id" to "Hello") to typeLeft("id", UUID::class.java),
-          base + mapOf("user_id" to "Hello") to typeLeft("user_id", UUID::class.java),
-          base + mapOf("name" to 123) to typeLeft("name", String::class.java))
+          base + mapOf("id" to "Hello") to typeLeft("id", UUID::class),
+          base + mapOf("user_id" to "Hello") to typeLeft("user_id", UUID::class),
+          base + mapOf("name" to 123) to typeLeft("name", String::class))
     }
   }
 
