@@ -1,12 +1,17 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders
 
+import arrow.core.flatMap
+import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
+import io.craigmiller160.markettracker.portfolio.domain.client.CoroutineDatabaseClient
 import io.craigmiller160.markettracker.portfolio.domain.models.BasePortfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
+import io.craigmiller160.markettracker.portfolio.domain.rowmappers.portfolioRowMapper
+import io.craigmiller160.markettracker.portfolio.domain.rowmappers.sharesOwnedRowMapper
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.collections.shouldHaveSize
@@ -15,17 +20,15 @@ import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.UUID
-import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.r2dbc.core.DatabaseClient
 
 @MarketTrackerPortfolioIntegrationTest
 class PersistDownloadServiceTest
 @Autowired
 constructor(
-    private val databaseClient: DatabaseClient,
+    private val databaseClient: CoroutineDatabaseClient,
     private val persistDownloadService: PersistDownloadService
 ) {
   companion object {
@@ -90,46 +93,40 @@ constructor(
 
   private suspend fun insertPortfolio(userId: TypedId<UserId>): Portfolio {
     val portfolio = BasePortfolio(id = TypedId(), userId = userId, name = "TestPortfolio")
+    val params =
+        mapOf(
+            "id" to portfolio.id.value,
+            "userId" to portfolio.userId.value,
+            "name" to portfolio.name)
     databaseClient
-        .sql("INSERT INTO portfolios (id, user_id, name) VALUES (:id, :userId, :name)")
-        .bind("id", portfolio.id.value)
-        .bind("userId", portfolio.userId.value)
-        .bind("name", portfolio.name)
-        .fetch()
-        .rowsUpdated()
-        .awaitSingle()
+        .update("INSERT INTO portfolios (id, user_id, name) VALUES (:id, :userId, :name)", params)
+        .shouldBeRight()
     return portfolio
   }
-  private suspend fun insertSharesOwned(portfolio: Portfolio) =
-      databaseClient
-          .sql(
-              "INSERT INTO shares_owned (id, user_id, portfolio_id, date_range, symbol, total_shares) VALUES (:id, :userId, :portfolioId, :dateRange::daterange, :symbol, :totalShares)")
-          .bind("id", UUID.randomUUID())
-          .bind("userId", portfolio.userId.value)
-          .bind("portfolioId", portfolio.id.value)
-          .bind("symbol", "VTI")
-          .bind("totalShares", BigDecimal("1"))
-          .bind("dateRange", "[2022-01-01,2022-01-02)")
-          .fetch()
-          .rowsUpdated()
-          .awaitSingle()
+  private suspend fun insertSharesOwned(portfolio: Portfolio) {
+    val params =
+        mapOf(
+            "id" to UUID.randomUUID(),
+            "userId" to portfolio.userId.value,
+            "portfolioId" to portfolio.id.value,
+            "symbol" to "VTI",
+            "totalShares" to BigDecimal("1"),
+            "dateRange" to "[2022-01-01,2022-01-02)")
+    databaseClient
+        .update(
+            "INSERT INTO shares_owned (id, user_id, portfolio_id, date_range, symbol, total_shares) VALUES (:id, :userId, :portfolioId, :dateRange::daterange, :symbol, :totalShares)",
+            params)
+        .shouldBeRight()
+  }
 
-  private suspend fun getPortfolios(): List<Portfolio> = TODO()
-  //      databaseClient
-  //          .sql("SELECT * FROM portfolios")
-  //          .map(portfolioRowMapper)
-  //          .all()
-  //          .asFlow()
-  //          .toList()
-  //          .sequence()
-  //          .shouldBeRight()
-  private suspend fun getSharesOwned(): List<SharesOwned> = TODO()
-  //      databaseClient
-  //          .sql("SELECT * FROM shares_owned")
-  //          .map(sharesOwnedRowMapper)
-  //          .all()
-  //          .asFlow()
-  //          .toList()
-  //          .sequence()
-  //          .shouldBeRight()
+  private suspend fun getPortfolios(): List<Portfolio> =
+      databaseClient
+          .query("SELECT * FROM portfolios")
+          .flatMap { list -> list.map(portfolioRowMapper).sequence() }
+          .shouldBeRight()
+  private suspend fun getSharesOwned(): List<SharesOwned> =
+      databaseClient
+          .query("SELECT * FROM shares_owned")
+          .flatMap { list -> list.map(sharesOwnedRowMapper).sequence() }
+          .shouldBeRight()
 }
