@@ -17,12 +17,7 @@ class CoroutineDatabaseClient(private val databaseClient: DatabaseClient) {
       Either.catch {
         databaseClient
             .sql(sql)
-            .let { executeSpec ->
-              params.entries
-                  .map { (key, value) -> { spec: GenericExecuteSpec -> spec.bind(key, value) } }
-                  .fold(executeSpecBinderMonoid)
-                  .let { fn -> fn(executeSpec) }
-            }
+            .let { executeSpec -> paramsToExecuteSpecBinder(params).let { fn -> fn(executeSpec) } }
             .fetch()
             .all()
             .asFlow()
@@ -40,6 +35,11 @@ class CoroutineDatabaseClient(private val databaseClient: DatabaseClient) {
     TODO()
   }
 }
+
+private fun paramsToExecuteSpecBinder(params: Map<String, Any>): ExecuteSpecBinder =
+    params.entries
+        .map { (key, value) -> { spec: GenericExecuteSpec -> spec.bind(key, value) } }
+        .fold(executeSpecBinderMonoid)
 
 private typealias ExecuteSpecBinder = (GenericExecuteSpec) -> GenericExecuteSpec
 
