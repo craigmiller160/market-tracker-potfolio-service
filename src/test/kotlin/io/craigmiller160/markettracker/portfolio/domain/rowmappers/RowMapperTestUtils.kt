@@ -14,7 +14,7 @@ typealias RowMapperData<T> = Pair<Map<String, Any?>, TryEither<T>>
 fun <T> typeLeft(column: String, type: KClass<*>): Either<Throwable, T> =
     Either.Left(
         IllegalArgumentException(
-            "Error getting column $column",
+            "Error casting column $column",
             ClassCastException("Value cannot be cast to ${type.qualifiedName}")))
 
 fun <T> nullLeft(column: String): Either<Throwable, T> =
