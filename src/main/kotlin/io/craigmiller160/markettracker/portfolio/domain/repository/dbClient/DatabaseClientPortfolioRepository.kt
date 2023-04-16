@@ -1,11 +1,13 @@
 package io.craigmiller160.markettracker.portfolio.domain.repository.dbClient
 
 import arrow.core.flatMap
+import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.client.CoroutineDatabaseClient
 import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
+import io.craigmiller160.markettracker.portfolio.domain.rowmappers.portfolioRowMapper
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.coFlatMap
@@ -44,10 +46,10 @@ class DatabaseClientPortfolioRepository(
 
   override suspend fun findAllForUser(userId: TypedId<UserId>): TryEither<List<Portfolio>> {
     val params = mapOf("userId" to userId.value)
-    return sqlLoader.loadSql(FIND_ALL_FOR_USER_SQL).flatMap { sql ->
-      databaseClient.query(sql, params)
-      TODO()
-    }
+    return sqlLoader
+        .loadSql(FIND_ALL_FOR_USER_SQL)
+        .flatMap { sql -> databaseClient.query(sql, params) }
+        .flatMap { list -> list.map(portfolioRowMapper).sequence() }
   }
 
   override suspend fun deleteAllPortfoliosForUsers(
