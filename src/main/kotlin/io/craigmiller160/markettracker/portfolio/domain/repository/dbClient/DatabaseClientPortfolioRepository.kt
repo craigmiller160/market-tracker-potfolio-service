@@ -1,29 +1,20 @@
 package io.craigmiller160.markettracker.portfolio.domain.repository.dbClient
 
-import arrow.core.Either
 import arrow.core.flatMap
-import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
+import io.craigmiller160.markettracker.portfolio.domain.client.CoroutineDatabaseClient
 import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.domain.rowmappers.portfolioRowMapper
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.coFlatMap
-import io.craigmiller160.markettracker.portfolio.extensions.mapCatch
-import io.craigmiller160.markettracker.portfolio.extensions.toSqlBatches
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactor.awaitSingle
-import org.springframework.r2dbc.core.DatabaseClient
-import org.springframework.r2dbc.core.awaitRowsUpdated
 import org.springframework.stereotype.Repository
-import reactor.kotlin.core.publisher.toFlux
 
 @Repository
 class DatabaseClientPortfolioRepository(
-    private val databaseClient: DatabaseClient,
+    private val databaseClient: CoroutineDatabaseClient,
     private val sqlLoader: SqlLoader
 ) : PortfolioRepository {
   companion object {
@@ -33,21 +24,17 @@ class DatabaseClientPortfolioRepository(
     private const val DELETE_ALL_PORTFOLIOS_SQL = "portfolio/deleteAllPortfoliosForUserIds.sql"
   }
 
-  override suspend fun createPortfolio(portfolio: Portfolio): TryEither<Portfolio> =
-      sqlLoader
-          .loadSql(INSERT_PORTFOLIO_SQL)
-          .flatMap { sql ->
-            Either.catch {
-              databaseClient
-                  .sql(sql)
-                  .bind("id", portfolio.id.value)
-                  .bind("userId", portfolio.userId.value)
-                  .bind("name", portfolio.name)
-                  .fetch()
-                  .awaitRowsUpdated()
-            }
-          }
-          .map { portfolio }
+  override suspend fun createPortfolio(portfolio: Portfolio): TryEither<Portfolio> {
+    val params =
+        mapOf(
+            "id" to portfolio.id.value,
+            "userId" to portfolio.userId.value,
+            "name" to portfolio.name)
+    return sqlLoader
+        .loadSql(INSERT_PORTFOLIO_SQL)
+        .flatMap { sql -> databaseClient.update(sql, params) }
+        .map { portfolio }
+  }
 
   override suspend fun createAllPortfolios(
       portfolios: List<Portfolio>
@@ -56,48 +43,30 @@ class DatabaseClientPortfolioRepository(
         portfolios
       }
 
-  override suspend fun findAllForUser(userId: TypedId<UserId>): TryEither<List<Portfolio>> =
-      sqlLoader
-          .loadSql(FIND_ALL_FOR_USER_SQL)
-          .mapCatch { sql ->
-            databaseClient
-                .sql(sql)
-                .bind("userId", userId.value)
-                .map(portfolioRowMapper)
-                .all()
-                .asFlow()
-          }
-          .flatMap { it.toList().sequence() }
+  override suspend fun findAllForUser(userId: TypedId<UserId>): TryEither<List<Portfolio>> {
+    val params = mapOf("userId" to userId.value)
+    return sqlLoader.loadSql(FIND_ALL_FOR_USER_SQL).flatMap { sql ->
+      databaseClient.query(sql, portfolioRowMapper, params)
+    }
+  }
 
   override suspend fun deleteAllPortfoliosForUsers(
       userIds: List<TypedId<UserId>>
-  ): TryEither<Unit> =
-      sqlLoader.loadSql(DELETE_ALL_PORTFOLIOS_SQL).mapCatch { sql ->
-        databaseClient
-            .sql(sql)
-            .bind("userIds", userIds.map { it.value })
-            .fetch()
-            .rowsUpdated()
-            .awaitSingle()
-      }
+  ): TryEither<Unit> {
+    val params = mapOf("userIds" to userIds.map { it.value })
+    return sqlLoader.loadSql(DELETE_ALL_PORTFOLIOS_SQL).flatMap { sql ->
+      databaseClient.update(sql, params).map { Unit }
+    }
+  }
 
   private suspend fun createAsBatch(
       portfolios: List<Portfolio>
   ): suspend (String) -> TryEither<List<Long>> = { sql ->
-    Either.catch {
-      databaseClient
-          .inConnectionMany { conn ->
-            val statement = conn.createStatement(sql)
-            portfolios
-                .toSqlBatches(statement) { record, stmt ->
-                  stmt.bind(0, record.id.value).bind(1, record.userId.value).bind(2, record.name)
-                }
-                .execute()
-                .toFlux()
-                .flatMap { result -> result.rowsUpdated.toFlux() }
-          }
-          .asFlow()
-          .toList()
-    }
+    val paramBatches =
+        portfolios.map { portfolio ->
+          listOf(portfolio.id.value, portfolio.userId.value, portfolio.name)
+        }
+
+    databaseClient.batchUpdate(sql, paramBatches)
   }
 }
