@@ -11,10 +11,10 @@ import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterv
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedOnDate
 import io.craigmiller160.markettracker.portfolio.domain.models.dateRange
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
+import io.craigmiller160.markettracker.portfolio.domain.rowmappers.sharesOwnedOnDateRowMapper
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.coFlatMap
-import io.craigmiller160.markettracker.portfolio.extensions.mapCatch
 import java.time.LocalDate
 import org.springframework.stereotype.Repository
 
@@ -64,21 +64,14 @@ class DatabaseClientSharesOwnedRepository(
         .flatMap { list -> list.map { it.getRequired("symbol", String::class) }.sequence() }
   }
 
-  override suspend fun findUniqueStocksForUser(userId: TypedId<UserId>): TryEither<List<String>> =
-      sqlLoader
-          .loadSqlMustacheTemplate(FIND_UNIQUE_STOCKS_SQL)
-          .flatMap { template -> template.executeWithSectionsEnabled() }
-          .mapCatch { sql ->
-            //            databaseClient
-            //                .sql(sql)
-            //                .bind("userId", userId.value)
-            //                .map { row -> row.get("symbol")?.toString() }
-            //                .all()
-            //                .toIterable()
-            //                .toList()
-            //                .filterNotNull()
-            TODO()
-          }
+  override suspend fun findUniqueStocksForUser(userId: TypedId<UserId>): TryEither<List<String>> {
+    val params = mapOf("userId" to userId.value)
+    return sqlLoader
+        .loadSqlMustacheTemplate(FIND_UNIQUE_STOCKS_SQL)
+        .flatMap { template -> template.executeWithSectionsEnabled() }
+        .flatMap { sql -> databaseClient.query(sql, params) }
+        .flatMap { list -> list.map { it.getRequired("symbol", String::class) }.sequence() }
+  }
 
   override suspend fun getSharesOwnedAtIntervalInPortfolio(
       userId: TypedId<UserId>,
@@ -87,24 +80,22 @@ class DatabaseClientSharesOwnedRepository(
       startDate: LocalDate,
       endDate: LocalDate,
       interval: SharesOwnedInterval
-  ): TryEither<List<SharesOwnedOnDate>> = TODO()
-  //      sqlLoader
-  //          .loadSqlMustacheTemplate(GET_SHARES_OWNED_AT_INTERVAL_SQL)
-  //          .flatMap { template -> template.executeWithSectionsEnabled("portfolioId") }
-  //          .mapCatch { sql ->
-  //            databaseClient
-  //                .sql(sql)
-  //                .bind("userId", userId.value)
-  //                .bind("symbol", stockSymbol)
-  //                .bind("portfolioId", portfolioId.value)
-  //                .bind("startDate", startDate)
-  //                .bind("endDate", endDate)
-  //                .bind("interval", interval.sql)
-  //                .map(sharesOwnedOnDateRowMapper)
-  //                .all()
-  //                .asFlow()
-  //          }
-  //          .coFlatMap { flow -> flow.toList().sequence() }
+  ): TryEither<List<SharesOwnedOnDate>> {
+    val params =
+        mapOf(
+            "userId" to userId.value,
+            "symbol" to stockSymbol,
+            "portfolioId" to portfolioId.value,
+            "startDate" to startDate,
+            "endDate" to endDate,
+            "interval" to interval.sql)
+
+    return sqlLoader
+        .loadSqlMustacheTemplate(GET_SHARES_OWNED_AT_INTERVAL_SQL)
+        .flatMap { template -> template.executeWithSectionsEnabled("portfolioId") }
+        .flatMap { sql -> databaseClient.query(sql, params) }
+        .flatMap { list -> list.map(sharesOwnedOnDateRowMapper).sequence() }
+  }
 
   override suspend fun getSharesOwnedAtIntervalForUser(
       userId: TypedId<UserId>,
@@ -112,35 +103,29 @@ class DatabaseClientSharesOwnedRepository(
       startDate: LocalDate,
       endDate: LocalDate,
       interval: SharesOwnedInterval
-  ): TryEither<List<SharesOwnedOnDate>> =
-      sqlLoader
-          .loadSqlMustacheTemplate(GET_SHARES_OWNED_AT_INTERVAL_SQL)
-          .flatMap { template -> template.executeWithSectionsEnabled() }
-          .mapCatch { sql ->
-            //            databaseClient
-            //                .sql(sql)
-            //                .bind("userId", userId.value)
-            //                .bind("symbol", stockSymbol)
-            //                .bind("startDate", startDate)
-            //                .bind("endDate", endDate)
-            //                .bind("interval", interval.sql)
-            //                .map(sharesOwnedOnDateRowMapper)
-            //                .all()
-            //                .asFlow()
-            TODO()
-          }
-  //          .coFlatMap { flow -> flow.toList().sequence() }
+  ): TryEither<List<SharesOwnedOnDate>> {
+    val params =
+        mapOf(
+            "userId" to userId.value,
+            "symbol" to stockSymbol,
+            "startDate" to startDate,
+            "endDate" to endDate,
+            "interval" to interval.sql)
+
+    return sqlLoader
+        .loadSqlMustacheTemplate(GET_SHARES_OWNED_AT_INTERVAL_SQL)
+        .flatMap { template -> template.executeWithSectionsEnabled() }
+        .flatMap { sql -> databaseClient.query(sql, params) }
+        .flatMap { list -> list.map(sharesOwnedOnDateRowMapper).sequence() }
+  }
 
   override suspend fun deleteAllSharesOwnedForUsers(
       userIds: List<TypedId<UserId>>
-  ): TryEither<Unit> =
-      sqlLoader.loadSql(DELETE_ALL_SHARES_OWNED_SQL).mapCatch { sql ->
-        //        databaseClient
-        //            .sql(sql)
-        //            .bind("userIds", userIds.map { it.value })
-        //            .fetch()
-        //            .rowsUpdated()
-        //            .awaitSingle()
-        TODO()
-      }
+  ): TryEither<Unit> {
+    val params = mapOf("userIds" to userIds.map { it.value })
+    return sqlLoader
+        .loadSql(DELETE_ALL_SHARES_OWNED_SQL)
+        .flatMap { sql -> databaseClient.update(sql, params) }
+        .map { Unit }
+  }
 }
