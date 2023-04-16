@@ -28,7 +28,7 @@ constructor(
 
     val result = runBlocking {
       coroutineClient.query("SELECT COUNT(*) AS the_count FROM portfolios").map { list ->
-        list.first().get("the_count")
+        list.first()["the_count"]
       }
     }
     result.shouldBeRight(2L)
@@ -45,7 +45,7 @@ constructor(
     val result = runBlocking {
       coroutineClient
           .query("SELECT id FROM portfolios WHERE name = :name", mapOf("name" to "abc"))
-          .map { list -> list.map { it.get("id") } }
+          .map { list -> list.map { it["id"] } }
     }
     result.shouldBeRight(listOf(expectedId))
   }
