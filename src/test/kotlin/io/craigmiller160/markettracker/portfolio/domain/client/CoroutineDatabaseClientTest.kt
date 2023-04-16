@@ -98,7 +98,7 @@ constructor(
 
     val result = runBlocking {
       coroutineClient.batchUpdate(
-          "INSERT INTO portfolios (id, user_id, name) VALUES (:id, :userId, :name)", params)
+          "INSERT INTO portfolios (id, user_id, name) VALUES ($1, $2, $3)", params)
     }
     result.shouldBeRight(listOf(1L, 1L, 1L))
 
