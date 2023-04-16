@@ -10,7 +10,6 @@ import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.coFlatMap
 import io.craigmiller160.markettracker.portfolio.extensions.mapCatch
-import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -48,6 +47,7 @@ class DatabaseClientPortfolioRepository(
     val params = mapOf("userId" to userId.value)
     return sqlLoader.loadSql(FIND_ALL_FOR_USER_SQL).flatMap { sql ->
       databaseClient.query(sql, params)
+      TODO()
     }
   }
 
@@ -55,12 +55,13 @@ class DatabaseClientPortfolioRepository(
       userIds: List<TypedId<UserId>>
   ): TryEither<Unit> =
       sqlLoader.loadSql(DELETE_ALL_PORTFOLIOS_SQL).mapCatch { sql ->
-        databaseClient
-            .sql(sql)
-            .bind("userIds", userIds.map { it.value })
-            .fetch()
-            .rowsUpdated()
-            .awaitSingle()
+        //        databaseClient
+        //            .sql(sql)
+        //            .bind("userIds", userIds.map { it.value })
+        //            .fetch()
+        //            .rowsUpdated()
+        //            .awaitSingle()
+        TODO()
       }
 
   private suspend fun createAsBatch(
