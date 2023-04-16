@@ -9,7 +9,6 @@ import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepo
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.coFlatMap
-import io.craigmiller160.markettracker.portfolio.extensions.mapCatch
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -53,16 +52,12 @@ class DatabaseClientPortfolioRepository(
 
   override suspend fun deleteAllPortfoliosForUsers(
       userIds: List<TypedId<UserId>>
-  ): TryEither<Unit> =
-      sqlLoader.loadSql(DELETE_ALL_PORTFOLIOS_SQL).mapCatch { sql ->
-        //        databaseClient
-        //            .sql(sql)
-        //            .bind("userIds", userIds.map { it.value })
-        //            .fetch()
-        //            .rowsUpdated()
-        //            .awaitSingle()
-        TODO()
-      }
+  ): TryEither<Unit> {
+    val params = mapOf("userIds" to userIds.map { it.value })
+    return sqlLoader.loadSql(DELETE_ALL_PORTFOLIOS_SQL).flatMap { sql ->
+      databaseClient.update(sql, params).map { Unit }
+    }
+  }
 
   private suspend fun createAsBatch(
       portfolios: List<Portfolio>
