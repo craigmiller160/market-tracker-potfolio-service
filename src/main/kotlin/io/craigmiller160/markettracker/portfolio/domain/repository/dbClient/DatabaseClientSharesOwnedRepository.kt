@@ -1,7 +1,7 @@
 package io.craigmiller160.markettracker.portfolio.domain.repository.dbClient
 
-import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
@@ -9,6 +9,7 @@ import io.craigmiller160.markettracker.portfolio.domain.client.CoroutineDatabase
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedOnDate
+import io.craigmiller160.markettracker.portfolio.domain.models.dateRange
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
@@ -38,48 +39,30 @@ class DatabaseClientSharesOwnedRepository(
   private suspend fun createAsBatch(
       sharesOwned: List<SharesOwned>
   ): suspend (String) -> TryEither<List<Long>> = { sql ->
-    Either.catch {
-      //      databaseClient
-      //          .inConnectionMany { conn ->
-      //            val statement = conn.createStatement(sql)
-      //            sharesOwned
-      //                .toSqlBatches(statement) { record, stmt ->
-      //                  stmt
-      //                      .bind(0, record.id.value)
-      //                      .bind(1, record.userId.value)
-      //                      .bind(2, record.portfolioId.value)
-      //                      .bind(3, record.dateRange)
-      //                      .bind(4, record.symbol)
-      //                      .bind(5, record.totalShares)
-      //                }
-      //                .execute()
-      //                .toFlux()
-      //                .flatMap { result -> result.rowsUpdated.toFlux() }
-      //          }
-      //          .asFlow()
-      //          .toList()
-      TODO()
-    }
+    val paramBatches =
+        sharesOwned.map { record ->
+          listOf(
+              record.id.value,
+              record.userId.value,
+              record.portfolioId.value,
+              record.dateRange,
+              record.symbol,
+              record.totalShares)
+        }
+    databaseClient.batchUpdate(sql, paramBatches)
   }
 
   override suspend fun findUniqueStocksInPortfolio(
       userId: TypedId<UserId>,
       portfolioId: TypedId<PortfolioId>
-  ): TryEither<List<String>> = TODO()
-  //      sqlLoader
-  //          .loadSqlMustacheTemplate(FIND_UNIQUE_STOCKS_SQL)
-  //          .flatMap { template -> template.executeWithSectionsEnabled("portfolioId") }
-  //          .mapCatch { sql ->
-  //            databaseClient
-  //                .sql(sql)
-  //                .bind("userId", userId.value)
-  //                .bind("portfolioId", portfolioId.value)
-  //                .map { row -> row.get("symbol")?.toString() }
-  //                .all()
-  //                .toIterable()
-  //                .toList()
-  //                .filterNotNull()
-  //          }
+  ): TryEither<List<String>> {
+    val params = mapOf("userId" to userId.value, "portfolioId" to portfolioId.value)
+    return sqlLoader
+        .loadSqlMustacheTemplate(FIND_UNIQUE_STOCKS_SQL)
+        .flatMap { template -> template.executeWithSectionsEnabled("portfolioId") }
+        .flatMap { sql -> databaseClient.query(sql, params) }
+        .flatMap { list -> list.map { it.getRequired("symbol", String::class) }.sequence() }
+  }
 
   override suspend fun findUniqueStocksForUser(userId: TypedId<UserId>): TryEither<List<String>> =
       sqlLoader
