@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.fold
 import arrow.typeclasses.Monoid
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
+import io.r2dbc.spi.Statement
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
@@ -37,25 +38,47 @@ class CoroutineDatabaseClient(private val databaseClient: DatabaseClient) {
 
   suspend fun batchUpdate(
       sql: String,
-      params: List<Map<String, Any>> = listOf()
-  ): TryEither<List<Long>> {
-    TODO()
-  }
+      paramBatches: List<List<Any>> = listOf()
+  ): TryEither<List<Long>> =
+      Either.catch {
+        databaseClient.inConnectionMany { conn ->
+          val statement = conn.createStatement(sql)
+          TODO()
+        }
+
+        paramBatches.map { params -> }
+
+        TODO()
+      }
 }
 
-private fun paramsToExecuteSpecBinder(params: Map<String, Any>): ExecuteSpecBinder =
-    params.entries
-        .map { (key, value) -> { spec: GenericExecuteSpec -> spec.bind(key, value) } }
-        .fold(executeSpecBinderMonoid)
+private typealias StatementBinder = (Statement) -> Statement
+
+private val statementBinderMonoid =
+    object : Monoid<StatementBinder> {
+      override fun empty(): StatementBinder = { it }
+      override fun (StatementBinder).combine(b: StatementBinder): StatementBinder = { stmt ->
+        this(stmt).let(b)
+      }
+    }
+
+private fun paramsToStatementBinder(params: List<Any>): StatementBinder =
+    params
+        .mapIndexed { index, value -> { stmt: Statement -> stmt.bind(index, value) } }
+        .fold(statementBinderMonoid)
 
 private typealias ExecuteSpecBinder = (GenericExecuteSpec) -> GenericExecuteSpec
 
 private val executeSpecBinderMonoid =
     object : Monoid<ExecuteSpecBinder> {
       override fun empty(): ExecuteSpecBinder = { it }
-
       override fun ExecuteSpecBinder.combine(b: ExecuteSpecBinder): ExecuteSpecBinder =
           { executeSpec ->
-            this(executeSpec).let { b(it) }
+            this(executeSpec).let(b)
           }
     }
+
+private fun paramsToExecuteSpecBinder(params: Map<String, Any>): ExecuteSpecBinder =
+    params.entries
+        .map { (key, value) -> { spec: GenericExecuteSpec -> spec.bind(key, value) } }
+        .fold(executeSpecBinderMonoid)
