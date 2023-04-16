@@ -28,7 +28,7 @@ constructor(
 
     val result = runBlocking {
       coroutineClient.query("SELECT COUNT(*) AS the_count FROM portfolios").map { list ->
-        list.first().get("count")
+        list.first().get("the_count")
       }
     }
     result.shouldBeRight(2L)
