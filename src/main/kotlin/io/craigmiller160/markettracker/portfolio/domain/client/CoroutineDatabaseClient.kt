@@ -1,8 +1,11 @@
 package io.craigmiller160.markettracker.portfolio.domain.client
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.fold
+import arrow.core.sequence
 import arrow.typeclasses.Monoid
+import io.craigmiller160.markettracker.portfolio.domain.rowmappers.RowMapper
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.r2dbc.spi.Statement
 import kotlinx.coroutines.flow.flatMapConcat
@@ -26,6 +29,12 @@ class CoroutineDatabaseClient(private val databaseClient: DatabaseClient) {
             .map { Row(it) }
             .toList()
       }
+
+  suspend fun <T> query(
+      sql: String,
+      rowMapper: RowMapper<T>,
+      params: Map<String, Any> = mapOf()
+  ): TryEither<List<T>> = query(sql, params).flatMap { list -> list.map(rowMapper).sequence() }
 
   suspend fun update(sql: String, params: Map<String, Any> = mapOf()): TryEither<Long> =
       Either.catch {

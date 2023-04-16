@@ -6,6 +6,7 @@ import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.BasePortfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
+import io.craigmiller160.markettracker.portfolio.domain.rowmappers.portfolioRowMapper
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.shouldBe
@@ -53,6 +54,16 @@ constructor(
           .flatMap { list -> list.map { it.getRequired("id", UUID::class) }.sequence() }
     }
     result.shouldBeRight(listOf(expectedId))
+  }
+
+  @Test
+  fun `query with row mapper`() {
+    val portfolio = runBlocking { insertPortfolio("abc") }
+
+    val result = runBlocking {
+      coroutineClient.query("SELECT * FROM portfolios", portfolioRowMapper)
+    }
+    result.shouldBeRight(listOf(portfolio))
   }
 
   @Test
