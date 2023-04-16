@@ -1,6 +1,5 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders
 
-import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
@@ -8,8 +7,6 @@ import io.craigmiller160.markettracker.portfolio.domain.models.BasePortfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
-import io.craigmiller160.markettracker.portfolio.domain.rowmappers.portfolioRowMapper
-import io.craigmiller160.markettracker.portfolio.domain.rowmappers.sharesOwnedRowMapper
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.collections.shouldHaveSize
@@ -18,8 +15,6 @@ import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.UUID
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
@@ -119,22 +114,22 @@ constructor(
           .rowsUpdated()
           .awaitSingle()
 
-  private suspend fun getPortfolios(): List<Portfolio> =
-      databaseClient
-          .sql("SELECT * FROM portfolios")
-          .map(portfolioRowMapper)
-          .all()
-          .asFlow()
-          .toList()
-          .sequence()
-          .shouldBeRight()
-  private suspend fun getSharesOwned(): List<SharesOwned> =
-      databaseClient
-          .sql("SELECT * FROM shares_owned")
-          .map(sharesOwnedRowMapper)
-          .all()
-          .asFlow()
-          .toList()
-          .sequence()
-          .shouldBeRight()
+  private suspend fun getPortfolios(): List<Portfolio> = TODO()
+  //      databaseClient
+  //          .sql("SELECT * FROM portfolios")
+  //          .map(portfolioRowMapper)
+  //          .all()
+  //          .asFlow()
+  //          .toList()
+  //          .sequence()
+  //          .shouldBeRight()
+  private suspend fun getSharesOwned(): List<SharesOwned> = TODO()
+  //      databaseClient
+  //          .sql("SELECT * FROM shares_owned")
+  //          .map(sharesOwnedRowMapper)
+  //          .all()
+  //          .asFlow()
+  //          .toList()
+  //          .sequence()
+  //          .shouldBeRight()
 }
