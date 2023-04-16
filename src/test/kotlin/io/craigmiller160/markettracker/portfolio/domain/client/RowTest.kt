@@ -27,12 +27,16 @@ class RowTest {
 
   @Test
   fun `get optional, is null`() {
-    TODO()
+    val row = Row(mapOf(KEY to null))
+    val result = row.getOptional(KEY, Int::class)
+    result.shouldBeRight(null)
   }
 
   @Test
   fun `get required, not null, with valid type`() {
-    TODO()
+    val row = Row(mapOf(KEY to VALUE))
+    val result = row.getRequired(KEY, VALUE_TYPE)
+    result.shouldBeRight(VALUE)
   }
 
   @Test
