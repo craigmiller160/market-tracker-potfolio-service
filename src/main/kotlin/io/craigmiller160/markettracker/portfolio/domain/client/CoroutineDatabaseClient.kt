@@ -2,15 +2,17 @@ package io.craigmiller160.markettracker.portfolio.domain.client
 
 import arrow.core.Either
 import arrow.core.fold
-import arrow.core.right
 import arrow.typeclasses.Monoid
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.r2dbc.spi.Statement
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.DatabaseClient.GenericExecuteSpec
+import reactor.kotlin.core.publisher.toFlux
 
 class CoroutineDatabaseClient(private val databaseClient: DatabaseClient) {
   suspend fun query(
@@ -42,21 +44,23 @@ class CoroutineDatabaseClient(private val databaseClient: DatabaseClient) {
       paramBatches: List<List<Any>> = listOf()
   ): TryEither<List<Long>> {
     if (paramBatches.isEmpty()) {
-      return Either.right(listOf())
+      return Either.Right(listOf())
     }
 
     return Either.catch {
-      databaseClient.inConnectionMany { conn ->
-        conn.createStatement(sql).let { statement ->
-          paramBatches.map { params -> paramsToStatementBinder(params).let { fn -> fn(statement) } }
-        }
-
-        TODO()
-      }
-
-      paramBatches.map { params -> }
-
-      TODO()
+      databaseClient
+          .inConnectionMany { conn ->
+            conn
+                .createStatement(sql)
+                .let { statement ->
+                  paramBatchesToStatementBinder(paramBatches).let { fn -> fn(statement) }
+                }
+                .execute()
+                .toFlux()
+          }
+          .asFlow()
+          .flatMapConcat { result -> result.rowsUpdated.asFlow() }
+          .toList()
     }
   }
 }
