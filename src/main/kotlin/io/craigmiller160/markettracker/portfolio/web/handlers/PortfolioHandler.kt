@@ -2,6 +2,7 @@ package io.craigmiller160.markettracker.portfolio.web.handlers
 
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
+import io.craigmiller160.markettracker.portfolio.common.typedid.toTypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.extensions.pathVariable
 import io.craigmiller160.markettracker.portfolio.extensions.requiredQueryParam
@@ -49,7 +50,7 @@ class PortfolioHandler(
   }
 
   private val ServerRequest.portfolioId: TypedId<PortfolioId>
-    get() = pathVariable("portfolioId", ::TypedId)
+    get() = pathVariable("portfolioId", String::toTypedId)
 
   private val ServerRequest.stockSymbol: String
     get() = pathVariable("stockSymbol") { it }

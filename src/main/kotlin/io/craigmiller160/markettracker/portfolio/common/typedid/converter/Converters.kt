@@ -1,13 +1,14 @@
 package io.craigmiller160.markettracker.portfolio.common.typedid.converter
 
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
+import io.craigmiller160.markettracker.portfolio.common.typedid.toTypedId
 import java.util.UUID
 import org.springframework.core.convert.converter.Converter
 import org.springframework.stereotype.Component
 
 @Component
 class StringToTypedIdConverter : Converter<String, TypedId<*>> {
-  override fun convert(source: String): TypedId<*> = TypedId<Any>(source)
+  override fun convert(source: String): TypedId<*> = source.toTypedId<Any>()
 }
 
 @Component

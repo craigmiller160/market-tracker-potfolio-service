@@ -17,6 +17,7 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
+import io.kotest.matchers.shouldBe
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.UUID
@@ -79,9 +80,9 @@ constructor(
       val sharesOwned = getSharesOwned()
       sharesOwned.shouldHaveSize(2)
       sharesOwned.forEachIndexed { index, actual ->
-        actual.id.shouldBeEqualComparingTo(DATA[0].ownershipHistory[index].id)
-        actual.userId.shouldBeEqualComparingTo(DATA[0].ownershipHistory[index].userId)
-        actual.portfolioId.shouldBeEqualComparingTo(DATA[0].ownershipHistory[index].portfolioId)
+        actual.id.shouldBe(DATA[0].ownershipHistory[index].id)
+        actual.userId.shouldBe(DATA[0].ownershipHistory[index].userId)
+        actual.portfolioId.shouldBe(DATA[0].ownershipHistory[index].portfolioId)
         actual.dateRangeStart.shouldBeEqualComparingTo(
             DATA[0].ownershipHistory[index].dateRangeStart)
         actual.dateRangeEnd.shouldBeEqualComparingTo(DATA[0].ownershipHistory[index].dateRangeEnd)
