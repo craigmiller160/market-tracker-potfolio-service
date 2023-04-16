@@ -1,16 +1,28 @@
 package io.craigmiller160.markettracker.portfolio.domain.client
 
+import io.kotest.assertions.arrow.core.shouldBeLeft
+import io.kotest.assertions.arrow.core.shouldBeRight
+import java.util.UUID
 import org.junit.jupiter.api.Test
 
 class RowTest {
+  companion object {
+    private const val KEY = "hello"
+    private val VALUE = UUID.randomUUID()
+    private val VALUE_TYPE = UUID::class
+  }
   @Test
   fun `get optional, not null, with valid type`() {
-    TODO()
+    val row = Row(mapOf(KEY to VALUE))
+    val result = row.getOptional(KEY, VALUE_TYPE)
+    result.shouldBeRight(VALUE)
   }
 
   @Test
   fun `get optional, not null, with invalid type`() {
-    TODO()
+    val row = Row(mapOf(KEY to VALUE))
+    val result = row.getOptional(KEY, Int::class)
+    result.shouldBeLeft(ClassCastException("Value cannot be cast to ${Int::class.qualifiedName}"))
   }
 
   @Test
