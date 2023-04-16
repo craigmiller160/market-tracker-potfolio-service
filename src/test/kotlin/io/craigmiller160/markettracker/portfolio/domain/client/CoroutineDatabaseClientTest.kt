@@ -94,10 +94,7 @@ constructor(
 
   @Test
   fun `batch update with params`() {
-    val params =
-        (0 until 3).map {
-          mapOf("id" to UUID.randomUUID(), "userId" to UUID.randomUUID(), "name" to "name-$it")
-        }
+    val params = (0 until 3).map { listOf(UUID.randomUUID(), UUID.randomUUID(), "name-$it") }
 
     val result = runBlocking {
       coroutineClient.batchUpdate(
