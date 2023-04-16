@@ -4,6 +4,7 @@ import arrow.core.Either
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
+import java.lang.IllegalArgumentException
 import java.lang.NullPointerException
 import java.util.UUID
 import java.util.stream.Stream
@@ -21,14 +22,14 @@ class RowTest {
     fun getOptionalValues(): Stream<RowValues> =
         Stream.of(
             RowValues(KEY, VALUE, VALUE_TYPE, Either.Right(VALUE)),
-            RowValues(KEY, VALUE, Int::class, classCastLeft(Int::class)),
+            RowValues(KEY, VALUE, Int::class, classCastLeft(KEY, Int::class)),
             RowValues(KEY, null, Int::class, Either.Right(null)))
 
     @JvmStatic
     fun getRequiredValues(): Stream<RowValues> =
         Stream.of(
             RowValues(KEY, VALUE, VALUE_TYPE, Either.Right(VALUE)),
-            RowValues(KEY, VALUE, Int::class, classCastLeft(Int::class)),
+            RowValues(KEY, VALUE, Int::class, classCastLeft(KEY, Int::class)),
             RowValues(KEY, null, Int::class, nullLeft(KEY)))
   }
 
@@ -62,8 +63,11 @@ data class RowValues(
     val expected: TryEither<*>
 )
 
-private fun classCastLeft(type: KClass<*>): TryEither<*> =
-    Either.Left(ClassCastException("Value cannot be cast to ${type.qualifiedName}"))
+private fun classCastLeft(name: String, type: KClass<*>): TryEither<*> =
+    Either.Left(
+        IllegalArgumentException(
+            "Error casting column $name",
+            ClassCastException("Value cannot be cast to ${type.qualifiedName}")))
 
 private fun nullLeft(name: String): TryEither<*> =
     Either.Left(NullPointerException("Value is null: Missing $name column"))
