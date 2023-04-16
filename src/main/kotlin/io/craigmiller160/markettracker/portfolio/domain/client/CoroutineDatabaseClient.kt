@@ -15,10 +15,7 @@ import org.springframework.r2dbc.core.DatabaseClient.GenericExecuteSpec
 import reactor.kotlin.core.publisher.toFlux
 
 class CoroutineDatabaseClient(private val databaseClient: DatabaseClient) {
-  suspend fun query(
-      sql: String,
-      params: Map<String, Any> = mapOf()
-  ): TryEither<List<Map<String, Any>>> =
+  suspend fun query(sql: String, params: Map<String, Any> = mapOf()): TryEither<List<Row>> =
       Either.catch {
         databaseClient
             .sql(sql)
@@ -26,6 +23,7 @@ class CoroutineDatabaseClient(private val databaseClient: DatabaseClient) {
             .fetch()
             .all()
             .asFlow()
+            .map { Row(it) }
             .toList()
       }
 
