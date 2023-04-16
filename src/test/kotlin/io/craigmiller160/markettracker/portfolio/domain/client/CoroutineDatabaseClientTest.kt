@@ -1,5 +1,8 @@
 package io.craigmiller160.markettracker.portfolio.domain.client
 
+import arrow.core.flatMap
+import arrow.core.getOrElse
+import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.BasePortfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
@@ -30,7 +33,7 @@ constructor(
 
     val result = runBlocking {
       coroutineClient.query("SELECT COUNT(*) AS the_count FROM portfolios").map { list ->
-        list.first()["the_count"]
+        list.first().getRequired("the_count", Long::class).getOrElse { throw it }
       }
     }
     result.shouldBeRight(2L)
@@ -47,7 +50,7 @@ constructor(
     val result = runBlocking {
       coroutineClient
           .query("SELECT id FROM portfolios WHERE name = :name", mapOf("name" to "abc"))
-          .map { list -> list.map { it["id"] } }
+          .flatMap { list -> list.map { it.getRequired("id", UUID::class) }.sequence() }
     }
     result.shouldBeRight(listOf(expectedId))
   }
