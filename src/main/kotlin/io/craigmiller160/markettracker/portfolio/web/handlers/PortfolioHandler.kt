@@ -49,6 +49,14 @@ class PortfolioHandler(
         .toResponse()
   }
 
+  suspend fun getCurrentValueForStockInPortfolio(request: ServerRequest): ServerResponse {
+    TODO()
+  }
+
+  suspend fun getCurrentValueForStockForUser(request: ServerRequest): ServerResponse {
+    TODO()
+  }
+
   private val ServerRequest.portfolioId: TypedId<PortfolioId>
     get() = pathVariable("portfolioId", String::toTypedId)
 
