@@ -242,6 +242,16 @@ constructor(
         .json(objectMapper.writeValueAsString(expectedResponse))
   }
 
+  @Test
+  fun `gets current value of stock in portfolio`() {
+    TODO()
+  }
+
+  @Test
+  fun `gets current value of stock for user`() {
+    TODO()
+  }
+
   @MethodSource("sharesOwnedBadRequestParams")
   @ParameterizedTest
   fun `return bad request exceptions for missing parameters for getting shares owned for stock in all portfolios`(
