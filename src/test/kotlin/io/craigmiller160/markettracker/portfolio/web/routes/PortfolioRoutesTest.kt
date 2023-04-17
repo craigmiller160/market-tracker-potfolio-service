@@ -145,6 +145,11 @@ constructor(
   }
 
   @Test
+  fun `get shares owned history for past week for stock that user does not have in portfolio`() {
+    TODO()
+  }
+
+  @Test
   fun `get shares owned history for past week for stock in portfolio not owned by user`() {
     val coreParams =
         CoreSharesOwnedRouteParams(
@@ -248,17 +253,22 @@ constructor(
   }
 
   @Test
+  fun `gets current value of stock user does not have in portfolio`() {
+    TODO()
+  }
+
+  @Test
+  fun `gets current value of stock in portfolio not owned by user`() {
+    TODO()
+  }
+
+  @Test
   fun `gets current value of stock in all portfolios`() {
     TODO()
   }
 
   @Test
-  fun `return bad request exceptions for missing parameters for getting current value of stock in portfolio`() {
-    TODO()
-  }
-
-  @Test
-  fun `return bad request exceptions for missing parameters for getting current value of stock in all portfolios`() {
+  fun `gets current value of stock user does not have in all portfolios`() {
     TODO()
   }
 
