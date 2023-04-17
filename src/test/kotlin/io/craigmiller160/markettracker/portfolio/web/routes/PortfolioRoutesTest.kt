@@ -150,6 +150,11 @@ constructor(
   }
 
   @Test
+  fun `get shares owned history for past week for stock that user does not have in all portfolios`() {
+    TODO()
+  }
+
+  @Test
   fun `get shares owned history for past week for stock in portfolio not owned by user`() {
     val coreParams =
         CoreSharesOwnedRouteParams(
