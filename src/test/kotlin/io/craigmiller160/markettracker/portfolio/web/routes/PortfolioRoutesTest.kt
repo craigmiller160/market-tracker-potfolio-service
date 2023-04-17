@@ -248,7 +248,17 @@ constructor(
   }
 
   @Test
-  fun `gets current value of stock for user`() {
+  fun `gets current value of stock in all portfolios`() {
+    TODO()
+  }
+
+  @Test
+  fun `return bad request exceptions for missing parameters for getting current value of stock in portfolio`() {
+    TODO()
+  }
+
+  @Test
+  fun `return bad request exceptions for missing parameters for getting current value of stock in all portfolios`() {
     TODO()
   }
 
