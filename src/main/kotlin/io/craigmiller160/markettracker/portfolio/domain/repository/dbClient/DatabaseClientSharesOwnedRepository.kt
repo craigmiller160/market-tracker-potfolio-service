@@ -135,6 +135,12 @@ class DatabaseClientSharesOwnedRepository(
       portfolioId: TypedId<PortfolioId>,
       stockSymbol: String
   ): TryEither<BigDecimal> {
+    val params =
+        mapOf("userId" to userId.value, "portfolioId" to portfolioId.value, "symbol" to stockSymbol)
+    sqlLoader
+        .loadSqlMustacheTemplate(FIND_CURRENT_SHARES_OWNED_FOR_STOCK_SQL)
+        .flatMap { it.executeWithSectionsEnabled("portfolioId") }
+        .flatMap { sql -> databaseClient.query(sql, params) }
     TODO("Not yet implemented")
   }
 
@@ -142,6 +148,11 @@ class DatabaseClientSharesOwnedRepository(
       userId: TypedId<UserId>,
       stockSymbol: String
   ): TryEither<BigDecimal> {
+    val params = mapOf("userId" to userId.value, "symbol" to stockSymbol)
+    sqlLoader
+        .loadSqlMustacheTemplate(FIND_CURRENT_SHARES_OWNED_FOR_STOCK_SQL)
+        .flatMap { it.executeWithSectionsEnabled() }
+        .flatMap { sql -> databaseClient.query(sql, params) }
     TODO("Not yet implemented")
   }
 }
