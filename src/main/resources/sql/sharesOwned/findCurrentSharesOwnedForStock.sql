@@ -1,4 +1,4 @@
-SELECT SUM(a.total_shares)
+SELECT SUM(a.total_shares) AS the_sum
 FROM (
     SELECT
     {{^portfolioId}}
