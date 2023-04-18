@@ -15,6 +15,7 @@ import io.craigmiller160.markettracker.portfolio.domain.rowmappers.sharesOwnedOn
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.coFlatMap
+import java.math.BigDecimal
 import java.time.LocalDate
 import org.springframework.stereotype.Repository
 
@@ -28,6 +29,8 @@ class DatabaseClientSharesOwnedRepository(
     private const val FIND_UNIQUE_STOCKS_SQL = "sharesOwned/findUniqueStocks.sql"
     private const val GET_SHARES_OWNED_AT_INTERVAL_SQL = "sharesOwned/getSharesOwnedAtInterval.sql"
     private const val DELETE_ALL_SHARES_OWNED_SQL = "sharesOwned/deleteAllSharesOwnedForUsers.sql"
+    private const val FIND_CURRENT_SHARES_OWNED_FOR_STOCK_SQL =
+        "sharesOwned/findCurrentSharesOwnedForStock.sql"
   }
   override suspend fun createAllSharesOwned(
       sharesOwned: List<SharesOwned>
@@ -125,5 +128,20 @@ class DatabaseClientSharesOwnedRepository(
         .loadSql(DELETE_ALL_SHARES_OWNED_SQL)
         .flatMap { sql -> databaseClient.update(sql, params) }
         .map { Unit }
+  }
+
+  override suspend fun getCurrentSharesOwnedForStockInPortfolio(
+      userId: TypedId<UserId>,
+      portfolioId: TypedId<PortfolioId>,
+      stockSymbol: String
+  ): TryEither<BigDecimal> {
+    TODO("Not yet implemented")
+  }
+
+  override suspend fun getCurrentSharesOwnedForStockForUser(
+      userId: TypedId<UserId>,
+      stockSymbol: String
+  ): TryEither<BigDecimal> {
+    TODO("Not yet implemented")
   }
 }

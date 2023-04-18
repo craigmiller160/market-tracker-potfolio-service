@@ -7,6 +7,7 @@ import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedOnDate
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
+import java.math.BigDecimal
 import java.time.LocalDate
 
 interface SharesOwnedRepository {
@@ -36,4 +37,15 @@ interface SharesOwnedRepository {
   ): TryEither<List<SharesOwnedOnDate>>
 
   suspend fun deleteAllSharesOwnedForUsers(userIds: List<TypedId<UserId>>): TryEither<Unit>
+
+  suspend fun getCurrentSharesOwnedForStockInPortfolio(
+      userId: TypedId<UserId>,
+      portfolioId: TypedId<PortfolioId>,
+      stockSymbol: String
+  ): TryEither<BigDecimal>
+
+  suspend fun getCurrentSharesOwnedForStockForUser(
+      userId: TypedId<UserId>,
+      stockSymbol: String
+  ): TryEither<BigDecimal>
 }
