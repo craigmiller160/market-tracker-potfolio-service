@@ -50,11 +50,16 @@ class PortfolioHandler(
   }
 
   suspend fun getCurrentValueForStockInPortfolio(request: ServerRequest): ServerResponse {
-    TODO()
+    val portfolioId = request.portfolioId
+    val stockSymbol = request.stockSymbol
+    return sharesOwnedService
+        .getCurrentSharesOwnedForPortfolioStock(portfolioId, stockSymbol)
+        .toResponse()
   }
 
   suspend fun getCurrentValueForStockForUser(request: ServerRequest): ServerResponse {
-    TODO()
+    val stockSymbol = request.stockSymbol
+    return return sharesOwnedService.getCurrentSharesOwnedForUserStock(stockSymbol).toResponse()
   }
 
   private val ServerRequest.portfolioId: TypedId<PortfolioId>
