@@ -146,7 +146,23 @@ constructor(
 
   @Test
   fun `get shares owned history for past week for stock that user does not have in portfolio`() {
-    TODO()
+    val coreParams =
+        CoreSharesOwnedRouteParams(
+            "VTI", LocalDate.now(), LocalDate.now().plusDays(7), SharesOwnedInterval.DAILY)
+    val numRecords = getNumRecordsForInterval(coreParams)
+    val data = createData(10, numRecords)
+    val params = coreParams.withKeys(defaultUsers.primaryUser.userTypedId, data.portfolios[0].id)
+
+    webTestClient
+        .get()
+        .uri(
+            "/portfolios/${params.portfolioId}/${params.stockSymbol}/history?${params.queryString}")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .is2xxSuccessful
+        .expectBody()
+        .json(objectMapper.writeValueAsString(listOf<SharesOwnedResponse>()))
   }
 
   @Test
@@ -158,7 +174,7 @@ constructor(
   fun `get shares owned history for past week for stock in portfolio not owned by user`() {
     val coreParams =
         CoreSharesOwnedRouteParams(
-            "VTI", LocalDate.now(), LocalDate.now().plusYears(5), SharesOwnedInterval.MONTHLY)
+            "VTI", LocalDate.now(), LocalDate.now().plusDays(7), SharesOwnedInterval.DAILY)
     val numRecords = getNumRecordsForInterval(coreParams)
     val data = createData(10, numRecords)
     val params = coreParams.withKeys(defaultUsers.primaryUser.userTypedId, data.portfolios[0].id)
