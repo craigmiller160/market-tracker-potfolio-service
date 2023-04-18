@@ -11,6 +11,7 @@ import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterv
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedOnDate
 import io.craigmiller160.markettracker.portfolio.domain.models.dateRange
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
+import io.craigmiller160.markettracker.portfolio.domain.rowmappers.currentSharesOwnedRowMapper
 import io.craigmiller160.markettracker.portfolio.domain.rowmappers.sharesOwnedOnDateRowMapper
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
@@ -137,11 +138,11 @@ class DatabaseClientSharesOwnedRepository(
   ): TryEither<BigDecimal> {
     val params =
         mapOf("userId" to userId.value, "portfolioId" to portfolioId.value, "symbol" to stockSymbol)
-    sqlLoader
+    return sqlLoader
         .loadSqlMustacheTemplate(FIND_CURRENT_SHARES_OWNED_FOR_STOCK_SQL)
         .flatMap { it.executeWithSectionsEnabled("portfolioId") }
-        .flatMap { sql -> databaseClient.query(sql, params) }
-    TODO("Not yet implemented")
+        .flatMap { sql -> databaseClient.query(sql, currentSharesOwnedRowMapper, params) }
+        .map { it.first() }
   }
 
   override suspend fun getCurrentSharesOwnedForStockForUser(
@@ -149,10 +150,10 @@ class DatabaseClientSharesOwnedRepository(
       stockSymbol: String
   ): TryEither<BigDecimal> {
     val params = mapOf("userId" to userId.value, "symbol" to stockSymbol)
-    sqlLoader
+    return sqlLoader
         .loadSqlMustacheTemplate(FIND_CURRENT_SHARES_OWNED_FOR_STOCK_SQL)
         .flatMap { it.executeWithSectionsEnabled() }
-        .flatMap { sql -> databaseClient.query(sql, params) }
-    TODO("Not yet implemented")
+        .flatMap { sql -> databaseClient.query(sql, currentSharesOwnedRowMapper, params) }
+        .map { it.first() }
   }
 }
