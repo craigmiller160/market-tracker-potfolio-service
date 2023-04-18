@@ -148,10 +148,10 @@ constructor(
   fun `get shares owned history for past week for stock that user does not have in portfolio`() {
     val coreParams =
         CoreSharesOwnedRouteParams(
-            "VTI", LocalDate.now(), LocalDate.now().plusDays(7), SharesOwnedInterval.DAILY)
+            "ABC", LocalDate.now(), LocalDate.now().plusDays(7), SharesOwnedInterval.DAILY)
     val numRecords = getNumRecordsForInterval(coreParams)
     val data = createData(10, numRecords)
-    val params = coreParams.withKeys(defaultUsers.primaryUser.userTypedId, data.portfolios[0].id)
+    val params = coreParams.withKeys(defaultUsers.primaryUser.userTypedId, data.portfolios[1].id)
 
     webTestClient
         .get()
@@ -167,7 +167,22 @@ constructor(
 
   @Test
   fun `get shares owned history for past week for stock that user does not have in all portfolios`() {
-    TODO()
+    val coreParams =
+        CoreSharesOwnedRouteParams(
+            "ABC", LocalDate.now(), LocalDate.now().plusDays(7), SharesOwnedInterval.DAILY)
+    val numRecords = getNumRecordsForInterval(coreParams)
+    val data = createData(10, numRecords)
+    val params = coreParams.withKeys(defaultUsers.primaryUser.userTypedId)
+
+    webTestClient
+        .get()
+        .uri("/portfolios/combined/${params.stockSymbol}/history?${params.queryString}")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .is2xxSuccessful
+        .expectBody()
+        .json(objectMapper.writeValueAsString(listOf<SharesOwnedResponse>()))
   }
 
   @Test
