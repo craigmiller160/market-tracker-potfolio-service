@@ -286,7 +286,26 @@ constructor(
 
   @Test
   fun `gets current value of stock in portfolio`() {
-    TODO()
+    val data = createData(10, 100)
+
+    val maxSharesOwned =
+        data.sharesOwned
+            .filter { it.portfolioId == data.portfolios[1].id }
+            .filter { it.symbol == "VTI" }
+            .maxBy { it.dateRangeStart }
+
+    val response =
+        SharesOwnedResponse(date = LocalDate.now(), totalShares = maxSharesOwned.totalShares)
+
+    webTestClient
+        .get()
+        .uri("/portfolios/${data.portfolios[1].id}/VTI/current")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .is2xxSuccessful
+        .expectBody()
+        .json(objectMapper.writeValueAsString(response))
   }
 
   @Test
