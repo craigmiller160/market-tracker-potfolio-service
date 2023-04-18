@@ -57,13 +57,22 @@ class SharesOwnedService(
   suspend fun getCurrentSharesOwnedForPortfolioStock(
       portfolioId: TypedId<PortfolioId>,
       stockSymbol: String
-  ): TryEither<SharesOwnedResponse> {
-    TODO()
-  }
+  ): TryEither<SharesOwnedResponse> =
+      authorizationService
+          .getUserId()
+          .let { userId ->
+            sharesOwnedRepository.getCurrentSharesOwnedForStockInPortfolio(
+                userId, portfolioId, stockSymbol)
+          }
+          .map { total -> SharesOwnedResponse(date = LocalDate.now(), totalShares = total) }
 
   suspend fun getCurrentSharesOwnedForUserStock(
       stockSymbol: String
-  ): TryEither<SharesOwnedResponse> {
-    TODO()
-  }
+  ): TryEither<SharesOwnedResponse> =
+      authorizationService
+          .getUserId()
+          .let { userId ->
+            sharesOwnedRepository.getCurrentSharesOwnedForStockForUser(userId, stockSymbol)
+          }
+          .map { total -> SharesOwnedResponse(date = LocalDate.now(), totalShares = total) }
 }
