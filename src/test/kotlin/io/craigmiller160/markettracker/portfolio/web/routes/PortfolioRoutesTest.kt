@@ -12,6 +12,7 @@ import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
 import io.craigmiller160.markettracker.portfolio.testutils.userTypedId
 import io.craigmiller160.markettracker.portfolio.web.types.ErrorResponse
 import io.craigmiller160.markettracker.portfolio.web.types.SharesOwnedResponse
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.stream.Stream
@@ -290,12 +291,34 @@ constructor(
 
   @Test
   fun `gets current value of stock user does not have in portfolio`() {
-    TODO()
+    val data = createData(10, 100)
+    val response = SharesOwnedResponse(date = LocalDate.now(), totalShares = BigDecimal("0"))
+
+    webTestClient
+        .get()
+        .uri("/portfolios/${data.portfolios[1].id}/ABC/current")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .is2xxSuccessful
+        .expectBody()
+        .json(objectMapper.writeValueAsString(response))
   }
 
   @Test
   fun `gets current value of stock in portfolio not owned by user`() {
-    TODO()
+    val data = createData(10, 100)
+    val response = SharesOwnedResponse(date = LocalDate.now(), totalShares = BigDecimal("0"))
+
+    webTestClient
+        .get()
+        .uri("/portfolios/${data.portfolios[0].id}/VTI/current")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .is2xxSuccessful
+        .expectBody()
+        .json(objectMapper.writeValueAsString(response))
   }
 
   @Test
@@ -305,7 +328,18 @@ constructor(
 
   @Test
   fun `gets current value of stock user does not have in all portfolios`() {
-    TODO()
+    val data = createData(10, 100)
+    val response = SharesOwnedResponse(date = LocalDate.now(), totalShares = BigDecimal("0"))
+
+    webTestClient
+        .get()
+        .uri("/portfolios/combined/ABC/current")
+        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
+        .exchange()
+        .expectStatus()
+        .is2xxSuccessful
+        .expectBody()
+        .json(objectMapper.writeValueAsString(response))
   }
 
   @MethodSource("sharesOwnedBadRequestParams")
