@@ -116,5 +116,12 @@ private val executeSpecBinderMonoid =
 
 private fun paramsToExecuteSpecBinder(params: Map<String, Any>): ExecuteSpecBinder =
     params.entries
-        .map { (key, value) -> { spec: GenericExecuteSpec -> spec.bind(key, value) } }
+        .map { (key, value) ->
+          { spec: GenericExecuteSpec ->
+            when (value) {
+              is NullValue<*> -> spec.bindNull(key, value.type.java)
+              else -> spec.bind(key, value)
+            }
+          }
+        }
         .fold(executeSpecBinderMonoid)

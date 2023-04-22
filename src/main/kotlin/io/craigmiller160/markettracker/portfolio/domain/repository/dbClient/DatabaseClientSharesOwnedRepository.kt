@@ -6,6 +6,7 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.client.CoroutineDatabaseClient
+import io.craigmiller160.markettracker.portfolio.domain.client.nullValue
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedOnDate
@@ -18,6 +19,7 @@ import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.coFlatMap
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.util.UUID
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -149,7 +151,8 @@ class DatabaseClientSharesOwnedRepository(
       userId: TypedId<UserId>,
       stockSymbol: String
   ): TryEither<BigDecimal> {
-    val params = mapOf("userId" to userId.value, "symbol" to stockSymbol, "portfolioId" to null)
+    val params =
+        mapOf("userId" to userId.value, "symbol" to stockSymbol, "portfolioId" to nullValue<UUID>())
     return sqlLoader
         .loadSqlMustacheTemplate(FIND_CURRENT_SHARES_OWNED_FOR_STOCK_SQL)
         .flatMap { it.executeWithSectionsEnabled() }
