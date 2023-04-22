@@ -57,6 +57,11 @@ constructor(
   }
 
   @Test
+  fun `query with params that include null`() {
+    TODO()
+  }
+
+  @Test
   fun `query with row mapper`() {
     val portfolio = runBlocking { insertPortfolio("abc") }
 
@@ -93,6 +98,11 @@ constructor(
   }
 
   @Test
+  fun `update with params that include null`() {
+    TODO()
+  }
+
+  @Test
   fun `batch update without params`() {
     val result = runBlocking {
       coroutineClient.batchUpdate(
@@ -120,6 +130,11 @@ constructor(
       client.sql("SELECT COUNT(*) AS the_count FROM portfolios").fetch().awaitSingle()["the_count"]
     }
     count.shouldBe(3L)
+  }
+
+  @Test
+  fun `batch update with params that include null`() {
+    TODO()
   }
 
   private suspend fun insertPortfolio(name: String): Portfolio {
