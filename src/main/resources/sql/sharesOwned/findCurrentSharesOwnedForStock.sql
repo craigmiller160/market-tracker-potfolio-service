@@ -4,7 +4,7 @@ FROM (
     {{^portfolioId}}
     so.portfolio_id,
     {{/portfolioId}}
-    so.total_shares, MAX(so.date_range)
+    so.total_shares, MAX(LOWER(so.date_range))
     FROM shares_owned so
     WHERE so.user_id = :userId
     {{#portfolioId}}
