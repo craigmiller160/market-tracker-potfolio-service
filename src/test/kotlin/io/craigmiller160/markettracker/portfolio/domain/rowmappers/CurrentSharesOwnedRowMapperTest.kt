@@ -11,11 +11,11 @@ class CurrentSharesOwnedRowMapperTest {
     @JvmStatic
     fun currentSharesOwnedData(): Stream<RowMapperData<BigDecimal>> {
       val value = BigDecimal("10")
-      val base = mapOf("the_sum" to value)
+      val base = mapOf("total_shares" to value)
       return Stream.of(
           base to Either.Right(value),
-          base + mapOf("the_sum" to null) to Either.Right(BigDecimal("0")),
-          mapOf("the_sum" to 11) to typeLeft("the_sum", BigDecimal::class))
+          base + mapOf("total_shares" to null) to Either.Right(BigDecimal("0")),
+          mapOf("total_shares" to 11) to typeLeft("total_shares", BigDecimal::class))
     }
   }
 
