@@ -14,7 +14,7 @@ class CurrentSharesOwnedRowMapperTest {
       val base = mapOf("the_sum" to value)
       return Stream.of(
           base to Either.Right(value),
-          base + mapOf("the_sum" to null) to nullLeft("the_sum"),
+          base + mapOf("the_sum" to null) to Either.Right(BigDecimal("0")),
           mapOf("the_sum" to 11) to typeLeft("the_sum", BigDecimal::class))
     }
   }
