@@ -348,16 +348,14 @@ constructor(
         data.sharesOwned
             .asSequence()
             .filter { it.symbol == "VTI" }
-            .groupBy { it.portfolioId }
-            .map { (portfolioId, sharesOwned) -> sharesOwned.maxBy { it.dateRangeStart } }
-            .map { it.totalShares }
-            .sumOf { it }
+            .maxBy { it.dateRangeStart }
+            .totalShares
 
     val response = SharesOwnedResponse(date = LocalDate.now(), totalShares = totalShares)
 
     webTestClient
         .get()
-        .uri("/portfolios/${data.portfolios[1].id}/VTI/current")
+        .uri("/portfolios/combined/VTI/current")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
