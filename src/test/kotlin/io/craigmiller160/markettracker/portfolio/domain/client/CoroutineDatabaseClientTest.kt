@@ -149,4 +149,23 @@ constructor(
         .awaitSingle()
     return portfolio
   }
+
+  private suspend fun insertPerson(firstName: String?, lastName: String?): Person {
+    val person = Person(id = UUID.randomUUID(), firstName = firstName, lastName = lastName)
+    var binder =
+        client
+            .sql(
+                "INSERT INTO person (id, first_name, last_name) VALUES (:id, :firstName, :lastName)")
+            .bind("id", person.id)
+    binder =
+        firstName?.let { binder.bind("firstName", it) }
+            ?: binder.bindNull("firstName", String::class.java)
+    binder =
+        lastName?.let { binder.bind("lastName", it) }
+            ?: binder.bindNull("lastName", String::class.java)
+    binder.fetch().rowsUpdated().awaitSingle()
+    return person
+  }
 }
+
+data class Person(val id: UUID, val firstName: String?, val lastName: String?)
