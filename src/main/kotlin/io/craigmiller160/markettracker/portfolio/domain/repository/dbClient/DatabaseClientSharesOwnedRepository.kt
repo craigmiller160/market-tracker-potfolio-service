@@ -142,7 +142,7 @@ class DatabaseClientSharesOwnedRepository(
         .loadSqlMustacheTemplate(FIND_CURRENT_SHARES_OWNED_FOR_STOCK_SQL)
         .flatMap { it.executeWithSectionsEnabled("portfolioId") }
         .flatMap { sql -> databaseClient.query(sql, currentSharesOwnedRowMapper, params) }
-        .map { it.first() }
+        .map { it.firstOrNull() ?: BigDecimal("0") }
   }
 
   override suspend fun getCurrentSharesOwnedForStockForUser(
@@ -154,6 +154,6 @@ class DatabaseClientSharesOwnedRepository(
         .loadSqlMustacheTemplate(FIND_CURRENT_SHARES_OWNED_FOR_STOCK_SQL)
         .flatMap { it.executeWithSectionsEnabled() }
         .flatMap { sql -> databaseClient.query(sql, currentSharesOwnedRowMapper, params) }
-        .map { it.first() }
+        .map { it.firstOrNull() ?: BigDecimal("0") }
   }
 }
