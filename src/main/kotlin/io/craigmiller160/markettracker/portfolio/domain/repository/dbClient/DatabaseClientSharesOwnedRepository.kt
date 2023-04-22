@@ -149,7 +149,7 @@ class DatabaseClientSharesOwnedRepository(
       userId: TypedId<UserId>,
       stockSymbol: String
   ): TryEither<BigDecimal> {
-    val params = mapOf("userId" to userId.value, "symbol" to stockSymbol)
+    val params = mapOf("userId" to userId.value, "symbol" to stockSymbol, "portfolioId" to null)
     return sqlLoader
         .loadSqlMustacheTemplate(FIND_CURRENT_SHARES_OWNED_FOR_STOCK_SQL)
         .flatMap { it.executeWithSectionsEnabled() }
