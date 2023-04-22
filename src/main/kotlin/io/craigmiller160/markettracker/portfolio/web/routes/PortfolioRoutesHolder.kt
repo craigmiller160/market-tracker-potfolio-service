@@ -49,5 +49,20 @@ class PortfolioRoutesHolder {
               .addIntervalParameter()
               .addSharesOwnedResponse()
         }
+
+    GET("/portfolios/combined/{stockSymbol}/current", handler::getCurrentValueForStockForUser) {
+      it.operationId("getCurrentValueForStockForUser")
+          .addStockSymbolParameter()
+          .addSharesOwnedResponse()
+    }
+
+    GET(
+        "/portfolios/{portfolioId}/{stockSymbol}/current",
+        handler::getCurrentValueForStockInPortfolio) {
+          it.operationId("getCurrentValueForStockInPortfolio")
+              .addPortfolioIdParameter()
+              .addStockSymbolParameter()
+              .addSharesOwnedResponse()
+        }
   }
 }

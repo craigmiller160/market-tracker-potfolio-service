@@ -11,10 +11,12 @@ import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterv
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedOnDate
 import io.craigmiller160.markettracker.portfolio.domain.models.dateRange
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
+import io.craigmiller160.markettracker.portfolio.domain.rowmappers.currentSharesOwnedRowMapper
 import io.craigmiller160.markettracker.portfolio.domain.rowmappers.sharesOwnedOnDateRowMapper
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.coFlatMap
+import java.math.BigDecimal
 import java.time.LocalDate
 import org.springframework.stereotype.Repository
 
@@ -28,6 +30,8 @@ class DatabaseClientSharesOwnedRepository(
     private const val FIND_UNIQUE_STOCKS_SQL = "sharesOwned/findUniqueStocks.sql"
     private const val GET_SHARES_OWNED_AT_INTERVAL_SQL = "sharesOwned/getSharesOwnedAtInterval.sql"
     private const val DELETE_ALL_SHARES_OWNED_SQL = "sharesOwned/deleteAllSharesOwnedForUsers.sql"
+    private const val FIND_CURRENT_SHARES_OWNED_FOR_STOCK_SQL =
+        "sharesOwned/findCurrentSharesOwnedForStock.sql"
   }
   override suspend fun createAllSharesOwned(
       sharesOwned: List<SharesOwned>
@@ -125,5 +129,31 @@ class DatabaseClientSharesOwnedRepository(
         .loadSql(DELETE_ALL_SHARES_OWNED_SQL)
         .flatMap { sql -> databaseClient.update(sql, params) }
         .map { Unit }
+  }
+
+  override suspend fun getCurrentSharesOwnedForStockInPortfolio(
+      userId: TypedId<UserId>,
+      portfolioId: TypedId<PortfolioId>,
+      stockSymbol: String
+  ): TryEither<BigDecimal> {
+    val params =
+        mapOf("userId" to userId.value, "portfolioId" to portfolioId.value, "symbol" to stockSymbol)
+    return sqlLoader
+        .loadSqlMustacheTemplate(FIND_CURRENT_SHARES_OWNED_FOR_STOCK_SQL)
+        .flatMap { it.executeWithSectionsEnabled("portfolioId") }
+        .flatMap { sql -> databaseClient.query(sql, currentSharesOwnedRowMapper, params) }
+        .map { it.firstOrNull() ?: BigDecimal("0") }
+  }
+
+  override suspend fun getCurrentSharesOwnedForStockForUser(
+      userId: TypedId<UserId>,
+      stockSymbol: String
+  ): TryEither<BigDecimal> {
+    val params = mapOf("userId" to userId.value, "symbol" to stockSymbol)
+    return sqlLoader
+        .loadSqlMustacheTemplate(FIND_CURRENT_SHARES_OWNED_FOR_STOCK_SQL)
+        .flatMap { it.executeWithSectionsEnabled() }
+        .flatMap { sql -> databaseClient.query(sql, currentSharesOwnedRowMapper, params) }
+        .map { it.firstOrNull() ?: BigDecimal("0") }
   }
 }
