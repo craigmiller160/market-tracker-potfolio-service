@@ -93,7 +93,14 @@ private val statementBatchBinderMonoid =
 
 private fun paramsToStatementBinder(params: List<Any>): StatementBinder =
     params
-        .mapIndexed { index, value -> { stmt: Statement -> stmt.bind(index, value) } }
+        .mapIndexed { index, value ->
+          { stmt: Statement ->
+            when (value) {
+              is NullValue<*> -> stmt.bindNull(index, value.type.java)
+              else -> stmt.bind(index, value)
+            }
+          }
+        }
         .fold(statementBinderMonoid)
 
 private fun paramBatchesToStatementBinder(paramBatches: List<List<Any>>): StatementBinder =
