@@ -58,7 +58,25 @@ constructor(
 
   @Test
   fun `query with params that include null`() {
-    TODO()
+    val (person1, person2) =
+        runBlocking {
+          val first = insertPerson("Bob", null)
+          val second = insertPerson("Bob", "Saget")
+          first to second
+        }
+
+    val noNullParams = paramsBuilder { this + ("last" to "Saget") }
+    val nullParams = paramsBuilder { this + ("last" to nullValue<String>()) }
+
+    val sql = "SELECT id FROM person WHERE last_name = :last"
+
+    val result = runBlocking {
+      coroutineClient.query(sql, nullParams).flatMap { list ->
+        list.map { it.getRequired("id", UUID::class) }.sequence()
+      }
+    }
+
+    result.shouldBeRight(listOf(person1))
   }
 
   @Test
