@@ -1,22 +1,26 @@
 package io.craigmiller160.markettracker.portfolio.domain.client
 
-fun paramsBuilder(init: ParamsBuilder.() -> Unit): Map<String, Any> =
-    ParamsBuilder().apply(init).params
+fun paramsBuilder(init: SingleParamsBuilder.() -> Unit): Map<String, Any> =
+    SingleParamsBuilder().apply(init).params
 
 fun batchParamsBuilder(init: BatchParamsBuilder.() -> Unit): List<Any> =
     BatchParamsBuilder().apply(init).params
 
-sealed class ParamsBuilderSupport {
-  inline fun <reified T : Any> nullValue(): NullValue<T> = NullValue(T::class)
+interface ParamsBuilder
 
-  inline fun <reified T : Any> handleNullableValue(value: T?): Any =
-      when (value) {
-        null -> nullValue<T>()
-        else -> value
-      }
-}
+context(ParamsBuilder)
 
-class ParamsBuilder : ParamsBuilderSupport() {
+inline fun <reified T : Any> handleNullableValue(value: T?): Any =
+    when (value) {
+      null -> nullValue<T>()
+      else -> value
+    }
+
+context(ParamsBuilder)
+
+inline fun <reified T : Any> nullValue(): NullValue<T> = NullValue(T::class)
+
+class SingleParamsBuilder : ParamsBuilder {
   val params: MutableMap<String, Any> = mutableMapOf()
 
   inline operator fun <reified T : Any> plus(pair: Pair<String, T?>) {
@@ -25,7 +29,7 @@ class ParamsBuilder : ParamsBuilderSupport() {
   }
 }
 
-class BatchParamsBuilder : ParamsBuilderSupport() {
+class BatchParamsBuilder : ParamsBuilder {
   var params: MutableList<Any> = mutableListOf()
 
   inline operator fun <reified T : Any> plus(value: T?) {

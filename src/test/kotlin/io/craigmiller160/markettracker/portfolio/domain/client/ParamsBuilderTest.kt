@@ -81,6 +81,9 @@ class ParamsBuilderTest {
   }
 }
 
-data class ParamsBuilderArgs(val input: (ParamsBuilder) -> Unit, val expected: Map<String, Any>)
+data class ParamsBuilderArgs(
+    val input: (SingleParamsBuilder) -> Unit,
+    val expected: Map<String, Any>
+)
 
 data class BatchParamsBuilderArgs(val input: (BatchParamsBuilder) -> Unit, val expected: List<Any>)
