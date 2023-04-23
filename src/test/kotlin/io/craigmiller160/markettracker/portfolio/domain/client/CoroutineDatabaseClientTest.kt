@@ -9,10 +9,15 @@ import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.domain.rowmappers.portfolioRowMapper
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.kotest.assertions.arrow.core.shouldBeRight
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import java.util.UUID
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.r2dbc.core.DatabaseClient
@@ -25,6 +30,21 @@ constructor(
     private val coroutineClient: CoroutineDatabaseClient,
     private val client: DatabaseClient
 ) {
+
+  @BeforeEach
+  fun setup() {
+    runBlocking { cleanPerson() }
+  }
+
+  @AfterEach
+  fun cleanup() {
+    runBlocking { cleanPerson() }
+  }
+
+  suspend fun cleanPerson() {
+    client.sql("DELETE FROM person").fetch().rowsUpdated().awaitSingle()
+  }
+
   @Test
   fun `query without params`() {
     runBlocking {
@@ -54,6 +74,32 @@ constructor(
           .flatMap { list -> list.map { it.getRequired("id", UUID::class) }.sequence() }
     }
     result.shouldBeRight(listOf(expectedId))
+  }
+
+  @Test
+  fun `query with params that include null`() {
+    val expected = runBlocking { insertPerson("Bob", null) }
+
+    val nullParams = paramsBuilder { this + ("last" to nullValue<String>()) }
+
+    val sql =
+        """
+      SELECT id
+      FROM person
+      WHERE CASE
+        WHEN :last IS NULL THEN last_name IS NULL
+        ELSE last_name = :last
+      END
+    """
+            .trimIndent()
+
+    val result = runBlocking {
+      coroutineClient.query(sql, nullParams).flatMap { list ->
+        list.map { it.getRequired("id", UUID::class) }.sequence()
+      }
+    }
+
+    result.shouldBeRight(listOf(expected.id))
   }
 
   @Test
@@ -93,6 +139,22 @@ constructor(
   }
 
   @Test
+  fun `update with params that include null`() {
+    val id = UUID.randomUUID()
+    val params = paramsBuilder {
+      this + ("id" to id)
+      this + ("first" to "Bob")
+      this + ("last" to nullValue<String>())
+    }
+    val result = runBlocking {
+      coroutineClient.update(
+          "INSERT INTO person (id, first_name, last_name) VALUES (:id, :first, :last)", params)
+      client.sql("SELECT * FROM person").fetch().awaitSingle()
+    }
+    result.shouldBe(mapOf("id" to id, "first_name" to "Bob", "last_name" to null))
+  }
+
+  @Test
   fun `batch update without params`() {
     val result = runBlocking {
       coroutineClient.batchUpdate(
@@ -122,6 +184,39 @@ constructor(
     count.shouldBe(3L)
   }
 
+  @Test
+  fun `batch update with params that include null`() {
+    val id1 = UUID.randomUUID()
+    val id2 = UUID.randomUUID()
+
+    val params =
+        listOf(id1, id2).map { id ->
+          batchParamsBuilder {
+            this + id
+            this + "Bob"
+            this + nullValue<String>()
+          }
+        }
+
+    val count = runBlocking {
+      coroutineClient.batchUpdate(
+          "INSERT INTO person (id, first_name, last_name) VALUES ($1, $2, $3)", params)
+    }
+    count.shouldBeRight(listOf(1L, 1L))
+
+    val records = runBlocking {
+      client
+          .sql("SELECT * FROM person")
+          .fetch()
+          .all()
+          .map { Person(it["id"] as UUID, it["first_name"] as String?, it["last_name"] as String?) }
+          .asFlow()
+          .toList()
+    }
+
+    records.shouldHaveSize(2)
+  }
+
   private suspend fun insertPortfolio(name: String): Portfolio {
     val portfolio = BasePortfolio(id = TypedId(), userId = TypedId(), name = name)
     client
@@ -134,4 +229,23 @@ constructor(
         .awaitSingle()
     return portfolio
   }
+
+  private suspend fun insertPerson(firstName: String?, lastName: String?): Person {
+    val person = Person(id = UUID.randomUUID(), firstName = firstName, lastName = lastName)
+    var binder =
+        client
+            .sql(
+                "INSERT INTO person (id, first_name, last_name) VALUES (:id, :firstName, :lastName)")
+            .bind("id", person.id)
+    binder =
+        firstName?.let { binder.bind("firstName", it) }
+            ?: binder.bindNull("firstName", String::class.java)
+    binder =
+        lastName?.let { binder.bind("lastName", it) }
+            ?: binder.bindNull("lastName", String::class.java)
+    binder.fetch().rowsUpdated().awaitSingle()
+    return person
+  }
 }
+
+data class Person(val id: UUID, val firstName: String?, val lastName: String?)
