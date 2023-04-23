@@ -7,6 +7,7 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.client.CoroutineDatabaseClient
 import io.craigmiller160.markettracker.portfolio.domain.client.nullValue
+import io.craigmiller160.markettracker.portfolio.domain.client.paramsBuilder
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedOnDate
@@ -151,8 +152,11 @@ class DatabaseClientSharesOwnedRepository(
       userId: TypedId<UserId>,
       stockSymbol: String
   ): TryEither<BigDecimal> {
-    val params =
-        mapOf("userId" to userId.value, "symbol" to stockSymbol, "portfolioId" to nullValue<UUID>())
+    val params = paramsBuilder {
+      this + ("userId" to userId.value)
+      this + ("symbol" to stockSymbol)
+      this + ("portfolioId" to nullValue<UUID>())
+    }
     return sqlLoader
         .loadSqlMustacheTemplate(FIND_CURRENT_SHARES_OWNED_FOR_STOCK_SQL)
         .flatMap { it.executeWithSectionsEnabled() }
