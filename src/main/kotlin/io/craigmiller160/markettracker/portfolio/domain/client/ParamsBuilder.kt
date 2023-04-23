@@ -30,6 +30,6 @@ class BatchParamsBuilder : ParamsBuilderSupport() {
   var params: MutableList<Any> = mutableListOf()
 
   inline operator fun <reified T : Any> plus(value: T?) {
-    TODO()
+    params += handleNullableValue(value)
   }
 }
