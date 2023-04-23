@@ -3,7 +3,8 @@ package io.craigmiller160.markettracker.portfolio.domain.client
 import java.math.BigDecimal
 import java.util.UUID
 import java.util.stream.Stream
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 
 class ParamsBuilderTest {
   companion object {
@@ -63,23 +64,16 @@ class ParamsBuilderTest {
                 },
                 listOf(GUID, NullValue(BigDecimal::class))))
   }
-  @Test
-  fun `builds map with simple params`() {
+
+  @ParameterizedTest
+  @MethodSource("paramsBuilderArgs")
+  fun `params builder`(args: ParamsBuilderArgs) {
     TODO()
   }
 
-  @Test
-  fun `builds map with variable that is null`() {
-    TODO()
-  }
-
-  @Test
-  fun `builds map with explicit null value`() {
-    TODO()
-  }
-
-  @Test
-  fun `builds map with explicit nullValue call`() {
+  @ParameterizedTest
+  @MethodSource("batchParamsBuilderArgs")
+  fun `batch params builder`(args: BatchParamsBuilderArgs) {
     TODO()
   }
 }
