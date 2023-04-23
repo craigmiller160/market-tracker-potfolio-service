@@ -9,8 +9,11 @@ import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.domain.rowmappers.portfolioRowMapper
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.kotest.assertions.arrow.core.shouldBeRight
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import java.util.UUID
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterEach
@@ -186,15 +189,32 @@ constructor(
     val id1 = UUID.randomUUID()
     val id2 = UUID.randomUUID()
 
-    sequenceOf(id1, id2).map { id ->
-      paramsBuilder {
-        this + ("id" to id)
-        this + ("first" to "Bob")
-        this + ("last" to nullValue<String>())
-      }
+    val params =
+        listOf(id1, id2).map { id ->
+          batchParamsBuilder {
+            this + id
+            this + "Bob"
+            this + nullValue<String>()
+          }
+        }
+
+    val count = runBlocking {
+      coroutineClient.batchUpdate(
+          "INSERT INTO person (id, first_name, last_name) VALUES ($1, $2, $3)", params)
+    }
+    count.shouldBeRight(listOf(1L, 1L))
+
+    val records = runBlocking {
+      client
+          .sql("SELECT * FROM person")
+          .fetch()
+          .all()
+          .map { Person(it["id"] as UUID, it["first_name"] as String?, it["last_name"] as String?) }
+          .asFlow()
+          .toList()
     }
 
-    TODO()
+    records.shouldHaveSize(2)
   }
 
   private suspend fun insertPortfolio(name: String): Portfolio {
