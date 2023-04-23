@@ -1,5 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.domain.client
 
+import io.kotest.matchers.shouldBe
 import java.math.BigDecimal
 import java.util.UUID
 import java.util.stream.Stream
@@ -68,13 +69,15 @@ class ParamsBuilderTest {
   @ParameterizedTest
   @MethodSource("paramsBuilderArgs")
   fun `params builder`(args: ParamsBuilderArgs) {
-    TODO()
+    val actual = paramsBuilder { args.input(this) }
+    actual.shouldBe(args.expected)
   }
 
   @ParameterizedTest
   @MethodSource("batchParamsBuilderArgs")
   fun `batch params builder`(args: BatchParamsBuilderArgs) {
-    TODO()
+    val actual = batchParamsBuilder { args.input(this) }
+    actual.shouldBe(args.expected)
   }
 }
 
