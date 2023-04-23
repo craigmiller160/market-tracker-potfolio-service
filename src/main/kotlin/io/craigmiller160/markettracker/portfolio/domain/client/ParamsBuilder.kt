@@ -3,7 +3,6 @@ package io.craigmiller160.markettracker.portfolio.domain.client
 fun paramsBuilder(init: ParamsBuilder.() -> Unit): Map<String, Any> =
     ParamsBuilder().apply(init).params
 
-// TODO needs tests
 fun batchParamsBuilder(init: BatchParamsBuilder.() -> Unit): List<Any> =
     BatchParamsBuilder().apply(init).params
 
