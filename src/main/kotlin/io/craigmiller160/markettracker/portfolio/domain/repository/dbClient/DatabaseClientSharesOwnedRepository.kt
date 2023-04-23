@@ -62,7 +62,10 @@ class DatabaseClientSharesOwnedRepository(
       userId: TypedId<UserId>,
       portfolioId: TypedId<PortfolioId>
   ): TryEither<List<String>> {
-    val params = mapOf("userId" to userId.value, "portfolioId" to portfolioId.value)
+    val params = paramsBuilder {
+      this + ("userId" to userId.value)
+      this + ("portfolioId" to portfolioId.value)
+    }
     return sqlLoader
         .loadSql(FIND_UNIQUE_STOCKS_SQL)
         .flatMap { sql -> databaseClient.query(sql, params) }
@@ -70,7 +73,7 @@ class DatabaseClientSharesOwnedRepository(
   }
 
   override suspend fun findUniqueStocksForUser(userId: TypedId<UserId>): TryEither<List<String>> {
-    val params = mapOf("userId" to userId.value)
+    val params = paramsBuilder { this + ("userId" to userId.value) }
     return sqlLoader
         .loadSql(FIND_UNIQUE_STOCKS_SQL)
         .flatMap { sql -> databaseClient.query(sql, params) }
@@ -85,14 +88,14 @@ class DatabaseClientSharesOwnedRepository(
       endDate: LocalDate,
       interval: SharesOwnedInterval
   ): TryEither<List<SharesOwnedOnDate>> {
-    val params =
-        mapOf(
-            "userId" to userId.value,
-            "symbol" to stockSymbol,
-            "portfolioId" to portfolioId.value,
-            "startDate" to startDate,
-            "endDate" to endDate,
-            "interval" to interval.sql)
+    val params = paramsBuilder {
+      this + ("userId" to userId.value)
+      this + ("symbol" to stockSymbol)
+      this + ("portfolioId" to portfolioId.value)
+      this + ("startDate" to startDate)
+      this + ("endDate" to endDate)
+      this + ("interval" to interval.sql)
+    }
 
     return sqlLoader.loadSql(GET_SHARES_OWNED_AT_INTERVAL_SQL).flatMap { sql ->
       databaseClient.query(sql, sharesOwnedOnDateRowMapper, params)
@@ -106,13 +109,13 @@ class DatabaseClientSharesOwnedRepository(
       endDate: LocalDate,
       interval: SharesOwnedInterval
   ): TryEither<List<SharesOwnedOnDate>> {
-    val params =
-        mapOf(
-            "userId" to userId.value,
-            "symbol" to stockSymbol,
-            "startDate" to startDate,
-            "endDate" to endDate,
-            "interval" to interval.sql)
+    val params = paramsBuilder {
+      this + ("userId" to userId.value)
+      this + ("symbol" to stockSymbol)
+      this + ("startDate" to startDate)
+      this + ("endDate" to endDate)
+      this + ("interval" to interval.sql)
+    }
 
     return sqlLoader.loadSql(GET_SHARES_OWNED_AT_INTERVAL_SQL).flatMap { sql ->
       databaseClient.query(sql, sharesOwnedOnDateRowMapper, params)
@@ -122,7 +125,7 @@ class DatabaseClientSharesOwnedRepository(
   override suspend fun deleteAllSharesOwnedForUsers(
       userIds: List<TypedId<UserId>>
   ): TryEither<Unit> {
-    val params = mapOf("userIds" to userIds.map { it.value })
+    val params = paramsBuilder { this + ("userIds" to userIds.map { it.value }) }
     return sqlLoader
         .loadSql(DELETE_ALL_SHARES_OWNED_SQL)
         .flatMap { sql -> databaseClient.update(sql, params) }
@@ -134,8 +137,11 @@ class DatabaseClientSharesOwnedRepository(
       portfolioId: TypedId<PortfolioId>,
       stockSymbol: String
   ): TryEither<BigDecimal> {
-    val params =
-        mapOf("userId" to userId.value, "portfolioId" to portfolioId.value, "symbol" to stockSymbol)
+    val params = paramsBuilder {
+      this + ("userId" to userId.value)
+      this + ("portfolioId" to portfolioId.value)
+      this + ("symbol" to stockSymbol)
+    }
     return sqlLoader
         .loadSql(FIND_CURRENT_SHARES_OWNED_FOR_STOCK_SQL)
         .flatMap { sql -> databaseClient.query(sql, currentSharesOwnedRowMapper, params) }
