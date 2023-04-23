@@ -183,6 +183,17 @@ constructor(
 
   @Test
   fun `batch update with params that include null`() {
+    val id1 = UUID.randomUUID()
+    val id2 = UUID.randomUUID()
+
+    sequenceOf(id1, id2).map { id ->
+      paramsBuilder {
+        this + ("id" to id)
+        this + ("first" to "Bob")
+        this + ("last" to nullValue<String>())
+      }
+    }
+
     TODO()
   }
 
