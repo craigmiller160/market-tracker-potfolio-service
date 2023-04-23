@@ -75,17 +75,20 @@ constructor(
 
   @Test
   fun `query with params that include null`() {
-    val (person1, person2) =
-        runBlocking {
-          val first = insertPerson("Bob", null)
-          val second = insertPerson("Bob", "Saget")
-          first to second
-        }
+    val expected = runBlocking { insertPerson("Bob", null) }
 
-    val noNullParams = paramsBuilder { this + ("last" to "Saget") }
     val nullParams = paramsBuilder { this + ("last" to nullValue<String>()) }
 
-    val sql = "SELECT id FROM person WHERE last_name = :last"
+    val sql =
+        """
+      SELECT id
+      FROM person
+      WHERE CASE
+        WHEN :last IS NULL THEN last_name IS NULL
+        ELSE last_name = :last
+      END
+    """
+            .trimIndent()
 
     val result = runBlocking {
       coroutineClient.query(sql, nullParams).flatMap { list ->
@@ -93,7 +96,7 @@ constructor(
       }
     }
 
-    result.shouldBeRight(listOf(person1))
+    result.shouldBeRight(listOf(expected.id))
   }
 
   @Test
