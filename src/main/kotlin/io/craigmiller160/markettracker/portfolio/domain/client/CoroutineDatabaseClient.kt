@@ -46,6 +46,7 @@ class CoroutineDatabaseClient(private val databaseClient: DatabaseClient) {
             .awaitSingle()
       }
 
+  @OptIn(kotlinx.coroutines.FlowPreview::class)
   suspend fun batchUpdate(
       sql: String,
       paramBatches: List<List<Any>> = listOf()
