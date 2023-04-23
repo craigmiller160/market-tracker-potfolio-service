@@ -73,7 +73,10 @@ class DatabaseClientSharesOwnedRepository(
   }
 
   override suspend fun findUniqueStocksForUser(userId: TypedId<UserId>): TryEither<List<String>> {
-    val params = paramsBuilder { this + ("userId" to userId.value) }
+    val params = paramsBuilder {
+      this + ("userId" to userId.value)
+      this + ("portfolioId" to nullValue<UUID>())
+    }
     return sqlLoader
         .loadSql(FIND_UNIQUE_STOCKS_SQL)
         .flatMap { sql -> databaseClient.query(sql, params) }

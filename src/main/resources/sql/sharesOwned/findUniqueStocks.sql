@@ -1,7 +1,5 @@
 SELECT DISTINCT symbol
 FROM shares_owned
 WHERE user_id = :userId
-{{#portfolioId}}
-AND portfolio_id = :portfolioId
-{{/portfolioId}}
+AND (:portfolioId IS NULL OR portfolio_id = :portfolioId)
 ORDER BY symbol ASC
