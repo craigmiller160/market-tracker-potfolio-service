@@ -137,7 +137,18 @@ constructor(
 
   @Test
   fun `update with params that include null`() {
-    TODO()
+    val id = UUID.randomUUID()
+    val params = paramsBuilder {
+      this + ("id" to id)
+      this + ("first" to "Bob")
+      this + ("last" to nullValue<String>())
+    }
+    val result = runBlocking {
+      coroutineClient.update(
+          "INSERT INTO person (id, first_name, last_name) VALUES (:id, :first, :last)", params)
+      client.sql("SELECT * FROM person").fetch().awaitSingle()
+    }
+    result.shouldBe(mapOf("id" to id, "first_name" to "Bob", "last_name" to null))
   }
 
   @Test
