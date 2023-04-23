@@ -13,6 +13,8 @@ import io.kotest.matchers.shouldBe
 import java.util.UUID
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.r2dbc.core.DatabaseClient
@@ -25,6 +27,21 @@ constructor(
     private val coroutineClient: CoroutineDatabaseClient,
     private val client: DatabaseClient
 ) {
+
+  @BeforeEach
+  fun setup() {
+    runBlocking { cleanPerson() }
+  }
+
+  @AfterEach
+  fun cleanup() {
+    runBlocking { cleanPerson() }
+  }
+
+  suspend fun cleanPerson() {
+    client.sql("DELETE FROM person").fetch().rowsUpdated().awaitSingle()
+  }
+
   @Test
   fun `query without params`() {
     runBlocking {
