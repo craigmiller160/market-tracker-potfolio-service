@@ -118,6 +118,7 @@ class DatabaseClientSharesOwnedRepository(
       this + ("startDate" to startDate)
       this + ("endDate" to endDate)
       this + ("interval" to interval.sql)
+      this + ("portfolioId" to nullValue<UUID>())
     }
 
     return sqlLoader.loadSql(GET_SHARES_OWNED_AT_INTERVAL_SQL).flatMap { sql ->
