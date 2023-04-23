@@ -214,18 +214,18 @@ private fun ownershipContextMonoid(
     object : Monoid<OwnershipContext> {
       override fun empty(): OwnershipContext = OwnershipContext(sharesOwnedMap = persistentMapOf())
 
-      override fun OwnershipContext.combine(record: OwnershipContext): OwnershipContext {
-        val sharesOwnedList = this.sharesOwnedMap[record.record?.symbol] ?: persistentListOf()
+      override fun OwnershipContext.combine(b: OwnershipContext): OwnershipContext {
+        val sharesOwnedList = this.sharesOwnedMap[b.record?.symbol] ?: persistentListOf()
         val lastSharesOwned = sharesOwnedList.lastOrNull()
         val lastTotalShares = lastSharesOwned?.totalShares ?: BigDecimal("0")
         val replaceLastSharesOwned =
-            lastSharesOwned?.dateRangeStart == record.record?.date ?: DownloaderService.MIN_DATE
+            lastSharesOwned?.dateRangeStart == b.record?.date ?: DownloaderService.MIN_DATE
 
         val totalShares =
-            when (record.record?.action) {
+            when (b.record?.action) {
               Action.BUY,
-              Action.BONUS -> lastTotalShares + record.record.shares
-              Action.SELL -> lastTotalShares - record.record.shares
+              Action.BONUS -> lastTotalShares + b.record.shares
+              Action.SELL -> lastTotalShares - b.record.shares
               else -> BigDecimal("0")
             }
 
@@ -234,14 +234,14 @@ private fun ownershipContextMonoid(
                 id = TypedId(),
                 userId = userId,
                 portfolioId = portfolioId,
-                dateRangeStart = record.record?.date ?: DownloaderService.MIN_DATE,
+                dateRangeStart = b.record?.date ?: DownloaderService.MIN_DATE,
                 dateRangeEnd = DownloaderService.MAX_DATE,
-                symbol = record.record?.symbol ?: "",
+                symbol = b.record?.symbol ?: "",
                 totalShares = totalShares)
 
         val newMap =
             this.sharesOwnedMap.mutate { map ->
-              map[record.record?.symbol ?: ""] =
+              map[b.record?.symbol ?: ""] =
                   sharesOwnedList.mutate { list ->
                     if (replaceLastSharesOwned) {
                       list[list.size - 1] = newSharesOwned
@@ -249,7 +249,7 @@ private fun ownershipContextMonoid(
                       lastSharesOwned?.let { lastSharesOwnedReal ->
                         list[list.size - 1] =
                             lastSharesOwnedReal.copy(
-                                dateRangeEnd = record.record?.date ?: DownloaderService.MAX_DATE)
+                                dateRangeEnd = b.record?.date ?: DownloaderService.MAX_DATE)
                       }
                       list += newSharesOwned
                     }
