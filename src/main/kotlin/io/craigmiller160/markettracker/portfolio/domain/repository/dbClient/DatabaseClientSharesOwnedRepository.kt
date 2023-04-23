@@ -64,8 +64,7 @@ class DatabaseClientSharesOwnedRepository(
   ): TryEither<List<String>> {
     val params = mapOf("userId" to userId.value, "portfolioId" to portfolioId.value)
     return sqlLoader
-        .loadSqlMustacheTemplate(FIND_UNIQUE_STOCKS_SQL)
-        .flatMap { template -> template.executeWithSectionsEnabled("portfolioId") }
+        .loadSql(FIND_UNIQUE_STOCKS_SQL)
         .flatMap { sql -> databaseClient.query(sql, params) }
         .flatMap { list -> list.map { it.getRequired("symbol", String::class) }.sequence() }
   }
@@ -73,8 +72,7 @@ class DatabaseClientSharesOwnedRepository(
   override suspend fun findUniqueStocksForUser(userId: TypedId<UserId>): TryEither<List<String>> {
     val params = mapOf("userId" to userId.value)
     return sqlLoader
-        .loadSqlMustacheTemplate(FIND_UNIQUE_STOCKS_SQL)
-        .flatMap { template -> template.executeWithSectionsEnabled() }
+        .loadSql(FIND_UNIQUE_STOCKS_SQL)
         .flatMap { sql -> databaseClient.query(sql, params) }
         .flatMap { list -> list.map { it.getRequired("symbol", String::class) }.sequence() }
   }
@@ -96,10 +94,9 @@ class DatabaseClientSharesOwnedRepository(
             "endDate" to endDate,
             "interval" to interval.sql)
 
-    return sqlLoader
-        .loadSqlMustacheTemplate(GET_SHARES_OWNED_AT_INTERVAL_SQL)
-        .flatMap { template -> template.executeWithSectionsEnabled("portfolioId") }
-        .flatMap { sql -> databaseClient.query(sql, sharesOwnedOnDateRowMapper, params) }
+    return sqlLoader.loadSql(GET_SHARES_OWNED_AT_INTERVAL_SQL).flatMap { sql ->
+      databaseClient.query(sql, sharesOwnedOnDateRowMapper, params)
+    }
   }
 
   override suspend fun getSharesOwnedAtIntervalForUser(
@@ -117,10 +114,9 @@ class DatabaseClientSharesOwnedRepository(
             "endDate" to endDate,
             "interval" to interval.sql)
 
-    return sqlLoader
-        .loadSqlMustacheTemplate(GET_SHARES_OWNED_AT_INTERVAL_SQL)
-        .flatMap { template -> template.executeWithSectionsEnabled() }
-        .flatMap { sql -> databaseClient.query(sql, sharesOwnedOnDateRowMapper, params) }
+    return sqlLoader.loadSql(GET_SHARES_OWNED_AT_INTERVAL_SQL).flatMap { sql ->
+      databaseClient.query(sql, sharesOwnedOnDateRowMapper, params)
+    }
   }
 
   override suspend fun deleteAllSharesOwnedForUsers(
@@ -141,8 +137,7 @@ class DatabaseClientSharesOwnedRepository(
     val params =
         mapOf("userId" to userId.value, "portfolioId" to portfolioId.value, "symbol" to stockSymbol)
     return sqlLoader
-        .loadSqlMustacheTemplate(FIND_CURRENT_SHARES_OWNED_FOR_STOCK_SQL)
-        .flatMap { it.executeWithSectionsEnabled("portfolioId") }
+        .loadSql(FIND_CURRENT_SHARES_OWNED_FOR_STOCK_SQL)
         .flatMap { sql -> databaseClient.query(sql, currentSharesOwnedRowMapper, params) }
         .map { it.firstOrNull() ?: BigDecimal("0") }
   }
@@ -157,8 +152,7 @@ class DatabaseClientSharesOwnedRepository(
       this + ("portfolioId" to nullValue<UUID>())
     }
     return sqlLoader
-        .loadSqlMustacheTemplate(FIND_CURRENT_SHARES_OWNED_FOR_STOCK_SQL)
-        .flatMap { it.executeWithSectionsEnabled() }
+        .loadSql(FIND_CURRENT_SHARES_OWNED_FOR_STOCK_SQL)
         .flatMap { sql -> databaseClient.query(sql, currentSharesOwnedRowMapper, params) }
         .map { it.firstOrNull() ?: BigDecimal("0") }
   }

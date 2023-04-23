@@ -20,9 +20,4 @@ class SqlLoader(private val resourceLoader: ResourceLoader) {
   @Cacheable(cacheNames = [SQL_CACHE], key = "#filePath")
   fun loadSql(filePath: String): TryEither<String> =
       Either.catch { openSqlReader(filePath).readText() }
-
-  // TODO delete this method
-  @Cacheable(cacheNames = [MUSTACHE_CACHE], key = "#filePath")
-  fun loadSqlMustacheTemplate(filePath: String): TryEither<MustacheSqlTemplate> =
-      Either.catch { MustacheSqlTemplate() }
 }
