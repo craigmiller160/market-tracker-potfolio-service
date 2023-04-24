@@ -9,7 +9,7 @@ app_deployment:
     spring.flyway.locations: classpath:db/migration,classpath:db/prod/migration
     spring.security.oauth2.resourceserver.jwt: https://auth-craigmiller160.ddns.net/realms/apps-prod
     # TODO this needs to be true
-    downloaders.enable-schedule: false
+    downloaders.enable-schedule: "false"
     logging.level.org.springframework.data.r2dbc: INFO
   onepassworditems:
     - name: market-tracker-portfolio-postgres
