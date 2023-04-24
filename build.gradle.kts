@@ -46,7 +46,7 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.craigmiller160:testcontainers-common:1.1.1")
     implementation("org.flywaydb:flyway-core")
-    implementation("io.github.craigmiller160:spring-fp-result-kt:2.0.0-SNAPSHOT")
+    implementation("io.github.craigmiller160:spring-fp-result-kt:2.0.0")
     implementation("io.arrow-kt:arrow-core:1.1.5")
 
     testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
