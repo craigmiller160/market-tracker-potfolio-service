@@ -7,8 +7,9 @@ app_deployment:
     spring.datasource.db_name: expense_tracker_prod
     spring.flyway.locations: classpath:db/migration,classpath:db/prod/migration
     spring.security.oauth2.resourceserver.jwt: https://auth-craigmiller160.ddns.net/realms/apps-prod
-    # TODO this needs to be true
-    downloaders.enable-schedule: "false"
+    downloaders.enable-schedule: "true"
+    downloaders.craigmiller.user-id: 7a8e0603-dca6-474c-a0f7-34a748567aee
+    downloaders.craigmiller.service-account-json-path: /gcloud-service-account/market-tracker-service-account.json
     logging.level.org.springframework.data.r2dbc: INFO
   onepassworditems:
     - name: market-tracker-portfolio-postgres
