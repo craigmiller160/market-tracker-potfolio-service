@@ -1,3 +1,4 @@
+# TODO need the service-account-json-path, likely requires mounting the JSON from a 1Password secret
 app_deployment:
   appName: market-tracker-portfolio-service
   image: nexus-docker-craigmiller160.ddns.net/market-tracker-portfolio-service:latest
@@ -8,6 +9,7 @@ app_deployment:
     spring.flyway.locations: classpath:db/migration,classpath:db/prod/migration
     spring.security.oauth2.resourceserver.jwt: https://auth-craigmiller160.ddns.net/realms/apps-prod
     downloaders.enable-schedule: true
+    logging.level.org.springframework.data.r2dbc: INFO
   onepassworditems:
     - name: market-tracker-portfolio-postgres
       itemPath: vaults/Home Server (Prod)/items/Postgres Root Account
