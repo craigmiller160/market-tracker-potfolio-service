@@ -1,4 +1,3 @@
-# TODO need the service-account-json-path, likely requires mounting the JSON from a 1Password secret
 app_deployment:
   appName: market-tracker-portfolio-service
   image: nexus-docker-craigmiller160.ddns.net/market-tracker-portfolio-service:latest
@@ -25,6 +24,11 @@ app_deployment:
     - envVariable: spring.db.password
       secretName: market-tracker-portfolio-postgres
       secretKey: password
+  volumes:
+    - name: gcloud-service-account
+      type: Secret
+      deploymentMountPath: /gcloud-service-account
+      secretName: market-tracker-portfolio-gcloud-service-account
   commonProbe:
     httpGet:
       path: /actuator/health
