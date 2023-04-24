@@ -38,3 +38,5 @@ out/
 .terraform/
 
 market-tracker-service-account.json
+charts
+*.tgz
