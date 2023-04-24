@@ -1,0 +1,27 @@
+app_deployment:
+  appName: market-tracker-portfolio-service
+  image: nexus-docker-craigmiller160.ddns.net/market-tracker-portfolio-service:latest
+  configMap:
+    spring.profiles.active: prod
+    spring.db.baseUrl: postgresql://postgres.infra-prod:5432/market_tracker_portfolio_prod
+    spring.datasource.db_name: expense_tracker_prod
+    spring.flyway.locations: classpath:db/migration,classpath:db/prod/migration
+    spring.security.oauth2.resourceserver.jwt: https://auth-craigmiller160.ddns.net/realms/apps-prod
+    downloaders.enable-schedule: true
+  onepassworditems:
+    - name: market-tracker-portfolio-postgres
+      itemPath: vaults/Home Server (Prod)/items/Postgres Root Account
+  ports:
+    - containerPort: 8080
+  secrets:
+    - envVariable: spring.db.username
+      secretName: market-tracker-portfolio-postgres
+      secretKey: username
+    - envVariable: spring.db.password
+      secretName: market-tracker-portfolio-postgres
+      secretKey: password
+  commonProbe:
+    httpGet:
+      path: /actuator/health
+      port: 8080
+      scheme: HTTPS
