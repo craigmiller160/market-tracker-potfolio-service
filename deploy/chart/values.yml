@@ -8,11 +8,14 @@ app_deployment:
     spring.datasource.db_name: expense_tracker_prod
     spring.flyway.locations: classpath:db/migration,classpath:db/prod/migration
     spring.security.oauth2.resourceserver.jwt: https://auth-craigmiller160.ddns.net/realms/apps-prod
-    downloaders.enable-schedule: true
+    # TODO this needs to be true
+    downloaders.enable-schedule: false
     logging.level.org.springframework.data.r2dbc: INFO
   onepassworditems:
     - name: market-tracker-portfolio-postgres
       itemPath: vaults/Home Server (Prod)/items/Postgres Root Account
+    - name: market-tracker-portfolio-gcloud-service-account
+      itemPath: vaults/Home Server (Prod)/items/Market Tracker Google Cloud Service Account
   ports:
     - containerPort: 8080
   secrets:
