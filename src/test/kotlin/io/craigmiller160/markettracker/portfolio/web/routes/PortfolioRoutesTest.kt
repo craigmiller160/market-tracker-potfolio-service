@@ -95,7 +95,7 @@ constructor(
     val data = createData(10, 100)
     webTestClient
         .get()
-        .uri("/portfolios/stocks/${data.portfolios[1].id}")
+        .uri("/portfolios/${data.portfolios[1].id}/stocks")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -247,7 +247,8 @@ constructor(
     val response =
         ErrorResponse(
             method = "GET",
-            uri = "/portfolios/${data.portfolios[1].id.value}/VTI/history?${params.queryString}",
+            uri =
+                "/portfolios/${data.portfolios[1].id.value}/stocks/VTI/history?${params.queryString}",
             message = "Bad Request: ${params.message}",
             status = 400)
     webTestClient
@@ -299,7 +300,7 @@ constructor(
 
     webTestClient
         .get()
-        .uri("/portfolios/${data.portfolios[1].id}stocks//VTI/current")
+        .uri("/portfolios/${data.portfolios[1].id}/stocks/VTI/current")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -388,7 +389,7 @@ constructor(
     val response =
         ErrorResponse(
             method = "GET",
-            uri = "/portfolios/combined/VTI/history?${params.queryString}",
+            uri = "/portfolios/combined/stocks/VTI/history?${params.queryString}",
             message = "Bad Request: ${params.message}",
             status = 400)
     webTestClient
