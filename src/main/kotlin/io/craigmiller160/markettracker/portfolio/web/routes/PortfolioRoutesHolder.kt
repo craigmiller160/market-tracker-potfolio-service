@@ -22,11 +22,11 @@ class PortfolioRoutesHolder {
     GET("/portfolios", handler::getPortfolios) {
       it.operationId("getPortfolios").addPortfolioListResponse()
     }
-    GET("/portfolios/combined", handler::getStocksForAllPortfoliosCombined) {
+    GET("/portfolios/combined/stocks", handler::getStocksForAllPortfoliosCombined) {
       it.operationId("getStocksForAllPortfoliosCombined").addStockListResponse()
     }
     GET(
-        "/portfolios/combined/{stockSymbol}/history",
+        "/portfolios/combined/stocks/{stockSymbol}/history",
         handler::getSharesOwnedForAllPortfoliosCombinedStock) {
           it.operationId("getSharesOwnedForAllPortfoliosCombinedStock")
               .addStockSymbolParameter()
@@ -35,11 +35,11 @@ class PortfolioRoutesHolder {
               .addIntervalParameter()
               .addSharesOwnedResponse()
         }
-    GET("/portfolios/{portfolioId}", handler::getStocksForPortfolio) {
+    GET("/portfolios/{portfolioId}/stocks", handler::getStocksForPortfolio) {
       it.operationId("getStocksForPortfolio").addPortfolioIdParameter().addStockListResponse()
     }
     GET(
-        "/portfolios/{portfolioId}/{stockSymbol}/history",
+        "/portfolios/{portfolioId}/stocks/{stockSymbol}/history",
         handler::getSharesOwnedForPortfolioStock) {
           it.operationId("getSharesOwnedForPortfolioStock")
               .addPortfolioIdParameter()
@@ -50,14 +50,16 @@ class PortfolioRoutesHolder {
               .addSharesOwnedResponse()
         }
 
-    GET("/portfolios/combined/{stockSymbol}/current", handler::getCurrentValueForStockForUser) {
-      it.operationId("getCurrentValueForStockForUser")
-          .addStockSymbolParameter()
-          .addSharesOwnedResponse()
-    }
+    GET(
+        "/portfolios/combined/stocks/{stockSymbol}/current",
+        handler::getCurrentValueForStockForUser) {
+          it.operationId("getCurrentValueForStockForUser")
+              .addStockSymbolParameter()
+              .addSharesOwnedResponse()
+        }
 
     GET(
-        "/portfolios/{portfolioId}/{stockSymbol}/current",
+        "/portfolios/{portfolioId}/stocks/{stockSymbol}/current",
         handler::getCurrentValueForStockInPortfolio) {
           it.operationId("getCurrentValueForStockInPortfolio")
               .addPortfolioIdParameter()
