@@ -2,6 +2,7 @@ app_deployment:
   appName: market-tracker-portfolio-service
   image: nexus-docker-craigmiller160.ddns.net/market-tracker-portfolio-service:latest
   configMap:
+    server.port: 8080
     spring.profiles.active: prod
     spring.db.baseUrl: postgresql://postgres.infra-prod:5432/market_tracker_portfolio_prod
     spring.datasource.db_name: expense_tracker_prod
