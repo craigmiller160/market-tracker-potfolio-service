@@ -1,0 +1,8 @@
+WITH the_dates AS (
+    SELECT date_trunc('day', dd)::date AS the_date
+    FROM generate_series('2023-04-29'::date, '2028-04-29'::date, '1 month'::interval) dd
+)
+SELECT td.the_date AS date
+FROM the_dates td;
+
+The problem above is the first non-leap year it reaches (ie, 2025-02-28) changes the day of the month for all subsequent records to 28 instead of 29
