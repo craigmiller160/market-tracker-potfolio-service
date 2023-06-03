@@ -11,15 +11,11 @@ spring:
     default-schema: ${testcontainers.common.postgres.schema}
     init-sqls: SET schema '${testcontainers.common.postgres.schema}'
   security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${testcontainers.common.keycloak.url}realms/apps-dev
-
-jwt:
-  auth:
-    converter:
-      resource-id: ${testcontainers.common.keycloak.client.id}
+    keycloak:
+      oauth2:
+        resourceserver:
+          host: ${testcontainers.common.keycloak.url}
+          client-id: ${testcontainers.common.keycloak.client.id}
 
 downloaders:
   craigmiller:
