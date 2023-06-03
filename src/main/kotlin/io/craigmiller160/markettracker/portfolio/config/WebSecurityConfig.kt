@@ -1,6 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.config
 
-import io.craigmiller160.markettracker.portfolio.security.JwtAuthConverter
+import io.craigmiller160.springkeycloakoauth2resourceserver.security.KeycloakOAuth2ResourceServerProvider
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
@@ -10,14 +10,14 @@ import org.springframework.security.web.server.context.NoOpServerSecurityContext
 
 @Configuration
 @EnableWebFluxSecurity
-class WebSecurityConfig(private val jwtAuthConverter: JwtAuthConverter) {
+class WebSecurityConfig(private val keycloakProvider: KeycloakOAuth2ResourceServerProvider) {
 
   @Bean
   fun securityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain =
       http
           .csrf()
           .disable()
-          .oauth2ResourceServer { it.jwt().jwtAuthenticationConverter(jwtAuthConverter) }
+          .oauth2ResourceServer(keycloakProvider.provideWebFlux())
           .authorizeExchange {
             it.pathMatchers(
                     "/actuator/health",
