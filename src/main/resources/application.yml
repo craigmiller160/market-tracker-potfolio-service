@@ -3,11 +3,12 @@ server:
 
 spring:
   security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: https://auth-craigmiller160.ddns.net/realms/apps-dev
-          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+    keycloak:
+      oauth2:
+        resourceserver:
+          host: https://auth-craigmiller160.ddns.net
+          realm: apps-dev
+          client-id: market-tracker-portfolio-service
   db:
     baseUrl: postgresql://localhost:5432/market_tracker_portfolio_dev
     username: postgres
@@ -23,12 +24,6 @@ spring:
 
 http-client:
   timeout-millis: 30000
-
-jwt:
-  auth:
-    converter:
-      resource-id: market-tracker-portfolio-service
-      principal-attribute: preferred_username
 
 downloaders:
   enable-schedule: false

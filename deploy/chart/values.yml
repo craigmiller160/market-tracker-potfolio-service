@@ -7,7 +7,7 @@ app_deployment:
     spring.db.baseUrl: postgresql://postgres.infra-prod:5432/market_tracker_portfolio_prod
     spring.datasource.db_name: expense_tracker_prod
     spring.flyway.locations: classpath:db/migration,classpath:db/prod/migration
-    spring.security.oauth2.resourceserver.jwt: https://auth-craigmiller160.ddns.net/realms/apps-prod
+    spring.security.keycloak.oauth2.resourceserver.realm: apps-prod
     downloaders.enable-schedule: "true"
     downloaders.craigmiller.user-id: 7a8e0603-dca6-474c-a0f7-34a748567aee
     downloaders.craigmiller.service-account-json-path: /gcloud-service-account/market-tracker-service-account.json
