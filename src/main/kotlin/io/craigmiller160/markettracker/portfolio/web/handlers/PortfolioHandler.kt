@@ -22,9 +22,6 @@ class PortfolioHandler(
   suspend fun getPortfolios(request: ServerRequest): ServerResponse =
       portfolioService.getPortfolios().toResponse()
 
-  suspend fun getStocksForPortfolio(request: ServerRequest): ServerResponse =
-      sharesOwnedService.findUniqueStocksInPortfolio(request.portfolioId).toResponse()
-
   suspend fun getSharesOwnedForPortfolioStock(request: ServerRequest): ServerResponse {
     val portfolioId = request.portfolioId
     val stockSymbol = request.stockSymbol
@@ -35,9 +32,6 @@ class PortfolioHandler(
         .getSharesOwnedForPortfolioStock(portfolioId, stockSymbol, startDate, endDate, interval)
         .toResponse()
   }
-
-  suspend fun getStocksForAllPortfoliosCombined(request: ServerRequest): ServerResponse =
-      sharesOwnedService.findUniqueStocksForAllPortfoliosCombined().toResponse()
 
   suspend fun getSharesOwnedForAllPortfoliosCombinedStock(request: ServerRequest): ServerResponse {
     val stockSymbol = request.stockSymbol
