@@ -56,6 +56,7 @@ class CraigMillerDownloaderService(
     const val GRANT_TYPE_KEY = "grant_type"
     const val ASSERTION_KEY = "assertion"
     val RELEVANT_ACTIONS = listOf(Action.BONUS, Action.BUY, Action.SELL)
+    val SYMBOL_EXCLUSIONS = listOf(Regex("^TBILL.*$"))
   }
 
   private val log = LoggerFactory.getLogger(javaClass)
@@ -110,6 +111,7 @@ class CraigMillerDownloaderService(
       records
           .asSequence()
           .filter { RELEVANT_ACTIONS.contains(it.action) }
+          .filter { record -> !SYMBOL_EXCLUSIONS.any { regex -> regex.matches(record.symbol) } }
           .sortedWith(CraigMillerTransactionRecord.comparator)
           .map(initialRecord(portfolioId))
           .fold(ownershipContextMonoid(downloaderConfig.userId, portfolioId))
