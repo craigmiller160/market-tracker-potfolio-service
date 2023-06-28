@@ -22,16 +22,6 @@ class PortfolioRoutesHolder {
       it.operationId("getPortfolios").addPortfolioListResponse()
     }
     GET(
-        "/portfolios/combined/stocks/{stockSymbol}/history",
-        handler::getSharesOwnedForAllPortfoliosCombinedStock) {
-          it.operationId("getSharesOwnedForAllPortfoliosCombinedStock")
-              .addStockSymbolParameter()
-              .addStartDateParameter()
-              .addEndDateParameter()
-              .addIntervalParameter()
-              .addSharesOwnedResponse()
-        }
-    GET(
         "/portfolios/{portfolioId}/stocks/{stockSymbol}/history",
         handler::getSharesOwnedForPortfolioStock) {
           it.operationId("getSharesOwnedForPortfolioStock")
@@ -40,14 +30,6 @@ class PortfolioRoutesHolder {
               .addStartDateParameter()
               .addEndDateParameter()
               .addIntervalParameter()
-              .addSharesOwnedResponse()
-        }
-
-    GET(
-        "/portfolios/combined/stocks/{stockSymbol}/current",
-        handler::getCurrentValueForStockForUser) {
-          it.operationId("getCurrentValueForStockForUser")
-              .addStockSymbolParameter()
               .addSharesOwnedResponse()
         }
 
