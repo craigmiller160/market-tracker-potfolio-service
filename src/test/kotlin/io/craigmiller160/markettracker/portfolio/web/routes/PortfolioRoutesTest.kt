@@ -76,9 +76,17 @@ constructor(
   }
 
   @Test
-  fun `gets list of portfolio names for user`() {
+  fun `gets list of portfolios for user`() {
     val data = createData(10, 100)
-    val expectedResponse = data.portfolios.drop(1).map { it.toPortfolioResponse() }
+    val expectedResponse =
+        data.portfolios.drop(1).map { portfolio ->
+          val stocks =
+              data.sharesOwned
+                  .filter { it.portfolioId == portfolio.id }
+                  .map { it.symbol }
+                  .distinct()
+          portfolio.toPortfolioResponse(stocks)
+        }
     webTestClient
         .get()
         .uri("/portfolios")
