@@ -2,6 +2,8 @@ package io.craigmiller160.markettracker.portfolio.service
 
 import arrow.core.flatMap
 import arrow.core.sequence
+import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
+import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioResponse
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
@@ -22,10 +24,13 @@ class PortfolioService(
 ) {
   suspend fun getPortfolios(): TryEither<List<PortfolioResponse>> {
     val userId = authorizationService.getUserId()
-    return portfolioRepository.findAllForUser(userId).flatMap { getStocksAndBuildResponse(it) }
+    return portfolioRepository.findAllForUser(userId).flatMap {
+      getStocksAndBuildResponse(userId, it)
+    }
   }
 
   private suspend fun getStocksAndBuildResponse(
+      userId: TypedId<UserId>,
       portfolios: List<Portfolio>
   ): TryEither<List<PortfolioResponse>> =
       portfolios
