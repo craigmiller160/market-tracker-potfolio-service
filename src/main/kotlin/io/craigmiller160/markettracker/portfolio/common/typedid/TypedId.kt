@@ -6,6 +6,7 @@ import java.util.UUID
 @JvmInline
 @Schema(implementation = UUID::class)
 value class TypedId<T>(val value: UUID = UUID.randomUUID()) {
+  constructor(value: String) : this(UUID.fromString(value))
   override fun toString(): String = value.toString()
 }
 
