@@ -7,10 +7,12 @@ import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterv
 import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioResponse
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
+import io.craigmiller160.markettracker.portfolio.service.PortfolioConstants
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
 import io.craigmiller160.markettracker.portfolio.testutils.userTypedId
 import io.craigmiller160.markettracker.portfolio.web.types.ErrorResponse
+import io.craigmiller160.markettracker.portfolio.web.types.PortfolioResponse
 import io.craigmiller160.markettracker.portfolio.web.types.SharesOwnedResponse
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -78,15 +80,23 @@ constructor(
   @Test
   fun `gets list of portfolios for user`() {
     val data = createData(10, 100)
-    val expectedResponse =
-        data.portfolios.drop(1).map { portfolio ->
+
+    val portfolios = data.portfolios.drop(1)
+    val sharesOwned = data.sharesOwned.filter { so -> portfolios.any { it.id == so.portfolioId } }
+    val baseExpectedResponse =
+        portfolios.map { portfolio ->
           val stocks =
-              data.sharesOwned
-                  .filter { it.portfolioId == portfolio.id }
-                  .map { it.symbol }
-                  .distinct()
+              sharesOwned.filter { it.portfolioId == portfolio.id }.map { it.symbol }.distinct()
           portfolio.toPortfolioResponse(stocks)
         }
+    val combinedStocks = sharesOwned.map { it.symbol }.distinct()
+    val combinedPortfolio =
+        PortfolioResponse(
+            id = PortfolioConstants.COMBINED_PORTFOLIO_ID,
+            name = PortfolioConstants.COMBINED_PORTFOLIO_NAME,
+            stockSymbols = combinedStocks)
+    val expectedResponse = baseExpectedResponse + combinedPortfolio
+
     webTestClient
         .get()
         .uri("/portfolios")
