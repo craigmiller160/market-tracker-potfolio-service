@@ -1,5 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.service
 
+import arrow.core.continuations.either
 import arrow.core.flatMap
 import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
@@ -24,10 +25,25 @@ class PortfolioService(
 ) {
   suspend fun getPortfolios(): TryEither<List<PortfolioResponse>> {
     val userId = authorizationService.getUserId()
-    return portfolioRepository.findAllForUser(userId).flatMap {
-      getStocksAndBuildResponse(userId, it)
+    return either {
+      val allPortfolios =
+          portfolioRepository
+              .findAllForUser(userId)
+              .flatMap { getStocksAndBuildResponse(userId, it) }
+              .bind()
+
+      val combinedPortfolio = getCombinedPortfolio(userId).bind()
+      allPortfolios + combinedPortfolio
     }
   }
+
+  private suspend fun getCombinedPortfolio(userId: TypedId<UserId>): TryEither<PortfolioResponse> =
+      sharesOwnedRepository.findUniqueStocksForUser(userId).map { stocks ->
+        PortfolioResponse(
+            id = PortfolioConstants.COMBINED_PORTFOLIO_ID,
+            name = PortfolioConstants.COMBINED_PORTFOLIO_NAME,
+            stockSymbols = stocks)
+      }
 
   private suspend fun getStocksAndBuildResponse(
       userId: TypedId<UserId>,
