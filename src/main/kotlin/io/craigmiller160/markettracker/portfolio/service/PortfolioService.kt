@@ -2,6 +2,7 @@ package io.craigmiller160.markettracker.portfolio.service
 
 import arrow.core.flatMap
 import arrow.core.sequence
+import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioResponse
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
@@ -21,7 +22,12 @@ class PortfolioService(
 ) {
   suspend fun getPortfolios(): TryEither<List<PortfolioResponse>> {
     val userId = authorizationService.getUserId()
-    return portfolioRepository.findAllForUser(userId).flatMap { portfolios ->
+    return portfolioRepository.findAllForUser(userId).flatMap { getStocksAndBuildResponse(it) }
+  }
+
+  private suspend fun getStocksAndBuildResponse(
+      portfolios: List<Portfolio>
+  ): TryEither<List<PortfolioResponse>> =
       portfolios
           .map { portfolio ->
             CoroutineScope(Dispatchers.IO).async {
@@ -33,6 +39,4 @@ class PortfolioService(
           }
           .awaitAll()
           .sequence()
-    }
-  }
 }
