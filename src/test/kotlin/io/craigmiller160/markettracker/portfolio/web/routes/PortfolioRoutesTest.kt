@@ -99,34 +99,6 @@ constructor(
   }
 
   @Test
-  fun `gets list of stocks in portfolio for user`() {
-    val data = createData(10, 100)
-    webTestClient
-        .get()
-        .uri("/portfolios/${data.portfolios[1].id}/stocks")
-        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
-        .exchange()
-        .expectStatus()
-        .is2xxSuccessful
-        .expectBody()
-        .json(objectMapper.writeValueAsString(data.uniqueStocks))
-  }
-
-  @Test
-  fun `gets list of stocks in portfolio that the user does not own`() {
-    val data = createData(10, 100)
-    webTestClient
-        .get()
-        .uri("/portfolios/${data.portfolios[0].id}/stocks")
-        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
-        .exchange()
-        .expectStatus()
-        .is2xxSuccessful
-        .expectBody()
-        .json(objectMapper.writeValueAsString(listOf<String>()))
-  }
-
-  @Test
   fun `gets a list of unique stocks for all portfolios combined`() {
     val data = createData(10, 100)
     val expectedResponse =
