@@ -1,6 +1,8 @@
 package io.craigmiller160.markettracker.portfolio.service
 
+import arrow.core.flatMap
 import arrow.core.sequence
+import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioResponse
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
@@ -19,16 +21,18 @@ class PortfolioService(
 ) {
   suspend fun getPortfolios(): TryEither<List<PortfolioResponse>> {
     val userId = authorizationService.getUserId()
-    portfolioRepository.findAllForUser(userId).map { portfolios ->
+    return portfolioRepository.findAllForUser(userId).flatMap { portfolios ->
       portfolios
-          .map {
+          .map { portfolio ->
             CoroutineScope(Dispatchers.IO).async {
-              sharesOwnedRepository.findUniqueStocksInPortfolio(userId, it.id)
+              sharesOwnedRepository.findUniqueStocksInPortfolio(userId, portfolio.id).map { stocks
+                ->
+                portfolio.toPortfolioResponse(stocks)
+              }
             }
           }
           .awaitAll()
           .sequence()
-      // TODO need to handle output
     }
   }
 }
