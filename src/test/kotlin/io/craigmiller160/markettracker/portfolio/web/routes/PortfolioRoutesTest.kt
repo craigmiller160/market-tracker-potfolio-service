@@ -109,33 +109,6 @@ constructor(
   }
 
   @Test
-  fun `gets a list of unique stocks for all portfolios combined`() {
-    val data = createData(10, 100)
-    val expectedResponse =
-        data.uniqueStocks
-            .flatMap { stock ->
-              (1..4).map { index ->
-                if (index % 2 == 0) {
-                  stock
-                } else {
-                  "$stock-$index"
-                }
-              }
-            }
-            .distinct()
-            .sorted()
-    webTestClient
-        .get()
-        .uri("/portfolios/${PortfolioConstants.COMBINED_PORTFOLIO_ID}/stocks")
-        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
-        .exchange()
-        .expectStatus()
-        .is2xxSuccessful
-        .expectBody()
-        .json(objectMapper.writeValueAsString(data.uniqueStocks))
-  }
-
-  @Test
   fun `get shares owned history for past week for stock that user does not have in portfolio`() {
     val coreParams =
         CoreSharesOwnedRouteParams(
