@@ -28,21 +28,24 @@ class PortfolioService(
       startDate: LocalDate?,
       endDate: LocalDate?
   ): TryEither<List<PortfolioResponse>> {
-    // TODO integrate dates into query
     val userId = authorizationService.getUserId()
     return either {
       val allPortfolios =
           portfolioRepository
               .findAllForUser(userId)
-              .flatMap { getStocksAndBuildResponse(userId, it) }
+              .flatMap { getStocksAndBuildResponse(userId, it, startDate, endDate) }
               .bind()
 
-      val combinedPortfolio = getCombinedPortfolio(userId).bind()
+      val combinedPortfolio = getCombinedPortfolio(userId, startDate, endDate).bind()
       allPortfolios + combinedPortfolio
     }
   }
 
-  private suspend fun getCombinedPortfolio(userId: TypedId<UserId>): TryEither<PortfolioResponse> =
+  private suspend fun getCombinedPortfolio(
+      userId: TypedId<UserId>,
+      startDate: LocalDate?,
+      endDate: LocalDate?
+  ): TryEither<PortfolioResponse> =
       sharesOwnedRepository.findUniqueStocksForUser(userId).map { stocks ->
         PortfolioResponse(
             id = PortfolioConstants.COMBINED_PORTFOLIO_ID,
@@ -52,7 +55,9 @@ class PortfolioService(
 
   private suspend fun getStocksAndBuildResponse(
       userId: TypedId<UserId>,
-      portfolios: List<Portfolio>
+      portfolios: List<Portfolio>,
+      startDate: LocalDate?,
+      endDate: LocalDate?
   ): TryEither<List<PortfolioResponse>> =
       portfolios
           .map { portfolio ->
