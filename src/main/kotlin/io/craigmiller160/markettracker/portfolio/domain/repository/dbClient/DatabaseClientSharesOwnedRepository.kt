@@ -67,6 +67,8 @@ class DatabaseClientSharesOwnedRepository(
     val params = paramsBuilder {
       this + ("userId" to userId.value)
       this + ("portfolioId" to portfolioId.value)
+      this + ("startDate" to startDate)
+      this + ("endDate" to endDate)
     }
     return sqlLoader
         .loadSql(FIND_UNIQUE_STOCKS_SQL)
@@ -74,10 +76,16 @@ class DatabaseClientSharesOwnedRepository(
         .flatMap { list -> list.map { it.getRequired("symbol", String::class) }.sequence() }
   }
 
-  override suspend fun findUniqueStocksForUser(userId: TypedId<UserId>): TryEither<List<String>> {
+  override suspend fun findUniqueStocksForUser(
+      userId: TypedId<UserId>,
+      startDate: LocalDate?,
+      endDate: LocalDate?
+  ): TryEither<List<String>> {
     val params = paramsBuilder {
       this + ("userId" to userId.value)
       this + ("portfolioId" to nullValue<UUID>())
+      this + ("startDate" to startDate)
+      this + ("endDate" to endDate)
     }
     return sqlLoader
         .loadSql(FIND_UNIQUE_STOCKS_SQL)
