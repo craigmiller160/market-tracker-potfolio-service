@@ -19,7 +19,10 @@ class PortfolioRoutesHolder {
   @Bean
   fun portfolioRoutes(handler: PortfolioHandler): RouterFunction<ServerResponse> = coSwaggerRouter {
     GET("/portfolios", handler::getPortfolios) {
-      it.operationId("getPortfolios").addPortfolioListResponse()
+      it.operationId("getPortfolios")
+          .addStartDateParameter()
+          .addEndDateParameter()
+          .addPortfolioListResponse()
     }
     GET(
         "/portfolios/{portfolioId}/stocks/{stockSymbol}/history",
