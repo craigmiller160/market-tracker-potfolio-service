@@ -15,7 +15,7 @@ data class PortfolioRouteData(
 )
 
 private val STOCKS: List<String> = listOf("VTI", "VXUS", "VOO")
-private val BASE_DATE = LocalDate.now()
+val BASE_DATE = LocalDate.of(2022, 1, 1)
 
 fun createPortfolioRouteData(
     defaultUsers: DefaultUsers,

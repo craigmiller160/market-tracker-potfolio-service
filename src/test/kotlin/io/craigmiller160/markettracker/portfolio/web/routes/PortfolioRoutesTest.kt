@@ -44,17 +44,17 @@ constructor(
     fun sharesOwnedForStock(): Stream<CoreSharesOwnedRouteParams> =
         Stream.of(
             CoreSharesOwnedRouteParams(
-                "VTI", LocalDate.now(), LocalDate.now().plusDays(1), SharesOwnedInterval.SINGLE),
+                "VTI", BASE_DATE, BASE_DATE.plusDays(1), SharesOwnedInterval.SINGLE),
             CoreSharesOwnedRouteParams(
-                "VTI", LocalDate.now(), LocalDate.now().plusDays(7), SharesOwnedInterval.DAILY),
+                "VTI", BASE_DATE, BASE_DATE.plusDays(7), SharesOwnedInterval.DAILY),
             CoreSharesOwnedRouteParams(
-                "VTI", LocalDate.now(), LocalDate.now().plusMonths(1), SharesOwnedInterval.DAILY),
+                "VTI", BASE_DATE, BASE_DATE.plusMonths(1), SharesOwnedInterval.DAILY),
             CoreSharesOwnedRouteParams(
-                "VTI", LocalDate.now(), LocalDate.now().plusMonths(3), SharesOwnedInterval.DAILY),
+                "VTI", BASE_DATE, BASE_DATE.plusMonths(3), SharesOwnedInterval.DAILY),
             CoreSharesOwnedRouteParams(
-                "VTI", LocalDate.now(), LocalDate.now().plusYears(1), SharesOwnedInterval.WEEKLY),
+                "VTI", BASE_DATE, BASE_DATE.plusYears(1), SharesOwnedInterval.WEEKLY),
             CoreSharesOwnedRouteParams(
-                "VTI", LocalDate.now(), LocalDate.now().plusYears(5), SharesOwnedInterval.MONTHLY))
+                "VTI", BASE_DATE, BASE_DATE.plusYears(5), SharesOwnedInterval.MONTHLY))
 
     @JvmStatic
     fun sharesOwnedBadRequestParams(): Stream<Any> =
