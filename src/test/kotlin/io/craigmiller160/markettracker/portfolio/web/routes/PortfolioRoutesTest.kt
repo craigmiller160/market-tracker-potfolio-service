@@ -19,6 +19,7 @@ import io.craigmiller160.markettracker.portfolio.web.types.SharesOwnedResponse
 import io.kotest.assertions.arrow.core.shouldBeRight
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.stream.Stream
 import kotlinx.coroutines.runBlocking
@@ -106,10 +107,13 @@ constructor(
     doGetListOfPortfolios(expectedResponse)
   }
 
-  private fun doGetListOfPortfolios(expectedResponse: List<PortfolioResponse>) {
+  private fun doGetListOfPortfolios(
+      expectedResponse: List<PortfolioResponse>,
+      queryString: String = ""
+  ) {
     webTestClient
         .get()
-        .uri("/portfolios")
+        .uri("/portfolios?${queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -144,8 +148,9 @@ constructor(
             expectedResponse.drop(1)
 
     doGetListOfPortfolios(fullExpectedResponse)
-
-    TODO()
+    val endDate =
+        DateTimeFormatter.ofPattern("yyyy-MM-dd").format(maxDate.dateRangeStart.minusDays(1))
+    doGetListOfPortfolios(expectedResponse, "startDate=2020-01-01&endDate=$endDate")
   }
 
   @Test
