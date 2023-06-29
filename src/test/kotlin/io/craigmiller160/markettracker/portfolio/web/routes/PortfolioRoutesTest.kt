@@ -126,7 +126,7 @@ constructor(
             .sorted()
     webTestClient
         .get()
-        .uri("/portfolios/combined/stocks")
+        .uri("/portfolios/${PortfolioConstants.COMBINED_PORTFOLIO_ID}/stocks")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -167,7 +167,8 @@ constructor(
 
     webTestClient
         .get()
-        .uri("/portfolios/combined/stocks/${params.stockSymbol}/history?${params.queryString}")
+        .uri(
+            "/portfolios/${PortfolioConstants.COMBINED_PORTFOLIO_ID}/stocks/${params.stockSymbol}/history?${params.queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -346,7 +347,7 @@ constructor(
 
     webTestClient
         .get()
-        .uri("/portfolios/combined/stocks/VTI/current")
+        .uri("/portfolios/${PortfolioConstants.COMBINED_PORTFOLIO_ID}/stocks/VTI/current")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -362,7 +363,7 @@ constructor(
 
     webTestClient
         .get()
-        .uri("/portfolios/combined/stocks/ABC/current")
+        .uri("/portfolios/${PortfolioConstants.COMBINED_PORTFOLIO_ID}/stocks/ABC/current")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
