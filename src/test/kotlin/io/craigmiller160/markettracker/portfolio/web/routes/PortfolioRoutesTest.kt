@@ -150,9 +150,10 @@ constructor(
                 expectedResponse[4].copy(stockSymbols = expectedResponse[4].stockSymbols + "ABC"))
 
     doGetListOfPortfolios(fullExpectedResponse)
-    val endDate =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd").format(maxDate.dateRangeStart.minusDays(1))
-    doGetListOfPortfolios(expectedResponse, "startDate=2020-01-01&endDate=$endDate")
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val startDate = formatter.format(BASE_DATE)
+    val endDate = formatter.format(maxDate.dateRangeStart.minusDays(1))
+    doGetListOfPortfolios(expectedResponse, "startDate=$startDate&endDate=$endDate")
   }
 
   @Test
