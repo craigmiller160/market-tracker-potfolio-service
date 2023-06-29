@@ -46,7 +46,7 @@ class PortfolioService(
       startDate: LocalDate?,
       endDate: LocalDate?
   ): TryEither<PortfolioResponse> =
-      sharesOwnedRepository.findUniqueStocksForUser(userId).map { stocks ->
+      sharesOwnedRepository.findUniqueStocksForUser(userId, startDate, endDate).map { stocks ->
         PortfolioResponse(
             id = PortfolioConstants.COMBINED_PORTFOLIO_ID,
             name = PortfolioConstants.COMBINED_PORTFOLIO_NAME,
@@ -62,10 +62,9 @@ class PortfolioService(
       portfolios
           .map { portfolio ->
             CoroutineScope(Dispatchers.IO).async {
-              sharesOwnedRepository.findUniqueStocksInPortfolio(userId, portfolio.id).map { stocks
-                ->
-                portfolio.toPortfolioResponse(stocks)
-              }
+              sharesOwnedRepository
+                  .findUniqueStocksInPortfolio(userId, portfolio.id, startDate, endDate)
+                  .map { stocks -> portfolio.toPortfolioResponse(stocks) }
             }
           }
           .awaitAll()
