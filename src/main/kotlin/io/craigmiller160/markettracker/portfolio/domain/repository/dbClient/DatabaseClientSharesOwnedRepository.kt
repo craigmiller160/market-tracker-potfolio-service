@@ -60,7 +60,9 @@ class DatabaseClientSharesOwnedRepository(
 
   override suspend fun findUniqueStocksInPortfolio(
       userId: TypedId<UserId>,
-      portfolioId: TypedId<PortfolioId>
+      portfolioId: TypedId<PortfolioId>,
+      startDate: LocalDate?,
+      endDate: LocalDate?
   ): TryEither<List<String>> {
     val params = paramsBuilder {
       this + ("userId" to userId.value)
