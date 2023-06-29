@@ -77,10 +77,7 @@ constructor(
     }
   }
 
-  @Test
-  fun `gets list of portfolios for user`() {
-    val data = createData(10, 100)
-
+  private fun getPortfolioResponse(data: PortfolioRouteData): List<PortfolioResponse> {
     val portfolios = data.portfolios.drop(1)
     val sharesOwned = data.sharesOwned.filter { so -> portfolios.any { it.id == so.portfolioId } }
     val baseExpectedResponse =
@@ -95,7 +92,13 @@ constructor(
             id = PortfolioConstants.COMBINED_PORTFOLIO_ID,
             name = PortfolioConstants.COMBINED_PORTFOLIO_NAME,
             stockSymbols = combinedStocks)
-    val expectedResponse = baseExpectedResponse + combinedPortfolio
+    return baseExpectedResponse + combinedPortfolio
+  }
+
+  @Test
+  fun `gets list of portfolios for user`() {
+    val data = createData(10, 100)
+    val expectedResponse = getPortfolioResponse(data)
 
     webTestClient
         .get()
