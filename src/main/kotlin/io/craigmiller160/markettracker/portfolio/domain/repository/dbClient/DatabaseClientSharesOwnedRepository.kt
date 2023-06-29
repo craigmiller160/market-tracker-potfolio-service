@@ -68,7 +68,7 @@ class DatabaseClientSharesOwnedRepository(
       this + ("userId" to userId.value)
       this + ("portfolioId" to portfolioId.value)
       this + ("startDate" to startDate)
-      this + ("endDate" to endDate)
+      this + ("endDate" to endDate?.minusDays(1))
     }
     return sqlLoader
         .loadSql(FIND_UNIQUE_STOCKS_SQL)
@@ -85,7 +85,7 @@ class DatabaseClientSharesOwnedRepository(
       this + ("userId" to userId.value)
       this + ("portfolioId" to nullValue<UUID>())
       this + ("startDate" to startDate)
-      this + ("endDate" to endDate)
+      this + ("endDate" to endDate?.minusDays(1))
     }
     return sqlLoader
         .loadSql(FIND_UNIQUE_STOCKS_SQL)
