@@ -145,7 +145,9 @@ constructor(
 
     val fullExpectedResponse =
         listOf(expectedResponse[0].copy(stockSymbols = expectedResponse[0].stockSymbols + "ABC")) +
-            expectedResponse.drop(1)
+            expectedResponse.subList(1, 4) +
+            listOf(
+                expectedResponse[4].copy(stockSymbols = expectedResponse[4].stockSymbols + "ABC"))
 
     doGetListOfPortfolios(fullExpectedResponse)
     val endDate =
