@@ -109,6 +109,11 @@ constructor(
   }
 
   @Test
+  fun `gets list of portfolios for user, with stocks filtered by date range`() {
+    TODO()
+  }
+
+  @Test
   fun `get shares owned history for past week for stock that user does not have in portfolio`() {
     val coreParams =
         CoreSharesOwnedRouteParams(
