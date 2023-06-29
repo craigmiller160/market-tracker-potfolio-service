@@ -51,14 +51,4 @@ class SharesOwnedService(
 
     return total.map { SharesOwnedResponse(date = LocalDate.now(), totalShares = it) }
   }
-
-  suspend fun getCurrentSharesOwnedForUserStock(
-      stockSymbol: String
-  ): TryEither<SharesOwnedResponse> =
-      authorizationService
-          .getUserId()
-          .let { userId ->
-            sharesOwnedRepository.getCurrentSharesOwnedForStockForUser(userId, stockSymbol)
-          }
-          .map { total -> SharesOwnedResponse(date = LocalDate.now(), totalShares = total) }
 }
