@@ -39,14 +39,18 @@ class SharesOwnedService(
   suspend fun getCurrentSharesOwnedForPortfolioStock(
       portfolioId: TypedId<PortfolioId>,
       stockSymbol: String
-  ): TryEither<SharesOwnedResponse> =
-      authorizationService
-          .getUserId()
-          .let { userId ->
-            sharesOwnedRepository.getCurrentSharesOwnedForStockInPortfolio(
-                userId, portfolioId, stockSymbol)
-          }
-          .map { total -> SharesOwnedResponse(date = LocalDate.now(), totalShares = total) }
+  ): TryEither<SharesOwnedResponse> {
+    val userId = authorizationService.getUserId()
+    val total =
+        if (PortfolioConstants.COMBINED_PORTFOLIO_ID == portfolioId) {
+          sharesOwnedRepository.getCurrentSharesOwnedForStockForUser(userId, stockSymbol)
+        } else {
+          sharesOwnedRepository.getCurrentSharesOwnedForStockInPortfolio(
+              userId, portfolioId, stockSymbol)
+        }
+
+    return total.map { SharesOwnedResponse(date = LocalDate.now(), totalShares = it) }
+  }
 
   suspend fun getCurrentSharesOwnedForUserStock(
       stockSymbol: String
