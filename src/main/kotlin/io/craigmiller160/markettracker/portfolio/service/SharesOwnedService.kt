@@ -15,15 +15,6 @@ class SharesOwnedService(
     private val sharesOwnedRepository: SharesOwnedRepository,
     private val authorizationService: AuthorizationService
 ) {
-  suspend fun findUniqueStocksInPortfolio(
-      portfolioId: TypedId<PortfolioId>
-  ): TryEither<List<String>> =
-      authorizationService.getUserId().let {
-        sharesOwnedRepository.findUniqueStocksInPortfolio(it, portfolioId)
-      }
-
-  suspend fun findUniqueStocksForAllPortfoliosCombined(): TryEither<List<String>> =
-      authorizationService.getUserId().let { sharesOwnedRepository.findUniqueStocksForUser(it) }
 
   suspend fun getSharesOwnedForPortfolioStock(
       portfolioId: TypedId<PortfolioId>,
@@ -31,48 +22,33 @@ class SharesOwnedService(
       startDate: LocalDate,
       endDate: LocalDate,
       interval: SharesOwnedInterval
-  ): TryEither<List<SharesOwnedResponse>> =
-      authorizationService
-          .getUserId()
-          .let { userId ->
-            sharesOwnedRepository.getSharesOwnedAtIntervalInPortfolio(
-                userId, portfolioId, stockSymbol, startDate, endDate, interval)
-          }
-          .map { results -> results.map { it.toSharesOwnedResponse() } }
+  ): TryEither<List<SharesOwnedResponse>> {
+    val userId = authorizationService.getUserId()
+    val sharesOwned =
+        if (PortfolioConstants.COMBINED_PORTFOLIO_ID == portfolioId) {
+          sharesOwnedRepository.getSharesOwnedAtIntervalForUser(
+              userId, stockSymbol, startDate, endDate, interval)
+        } else {
+          sharesOwnedRepository.getSharesOwnedAtIntervalInPortfolio(
+              userId, portfolioId, stockSymbol, startDate, endDate, interval)
+        }
 
-  suspend fun getSharesOwnedForUserStock(
-      stockSymbol: String,
-      startDate: LocalDate,
-      endDate: LocalDate,
-      interval: SharesOwnedInterval
-  ): TryEither<List<SharesOwnedResponse>> =
-      authorizationService
-          .getUserId()
-          .let { userId ->
-            sharesOwnedRepository.getSharesOwnedAtIntervalForUser(
-                userId, stockSymbol, startDate, endDate, interval)
-          }
-          .map { results -> results.map { it.toSharesOwnedResponse() } }
+    return sharesOwned.map { results -> results.map { it.toSharesOwnedResponse() } }
+  }
 
   suspend fun getCurrentSharesOwnedForPortfolioStock(
       portfolioId: TypedId<PortfolioId>,
       stockSymbol: String
-  ): TryEither<SharesOwnedResponse> =
-      authorizationService
-          .getUserId()
-          .let { userId ->
-            sharesOwnedRepository.getCurrentSharesOwnedForStockInPortfolio(
-                userId, portfolioId, stockSymbol)
-          }
-          .map { total -> SharesOwnedResponse(date = LocalDate.now(), totalShares = total) }
+  ): TryEither<SharesOwnedResponse> {
+    val userId = authorizationService.getUserId()
+    val total =
+        if (PortfolioConstants.COMBINED_PORTFOLIO_ID == portfolioId) {
+          sharesOwnedRepository.getCurrentSharesOwnedForStockForUser(userId, stockSymbol)
+        } else {
+          sharesOwnedRepository.getCurrentSharesOwnedForStockInPortfolio(
+              userId, portfolioId, stockSymbol)
+        }
 
-  suspend fun getCurrentSharesOwnedForUserStock(
-      stockSymbol: String
-  ): TryEither<SharesOwnedResponse> =
-      authorizationService
-          .getUserId()
-          .let { userId ->
-            sharesOwnedRepository.getCurrentSharesOwnedForStockForUser(userId, stockSymbol)
-          }
-          .map { total -> SharesOwnedResponse(date = LocalDate.now(), totalShares = total) }
+    return total.map { SharesOwnedResponse(date = LocalDate.now(), totalShares = it) }
+  }
 }

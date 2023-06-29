@@ -7,10 +7,12 @@ import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterv
 import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioResponse
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
+import io.craigmiller160.markettracker.portfolio.service.PortfolioConstants
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
 import io.craigmiller160.markettracker.portfolio.testutils.userTypedId
 import io.craigmiller160.markettracker.portfolio.web.types.ErrorResponse
+import io.craigmiller160.markettracker.portfolio.web.types.PortfolioResponse
 import io.craigmiller160.markettracker.portfolio.web.types.SharesOwnedResponse
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -76,9 +78,25 @@ constructor(
   }
 
   @Test
-  fun `gets list of portfolio names for user`() {
+  fun `gets list of portfolios for user`() {
     val data = createData(10, 100)
-    val expectedResponse = data.portfolios.drop(1).map { it.toPortfolioResponse() }
+
+    val portfolios = data.portfolios.drop(1)
+    val sharesOwned = data.sharesOwned.filter { so -> portfolios.any { it.id == so.portfolioId } }
+    val baseExpectedResponse =
+        portfolios.map { portfolio ->
+          val stocks =
+              sharesOwned.filter { it.portfolioId == portfolio.id }.map { it.symbol }.distinct()
+          portfolio.toPortfolioResponse(stocks)
+        }
+    val combinedStocks = sharesOwned.map { it.symbol }.distinct()
+    val combinedPortfolio =
+        PortfolioResponse(
+            id = PortfolioConstants.COMBINED_PORTFOLIO_ID,
+            name = PortfolioConstants.COMBINED_PORTFOLIO_NAME,
+            stockSymbols = combinedStocks)
+    val expectedResponse = baseExpectedResponse + combinedPortfolio
+
     webTestClient
         .get()
         .uri("/portfolios")
@@ -88,61 +106,6 @@ constructor(
         .is2xxSuccessful
         .expectBody()
         .json(objectMapper.writeValueAsString(expectedResponse))
-  }
-
-  @Test
-  fun `gets list of stocks in portfolio for user`() {
-    val data = createData(10, 100)
-    webTestClient
-        .get()
-        .uri("/portfolios/${data.portfolios[1].id}/stocks")
-        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
-        .exchange()
-        .expectStatus()
-        .is2xxSuccessful
-        .expectBody()
-        .json(objectMapper.writeValueAsString(data.uniqueStocks))
-  }
-
-  @Test
-  fun `gets list of stocks in portfolio that the user does not own`() {
-    val data = createData(10, 100)
-    webTestClient
-        .get()
-        .uri("/portfolios/${data.portfolios[0].id}/stocks")
-        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
-        .exchange()
-        .expectStatus()
-        .is2xxSuccessful
-        .expectBody()
-        .json(objectMapper.writeValueAsString(listOf<String>()))
-  }
-
-  @Test
-  fun `gets a list of unique stocks for all portfolios combined`() {
-    val data = createData(10, 100)
-    val expectedResponse =
-        data.uniqueStocks
-            .flatMap { stock ->
-              (1..4).map { index ->
-                if (index % 2 == 0) {
-                  stock
-                } else {
-                  "$stock-$index"
-                }
-              }
-            }
-            .distinct()
-            .sorted()
-    webTestClient
-        .get()
-        .uri("/portfolios/combined/stocks")
-        .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
-        .exchange()
-        .expectStatus()
-        .is2xxSuccessful
-        .expectBody()
-        .json(objectMapper.writeValueAsString(data.uniqueStocks))
   }
 
   @Test
@@ -177,7 +140,8 @@ constructor(
 
     webTestClient
         .get()
-        .uri("/portfolios/combined/stocks/${params.stockSymbol}/history?${params.queryString}")
+        .uri(
+            "/portfolios/${PortfolioConstants.COMBINED_PORTFOLIO_ID}/stocks/${params.stockSymbol}/history?${params.queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -276,7 +240,8 @@ constructor(
 
     webTestClient
         .get()
-        .uri("/portfolios/combined/stocks/${params.stockSymbol}/history?${params.queryString}")
+        .uri(
+            "/portfolios/${PortfolioConstants.COMBINED_PORTFOLIO_ID}/stocks/${params.stockSymbol}/history?${params.queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -356,7 +321,7 @@ constructor(
 
     webTestClient
         .get()
-        .uri("/portfolios/combined/stocks/VTI/current")
+        .uri("/portfolios/${PortfolioConstants.COMBINED_PORTFOLIO_ID}/stocks/VTI/current")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -372,7 +337,7 @@ constructor(
 
     webTestClient
         .get()
-        .uri("/portfolios/combined/stocks/ABC/current")
+        .uri("/portfolios/${PortfolioConstants.COMBINED_PORTFOLIO_ID}/stocks/ABC/current")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -389,12 +354,14 @@ constructor(
     val response =
         ErrorResponse(
             method = "GET",
-            uri = "/portfolios/combined/stocks/VTI/history?${params.queryString}",
+            uri =
+                "/portfolios/${PortfolioConstants.COMBINED_PORTFOLIO_ID}/stocks/VTI/history?${params.queryString}",
             message = "Bad Request: ${params.message}",
             status = 400)
     webTestClient
         .get()
-        .uri("/portfolios/combined/stocks/VTI/history?${params.queryString}")
+        .uri(
+            "/portfolios/${PortfolioConstants.COMBINED_PORTFOLIO_ID}/stocks/VTI/history?${params.queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
