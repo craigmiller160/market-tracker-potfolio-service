@@ -3,6 +3,8 @@ package io.craigmiller160.markettracker.portfolio.web.routes
 import arrow.core.flatMap
 import arrow.core.getOrElse
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
+import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioResponse
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
@@ -14,6 +16,7 @@ import io.craigmiller160.markettracker.portfolio.testutils.userTypedId
 import io.craigmiller160.markettracker.portfolio.web.types.ErrorResponse
 import io.craigmiller160.markettracker.portfolio.web.types.PortfolioResponse
 import io.craigmiller160.markettracker.portfolio.web.types.SharesOwnedResponse
+import io.kotest.assertions.arrow.core.shouldBeRight
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -100,6 +103,10 @@ constructor(
     val data = createData(10, 100)
     val expectedResponse = getPortfolioResponse(data)
 
+    doGetListOfPortfolios(expectedResponse)
+  }
+
+  private fun doGetListOfPortfolios(expectedResponse: List<PortfolioResponse>) {
     webTestClient
         .get()
         .uri("/portfolios")
@@ -113,6 +120,31 @@ constructor(
 
   @Test
   fun `gets list of portfolios for user, with stocks filtered by date range`() {
+    val data = createData(10, 100)
+    val expectedResponse = getPortfolioResponse(data)
+
+    val maxDate = data.sharesOwned.maxBy { it.dateRangeStart }
+    runBlocking {
+      sharesOwnedRepo
+          .createAllSharesOwned(
+              listOf(
+                  SharesOwned(
+                      id = TypedId(),
+                      userId = defaultUsers.primaryUser.userTypedId,
+                      portfolioId = expectedResponse[0].id,
+                      dateRangeStart = maxDate.dateRangeStart.plusDays(10),
+                      dateRangeEnd = maxDate.dateRangeStart.plusDays(100),
+                      symbol = "ABC",
+                      totalShares = BigDecimal("10"))))
+          .shouldBeRight()
+    }
+
+    val fullExpectedResponse =
+        listOf(expectedResponse[0].copy(stockSymbols = expectedResponse[0].stockSymbols + "ABC")) +
+            expectedResponse.drop(1)
+
+    doGetListOfPortfolios(fullExpectedResponse)
+
     TODO()
   }
 
