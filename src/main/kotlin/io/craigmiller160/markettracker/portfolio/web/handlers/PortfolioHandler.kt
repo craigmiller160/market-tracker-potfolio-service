@@ -20,8 +20,11 @@ class PortfolioHandler(
     private val portfolioService: PortfolioService,
     private val sharesOwnedService: SharesOwnedService
 ) {
-  suspend fun getPortfolios(request: ServerRequest): ServerResponse =
-      portfolioService.getPortfolios().toResponse() // TODO needs start/end date pair
+  suspend fun getPortfolios(request: ServerRequest): ServerResponse {
+    val startDate = request.optionalStartDate
+    val endDate = request.optionalEndDate
+    return portfolioService.getPortfolios(startDate, endDate).toResponse()
+  }
 
   suspend fun getSharesOwnedForPortfolioStock(request: ServerRequest): ServerResponse {
     val portfolioId = request.portfolioId

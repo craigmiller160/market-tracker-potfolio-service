@@ -11,6 +11,7 @@ import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepo
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.web.types.PortfolioResponse
+import java.time.LocalDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -23,7 +24,11 @@ class PortfolioService(
     private val sharesOwnedRepository: SharesOwnedRepository,
     private val authorizationService: AuthorizationService
 ) {
-  suspend fun getPortfolios(): TryEither<List<PortfolioResponse>> {
+  suspend fun getPortfolios(
+      startDate: LocalDate?,
+      endDate: LocalDate?
+  ): TryEither<List<PortfolioResponse>> {
+    // TODO integrate dates into query
     val userId = authorizationService.getUserId()
     return either {
       val allPortfolios =
