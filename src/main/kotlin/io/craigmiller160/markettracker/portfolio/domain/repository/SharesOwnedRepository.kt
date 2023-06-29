@@ -14,10 +14,16 @@ interface SharesOwnedRepository {
   suspend fun createAllSharesOwned(sharesOwned: List<SharesOwned>): TryEither<List<SharesOwned>>
   suspend fun findUniqueStocksInPortfolio(
       userId: TypedId<UserId>,
-      portfolioId: TypedId<PortfolioId>
+      portfolioId: TypedId<PortfolioId>,
+      startDate: LocalDate?,
+      endDate: LocalDate?
   ): TryEither<List<String>>
 
-  suspend fun findUniqueStocksForUser(userId: TypedId<UserId>): TryEither<List<String>>
+  suspend fun findUniqueStocksForUser(
+      userId: TypedId<UserId>,
+      startDate: LocalDate?,
+      endDate: LocalDate?
+  ): TryEither<List<String>>
 
   suspend fun getSharesOwnedAtIntervalInPortfolio(
       userId: TypedId<UserId>,

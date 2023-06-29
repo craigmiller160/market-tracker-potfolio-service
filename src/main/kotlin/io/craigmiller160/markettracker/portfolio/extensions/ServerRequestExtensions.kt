@@ -21,3 +21,6 @@ fun <T> ServerRequest.requiredQueryParam(name: String, parser: (String) -> T): T
               .bind()
         }
         .getOrElse { throw it }
+
+fun <T> ServerRequest.optionalQueryParam(name: String, parser: (String) -> T): T? =
+    queryParam(name).map { parser(it) }.orElse(null)

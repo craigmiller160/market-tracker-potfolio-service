@@ -11,6 +11,7 @@ import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepo
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.web.types.PortfolioResponse
+import java.time.LocalDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -23,22 +24,29 @@ class PortfolioService(
     private val sharesOwnedRepository: SharesOwnedRepository,
     private val authorizationService: AuthorizationService
 ) {
-  suspend fun getPortfolios(): TryEither<List<PortfolioResponse>> {
+  suspend fun getPortfolios(
+      startDate: LocalDate?,
+      endDate: LocalDate?
+  ): TryEither<List<PortfolioResponse>> {
     val userId = authorizationService.getUserId()
     return either {
       val allPortfolios =
           portfolioRepository
               .findAllForUser(userId)
-              .flatMap { getStocksAndBuildResponse(userId, it) }
+              .flatMap { getStocksAndBuildResponse(userId, it, startDate, endDate) }
               .bind()
 
-      val combinedPortfolio = getCombinedPortfolio(userId).bind()
+      val combinedPortfolio = getCombinedPortfolio(userId, startDate, endDate).bind()
       allPortfolios + combinedPortfolio
     }
   }
 
-  private suspend fun getCombinedPortfolio(userId: TypedId<UserId>): TryEither<PortfolioResponse> =
-      sharesOwnedRepository.findUniqueStocksForUser(userId).map { stocks ->
+  private suspend fun getCombinedPortfolio(
+      userId: TypedId<UserId>,
+      startDate: LocalDate?,
+      endDate: LocalDate?
+  ): TryEither<PortfolioResponse> =
+      sharesOwnedRepository.findUniqueStocksForUser(userId, startDate, endDate).map { stocks ->
         PortfolioResponse(
             id = PortfolioConstants.COMBINED_PORTFOLIO_ID,
             name = PortfolioConstants.COMBINED_PORTFOLIO_NAME,
@@ -47,15 +55,16 @@ class PortfolioService(
 
   private suspend fun getStocksAndBuildResponse(
       userId: TypedId<UserId>,
-      portfolios: List<Portfolio>
+      portfolios: List<Portfolio>,
+      startDate: LocalDate?,
+      endDate: LocalDate?
   ): TryEither<List<PortfolioResponse>> =
       portfolios
           .map { portfolio ->
             CoroutineScope(Dispatchers.IO).async {
-              sharesOwnedRepository.findUniqueStocksInPortfolio(userId, portfolio.id).map { stocks
-                ->
-                portfolio.toPortfolioResponse(stocks)
-              }
+              sharesOwnedRepository
+                  .findUniqueStocksInPortfolio(userId, portfolio.id, startDate, endDate)
+                  .map { stocks -> portfolio.toPortfolioResponse(stocks) }
             }
           }
           .awaitAll()

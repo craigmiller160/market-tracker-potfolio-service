@@ -3,6 +3,8 @@ package io.craigmiller160.markettracker.portfolio.web.routes
 import arrow.core.flatMap
 import arrow.core.getOrElse
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
+import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioResponse
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
@@ -14,8 +16,10 @@ import io.craigmiller160.markettracker.portfolio.testutils.userTypedId
 import io.craigmiller160.markettracker.portfolio.web.types.ErrorResponse
 import io.craigmiller160.markettracker.portfolio.web.types.PortfolioResponse
 import io.craigmiller160.markettracker.portfolio.web.types.SharesOwnedResponse
+import io.kotest.assertions.arrow.core.shouldBeRight
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.stream.Stream
 import kotlinx.coroutines.runBlocking
@@ -40,17 +44,17 @@ constructor(
     fun sharesOwnedForStock(): Stream<CoreSharesOwnedRouteParams> =
         Stream.of(
             CoreSharesOwnedRouteParams(
-                "VTI", LocalDate.now(), LocalDate.now().plusDays(1), SharesOwnedInterval.SINGLE),
+                "VTI", BASE_DATE, BASE_DATE.plusDays(1), SharesOwnedInterval.SINGLE),
             CoreSharesOwnedRouteParams(
-                "VTI", LocalDate.now(), LocalDate.now().plusDays(7), SharesOwnedInterval.DAILY),
+                "VTI", BASE_DATE, BASE_DATE.plusDays(7), SharesOwnedInterval.DAILY),
             CoreSharesOwnedRouteParams(
-                "VTI", LocalDate.now(), LocalDate.now().plusMonths(1), SharesOwnedInterval.DAILY),
+                "VTI", BASE_DATE, BASE_DATE.plusMonths(1), SharesOwnedInterval.DAILY),
             CoreSharesOwnedRouteParams(
-                "VTI", LocalDate.now(), LocalDate.now().plusMonths(3), SharesOwnedInterval.DAILY),
+                "VTI", BASE_DATE, BASE_DATE.plusMonths(3), SharesOwnedInterval.DAILY),
             CoreSharesOwnedRouteParams(
-                "VTI", LocalDate.now(), LocalDate.now().plusYears(1), SharesOwnedInterval.WEEKLY),
+                "VTI", BASE_DATE, BASE_DATE.plusYears(1), SharesOwnedInterval.WEEKLY),
             CoreSharesOwnedRouteParams(
-                "VTI", LocalDate.now(), LocalDate.now().plusYears(5), SharesOwnedInterval.MONTHLY))
+                "VTI", BASE_DATE, BASE_DATE.plusYears(5), SharesOwnedInterval.MONTHLY))
 
     @JvmStatic
     fun sharesOwnedBadRequestParams(): Stream<Any> =
@@ -77,10 +81,7 @@ constructor(
     }
   }
 
-  @Test
-  fun `gets list of portfolios for user`() {
-    val data = createData(10, 100)
-
+  private fun getPortfolioResponse(data: PortfolioRouteData): List<PortfolioResponse> {
     val portfolios = data.portfolios.drop(1)
     val sharesOwned = data.sharesOwned.filter { so -> portfolios.any { it.id == so.portfolioId } }
     val baseExpectedResponse =
@@ -95,17 +96,64 @@ constructor(
             id = PortfolioConstants.COMBINED_PORTFOLIO_ID,
             name = PortfolioConstants.COMBINED_PORTFOLIO_NAME,
             stockSymbols = combinedStocks)
-    val expectedResponse = baseExpectedResponse + combinedPortfolio
+    return baseExpectedResponse + combinedPortfolio
+  }
 
+  @Test
+  fun `gets list of portfolios for user`() {
+    val data = createData(10, 100)
+    val expectedResponse = getPortfolioResponse(data)
+
+    doGetListOfPortfolios(expectedResponse)
+  }
+
+  private fun doGetListOfPortfolios(
+      expectedResponse: List<PortfolioResponse>,
+      queryString: String = ""
+  ) {
     webTestClient
         .get()
-        .uri("/portfolios")
+        .uri("/portfolios?${queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
         .is2xxSuccessful
         .expectBody()
         .json(objectMapper.writeValueAsString(expectedResponse))
+  }
+
+  @Test
+  fun `gets list of portfolios for user, with stocks filtered by date range`() {
+    val data = createData(10, 100)
+    val expectedResponse = getPortfolioResponse(data)
+
+    val maxDate = data.sharesOwned.maxBy { it.dateRangeStart }
+    runBlocking {
+      sharesOwnedRepo
+          .createAllSharesOwned(
+              listOf(
+                  SharesOwned(
+                      id = TypedId(),
+                      userId = defaultUsers.primaryUser.userTypedId,
+                      portfolioId = expectedResponse[0].id,
+                      dateRangeStart = maxDate.dateRangeStart.plusDays(10),
+                      dateRangeEnd = maxDate.dateRangeStart.plusDays(100),
+                      symbol = "ABC",
+                      totalShares = BigDecimal("10"))))
+          .shouldBeRight()
+    }
+
+    val fullExpectedResponse =
+        listOf(expectedResponse[0].copy(stockSymbols = expectedResponse[0].stockSymbols + "ABC")) +
+            expectedResponse.subList(1, 4) +
+            listOf(
+                expectedResponse[4].copy(stockSymbols = expectedResponse[4].stockSymbols + "ABC"))
+
+    doGetListOfPortfolios(fullExpectedResponse)
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val startDate = formatter.format(BASE_DATE)
+    val endDate = formatter.format(maxDate.dateRangeStart.minusDays(1))
+    doGetListOfPortfolios(expectedResponse, "startDate=$startDate&endDate=$endDate")
   }
 
   @Test

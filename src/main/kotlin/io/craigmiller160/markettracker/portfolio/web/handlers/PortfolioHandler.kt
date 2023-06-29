@@ -4,6 +4,7 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.toTypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
+import io.craigmiller160.markettracker.portfolio.extensions.optionalQueryParam
 import io.craigmiller160.markettracker.portfolio.extensions.pathVariable
 import io.craigmiller160.markettracker.portfolio.extensions.requiredQueryParam
 import io.craigmiller160.markettracker.portfolio.service.PortfolioService
@@ -19,8 +20,11 @@ class PortfolioHandler(
     private val portfolioService: PortfolioService,
     private val sharesOwnedService: SharesOwnedService
 ) {
-  suspend fun getPortfolios(request: ServerRequest): ServerResponse =
-      portfolioService.getPortfolios().toResponse()
+  suspend fun getPortfolios(request: ServerRequest): ServerResponse {
+    val startDate = request.optionalStartDate
+    val endDate = request.optionalEndDate
+    return portfolioService.getPortfolios(startDate, endDate).toResponse()
+  }
 
   suspend fun getSharesOwnedForPortfolioStock(request: ServerRequest): ServerResponse {
     val portfolioId = request.portfolioId
@@ -46,6 +50,11 @@ class PortfolioHandler(
 
   private val ServerRequest.stockSymbol: String
     get() = pathVariable("stockSymbol") { it }
+
+  private val ServerRequest.optionalStartDate: LocalDate?
+    get() = optionalQueryParam("startDate", LocalDate::parse)
+  private val ServerRequest.optionalEndDate: LocalDate?
+    get() = optionalQueryParam("endDate", LocalDate::parse)
 
   private val ServerRequest.startDate: LocalDate
     get() = requiredQueryParam("startDate", LocalDate::parse)
