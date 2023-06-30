@@ -16,3 +16,4 @@ GROUP BY td.the_date, so.user_id, so.symbol,
 CASE
     WHEN :portfolioId IS NOT NULL THEN so.portfolio_id
 END
+ORDER BY td.the_date ASC;
