@@ -28,7 +28,7 @@ dependencies {
     val kotlinResultVersion: String by project
     val kotestVersion: String by project
 
-    implementation("io.craigmiller160:spring-keycloak-oauth2-resource-server:1.0.0-SNAPSHOT")
+    implementation("io.craigmiller160:spring-keycloak-oauth2-resource-server:1.0.0")
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui")
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
