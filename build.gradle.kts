@@ -45,7 +45,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("io.craigmiller160:testcontainers-common:1.2.0-SNAPSHOT")
+    testImplementation("io.craigmiller160:testcontainers-common:1.2.0")
     implementation("org.flywaydb:flyway-core")
     implementation("io.github.craigmiller160:spring-fp-result-kt:2.0.0")
     implementation("io.arrow-kt:arrow-core:1.1.5")
