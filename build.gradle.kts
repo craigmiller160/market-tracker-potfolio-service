@@ -9,7 +9,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     kotlin("jvm")
     kotlin("plugin.spring")
-    id("io.craigmiller160.gradle.defaults") version "1.1.0"
+    id("io.craigmiller160.gradle.defaults") version "1.3.0-SNAPSHOT"
     id("com.diffplug.spotless") version "6.17.0"
     `maven-publish`
 }
@@ -73,3 +73,15 @@ configure<SpotlessExtension> {
         ktfmt("0.43")
     }
 }
+
+//tasks.withType(PublishToMavenRepository::class.java) {
+//    this.dependsOn(tasks.test)
+//    val publishToMavenTask = this
+//    tasks.withType(Test::class.java) {
+//        publishToMavenTask.mustRunAfter(this)
+//    }
+//}
+
+//afterEvaluate {
+//    tasks.getByName("publish«market-tracker-portfolio-service»PublicationTo«repository-name»Repository").dependsOn(tasks.test)
+//}
