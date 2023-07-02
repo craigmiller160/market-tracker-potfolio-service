@@ -1,5 +1,5 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.diffplug.gradle.spotless.SpotlessExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val projectGroup: String by project
 val projectVersion: String by project
@@ -73,15 +73,3 @@ configure<SpotlessExtension> {
         ktfmt("0.43")
     }
 }
-
-//tasks.withType(PublishToMavenRepository::class.java) {
-//    this.dependsOn(tasks.test)
-//    val publishToMavenTask = this
-//    tasks.withType(Test::class.java) {
-//        publishToMavenTask.mustRunAfter(this)
-//    }
-//}
-
-//afterEvaluate {
-//    tasks.getByName("publish«market-tracker-portfolio-service»PublicationTo«repository-name»Repository").dependsOn(tasks.test)
-//}
