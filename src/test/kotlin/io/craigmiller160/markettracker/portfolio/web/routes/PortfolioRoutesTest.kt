@@ -157,11 +157,6 @@ constructor(
   }
 
   @Test
-  fun `deliberately failing`() {
-    TODO()
-  }
-
-  @Test
   fun `get shares owned history for past week for stock that user does not have in portfolio`() {
     val coreParams =
         CoreSharesOwnedRouteParams(
