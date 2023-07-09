@@ -5,6 +5,7 @@ import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
+import io.craigmiller160.markettracker.portfolio.domain.DATE_RANGE_MAX
 import io.craigmiller160.markettracker.portfolio.domain.client.CoroutineDatabaseClient
 import io.craigmiller160.markettracker.portfolio.domain.client.paramsBuilder
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
@@ -154,6 +155,7 @@ class DatabaseClientSharesOwnedRepository(
     val params = paramsBuilder {
       this + ("userId" to userId.value)
       this + ("portfolioId" to portfolioId.value)
+      this + ("maxDate" to DATE_RANGE_MAX)
       this + ("symbol" to stockSymbol)
     }
     return sqlLoader
@@ -169,6 +171,7 @@ class DatabaseClientSharesOwnedRepository(
     val params = paramsBuilder {
       this + ("userId" to userId.value)
       this + ("symbol" to stockSymbol)
+      this + ("maxDate" to DATE_RANGE_MAX)
       this + ("portfolioId" to nullValue<UUID>())
     }
     return sqlLoader
