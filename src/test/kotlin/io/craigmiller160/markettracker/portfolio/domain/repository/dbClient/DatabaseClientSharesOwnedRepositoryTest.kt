@@ -58,12 +58,10 @@ constructor(
             "portfolio2Id" to PORTFOLIO_2_ID.value,
             "portfolio3Id" to PORTFOLIO_3_ID.value))
 
-    val result = runBlocking {
-      sharesOwnedRepo
-          .getCurrentSharesOwnedForStockInPortfolio(USER_1_ID, PORTFOLIO_1_ID, "VTI")
-          .shouldBeRight()
-    }
-    result.shouldBe(BigDecimal("20"))
+    runBlocking {
+          sharesOwnedRepo.getCurrentSharesOwnedForStockInPortfolio(USER_1_ID, PORTFOLIO_1_ID, "VTI")
+        }
+        .shouldBeRight(BigDecimal("20"))
   }
 
   @Test
