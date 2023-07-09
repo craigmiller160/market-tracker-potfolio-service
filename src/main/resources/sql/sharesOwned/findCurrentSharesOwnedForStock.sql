@@ -1,4 +1,4 @@
-SELECT SUM(so.total_shares)
+SELECT SUM(so.total_shares) AS total_shares
 FROM shares_owned so
 WHERE so.symbol = :symbol
 AND UPPER(date_range) = :maxDate
