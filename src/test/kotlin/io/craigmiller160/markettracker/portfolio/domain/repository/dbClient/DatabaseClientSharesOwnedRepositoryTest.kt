@@ -24,7 +24,6 @@ constructor(
     private val PORTFOLIO_1_ID = TypedId<PortfolioId>()
     private val PORTFOLIO_2_ID = TypedId<PortfolioId>()
     private val PORTFOLIO_3_ID = TypedId<PortfolioId>()
-    private const val STOCK = "VTI"
   }
 
   // TODO add to tests to ensure that other user data isn't pulled out
@@ -46,18 +45,11 @@ constructor(
             "portfolio3Id" to PORTFOLIO_3_ID,
             "user1Id" to USER_1_ID,
             "user2Id" to USER_2_ID))
-    executeScript(
-        "all_2.sql",
-        mapOf(
-            "stock" to STOCK,
-            "user2Id" to USER_2_ID,
-            "portfolio3Id" to PORTFOLIO_3_ID,
-            "user1Id" to USER_1_ID,
-            "portfolio1Id" to PORTFOLIO_1_ID))
   }
 
   @Test
   fun `gets the current shares owned for stock in portfolio`() {
+    executeScript("getsTheCurrentSharesOwnedForStockInPortfolio.sql", mapOf())
     TODO()
   }
 
