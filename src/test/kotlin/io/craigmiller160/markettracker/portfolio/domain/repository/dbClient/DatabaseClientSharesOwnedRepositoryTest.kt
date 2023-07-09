@@ -74,11 +74,11 @@ constructor(
     executeScript(
         "getsTheCurrentSharesOwnedForStockInAllPortfoliosCombined.sql",
         mapOf(
-            "user1Id" to USER_1_ID,
-            "user2Id" to USER_2_ID,
-            "portfolio1Id" to PORTFOLIO_1_ID,
-            "portfolio2Id" to PORTFOLIO_2_ID,
-            "portfolio3Id" to PORTFOLIO_3_ID))
+            "user1Id" to USER_1_ID.value,
+            "user2Id" to USER_2_ID.value,
+            "portfolio1Id" to PORTFOLIO_1_ID.value,
+            "portfolio2Id" to PORTFOLIO_2_ID.value,
+            "portfolio3Id" to PORTFOLIO_3_ID.value))
     val result = runBlocking {
       sharesOwnedRepo.getCurrentSharesOwnedForStockForUser(USER_1_ID, "VTI").shouldBeRight()
     }
