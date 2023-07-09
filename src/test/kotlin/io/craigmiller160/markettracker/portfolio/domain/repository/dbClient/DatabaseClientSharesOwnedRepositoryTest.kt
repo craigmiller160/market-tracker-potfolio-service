@@ -6,7 +6,6 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.client.CoroutineDatabaseClient
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.kotest.assertions.arrow.core.shouldBeRight
-import io.kotest.matchers.shouldBe
 import java.math.BigDecimal
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
@@ -74,10 +73,8 @@ constructor(
             "portfolio1Id" to PORTFOLIO_1_ID.value,
             "portfolio2Id" to PORTFOLIO_2_ID.value,
             "portfolio3Id" to PORTFOLIO_3_ID.value))
-    val result = runBlocking {
-      sharesOwnedRepo.getCurrentSharesOwnedForStockForUser(USER_1_ID, "VTI").shouldBeRight()
-    }
-    result.shouldBe(BigDecimal("35"))
+    runBlocking { sharesOwnedRepo.getCurrentSharesOwnedForStockForUser(USER_1_ID, "VTI") }
+        .shouldBeRight(BigDecimal("35"))
   }
 
   @Test
