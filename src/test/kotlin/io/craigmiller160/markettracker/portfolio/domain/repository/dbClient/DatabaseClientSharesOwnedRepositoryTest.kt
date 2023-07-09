@@ -5,6 +5,9 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.client.CoroutineDatabaseClient
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
+import io.kotest.assertions.arrow.core.shouldBeRight
+import io.kotest.matchers.shouldBe
+import java.math.BigDecimal
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -15,8 +18,7 @@ class DatabaseClientSharesOwnedRepositoryTest
 @Autowired
 constructor(
     private val client: CoroutineDatabaseClient,
-    private val sharesOwnedRepo: DatabaseClientSharesOwnedRepository,
-    private val portfolioRepo: DatabaseClientPortfolioRepository
+    private val sharesOwnedRepo: DatabaseClientSharesOwnedRepository
 ) {
   companion object {
     private val USER_1_ID = TypedId<UserId>()
@@ -57,7 +59,12 @@ constructor(
             "portfolio1Id" to PORTFOLIO_1_ID,
             "portfolio2Id" to PORTFOLIO_2_ID,
             "portfolio3Id" to PORTFOLIO_3_ID))
-    TODO()
+    val result = runBlocking {
+      sharesOwnedRepo
+          .getCurrentSharesOwnedForStockInPortfolio(USER_1_ID, PORTFOLIO_1_ID, "VTI")
+          .shouldBeRight()
+    }
+    result.shouldBe(BigDecimal("20"))
   }
 
   @Test
