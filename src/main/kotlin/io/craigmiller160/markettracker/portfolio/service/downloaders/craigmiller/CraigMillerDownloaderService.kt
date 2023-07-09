@@ -16,6 +16,8 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig
+import io.craigmiller160.markettracker.portfolio.domain.DATE_RANGE_MAX
+import io.craigmiller160.markettracker.portfolio.domain.DATE_RANGE_MIN
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
@@ -128,7 +130,7 @@ class CraigMillerDownloaderService(
             userId = downloaderConfig.userId,
             portfolioId = portfolioId,
             dateRangeStart = record.date,
-            dateRangeEnd = DownloaderService.MAX_DATE,
+            dateRangeEnd = DATE_RANGE_MAX,
             symbol = record.symbol,
             totalShares = record.shares)
     OwnershipContext(
@@ -221,7 +223,7 @@ private fun ownershipContextMonoid(
         val lastSharesOwned = sharesOwnedList.lastOrNull()
         val lastTotalShares = lastSharesOwned?.totalShares ?: BigDecimal("0")
         val replaceLastSharesOwned =
-            lastSharesOwned?.dateRangeStart == b.record?.date ?: DownloaderService.MIN_DATE
+            lastSharesOwned?.dateRangeStart == b.record?.date ?: DATE_RANGE_MIN
 
         val totalShares =
             when (b.record?.action) {
@@ -236,8 +238,8 @@ private fun ownershipContextMonoid(
                 id = TypedId(),
                 userId = userId,
                 portfolioId = portfolioId,
-                dateRangeStart = b.record?.date ?: DownloaderService.MIN_DATE,
-                dateRangeEnd = DownloaderService.MAX_DATE,
+                dateRangeStart = b.record?.date ?: DATE_RANGE_MIN,
+                dateRangeEnd = DATE_RANGE_MAX,
                 symbol = b.record?.symbol ?: "",
                 totalShares = totalShares)
 
@@ -251,7 +253,7 @@ private fun ownershipContextMonoid(
                       lastSharesOwned?.let { lastSharesOwnedReal ->
                         list[list.size - 1] =
                             lastSharesOwnedReal.copy(
-                                dateRangeEnd = b.record?.date ?: DownloaderService.MAX_DATE)
+                                dateRangeEnd = b.record?.date ?: DATE_RANGE_MAX)
                       }
                       list += newSharesOwned
                     }
