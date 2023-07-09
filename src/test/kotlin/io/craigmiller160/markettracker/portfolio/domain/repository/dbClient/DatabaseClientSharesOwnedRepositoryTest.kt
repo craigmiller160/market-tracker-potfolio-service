@@ -5,6 +5,7 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.client.CoroutineDatabaseClient
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,7 +29,27 @@ constructor(
 
   // TODO add to tests to ensure that other user data isn't pulled out
 
-  @BeforeEach fun setup() {}
+  private fun executeScript(name: String, params: Map<String, Any>) =
+      javaClass.classLoader
+          .getResourceAsStream("sql/databaseClientSharesOwnedRepositoryTest/$name")!!
+          .bufferedReader()
+          .readText()
+          .let { sql -> runBlocking { client.update(sql, params) } }
+
+  @BeforeEach
+  fun setup() {
+    executeScript(
+        "all_1.sql",
+        mapOf(
+            "portfolio1Id" to PORTFOLIO_1_ID,
+            "portfolio2Id" to PORTFOLIO_2_ID,
+            "portfolio3Id" to PORTFOLIO_3_ID,
+            "user1Id" to USER_1_ID,
+            "user2Id" to USER_2_ID))
+    executeScript(
+        "all_2.sql",
+        mapOf("stock" to STOCK, "user2Id" to USER_2_ID, "portfolio3Id" to PORTFOLIO_3_ID))
+  }
 
   @Test
   fun `gets the current shares owned for stock in portfolio`() {
