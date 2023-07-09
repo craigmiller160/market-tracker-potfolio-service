@@ -28,8 +28,6 @@ constructor(
     private val PORTFOLIO_3_ID = TypedId<PortfolioId>()
   }
 
-  // TODO add to tests to ensure that other user data isn't pulled out
-
   private fun executeScript(name: String, params: Map<String, Any>) =
       javaClass.classLoader
           .getResourceAsStream("sql/databaseClientSharesOwnedRepositoryTest/$name")!!
