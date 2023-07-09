@@ -48,7 +48,12 @@ constructor(
             "user2Id" to USER_2_ID))
     executeScript(
         "all_2.sql",
-        mapOf("stock" to STOCK, "user2Id" to USER_2_ID, "portfolio3Id" to PORTFOLIO_3_ID))
+        mapOf(
+            "stock" to STOCK,
+            "user2Id" to USER_2_ID,
+            "portfolio3Id" to PORTFOLIO_3_ID,
+            "user1Id" to USER_1_ID,
+            "portfolio1Id" to PORTFOLIO_1_ID))
   }
 
   @Test
