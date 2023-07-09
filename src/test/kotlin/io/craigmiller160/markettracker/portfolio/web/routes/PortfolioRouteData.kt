@@ -1,6 +1,7 @@
 package io.craigmiller160.markettracker.portfolio.web.routes
 
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
+import io.craigmiller160.markettracker.portfolio.domain.DATE_RANGE_MAX
 import io.craigmiller160.markettracker.portfolio.domain.models.BasePortfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
@@ -52,7 +53,12 @@ private fun createSharesOwned(
               portfolioId = portfolio.id,
               userId = portfolio.userId,
               dateRangeStart = BASE_DATE.plusDays(dateOffset),
-              dateRangeEnd = BASE_DATE.plusDays(dateOffset + offsetDays),
+              dateRangeEnd =
+                  if (index < numRecords - 1) {
+                    BASE_DATE.plusDays(dateOffset + offsetDays)
+                  } else {
+                    DATE_RANGE_MAX
+                  },
               symbol = symbol,
               totalShares = BigDecimal("${index + 1}"))
         }

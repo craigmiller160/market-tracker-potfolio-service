@@ -4,6 +4,7 @@ import arrow.core.flatMap
 import arrow.core.getOrElse
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
+import io.craigmiller160.markettracker.portfolio.domain.client.CoroutineDatabaseClient
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioResponse
@@ -37,7 +38,9 @@ constructor(
     private val portfolioRepo: PortfolioRepository,
     private val sharesOwnedRepo: SharesOwnedRepository,
     private val defaultUsers: DefaultUsers,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    // TODO delete below
+    private val client: CoroutineDatabaseClient
 ) {
   companion object {
     @JvmStatic
