@@ -1,8 +1,8 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
+import io.craigmiller160.markettracker.portfolio.domain.DATE_RANGE_MAX
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
-import io.craigmiller160.markettracker.portfolio.service.downloaders.DownloaderService
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -94,7 +94,7 @@ val TEST_DATA: List<SharesOwned> = createTestData {
 
 private class SharesOwnedBuilder {
   lateinit var start: LocalDate
-  var end: LocalDate = DownloaderService.MAX_DATE
+  var end: LocalDate = DATE_RANGE_MAX
   lateinit var symbol: String
   lateinit var amount: BigDecimal
 }
