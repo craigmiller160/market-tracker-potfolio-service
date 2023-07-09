@@ -10,7 +10,8 @@ class DatabaseClientSharesOwnedRepositoryTest
 @Autowired
 constructor(
     private val client: CoroutineDatabaseClient,
-    private val repo: DatabaseClientSharesOwnedRepository
+    private val sharesOwnedRepo: DatabaseClientSharesOwnedRepository,
+    private val portfolioRepo: DatabaseClientPortfolioRepository
 ) {
   @Test
   fun `gets the current shares owned for stock in portfolio`() {
