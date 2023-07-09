@@ -69,7 +69,20 @@ constructor(
 
   @Test
   fun `gets the current shares owned for stock in all portfolios combined`() {
-    TODO()
+    executeScript(
+        "getsTheCurrentSharesOwnedForStockInAllPortfoliosCombined.sql",
+        mapOf(
+            "user1Id" to USER_1_ID,
+            "user2Id" to USER_2_ID,
+            "portfolio1Id" to PORTFOLIO_1_ID,
+            "portfolio2Id" to PORTFOLIO_2_ID,
+            "portfolio3Id" to PORTFOLIO_3_ID))
+    val result = runBlocking {
+      sharesOwnedRepo
+          .getCurrentSharesOwnedForStockInPortfolio(USER_1_ID, PORTFOLIO_1_ID, "VTI")
+          .shouldBeRight()
+    }
+    result.shouldBe(BigDecimal("35"))
   }
 
   @Test
