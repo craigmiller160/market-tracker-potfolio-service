@@ -4,7 +4,6 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.client.CoroutineDatabaseClient
-import io.craigmiller160.markettracker.portfolio.domain.rowmappers.sharesOwnedRowMapper
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.shouldBe
@@ -58,8 +57,6 @@ constructor(
             "portfolio1Id" to PORTFOLIO_1_ID.value,
             "portfolio2Id" to PORTFOLIO_2_ID.value,
             "portfolio3Id" to PORTFOLIO_3_ID.value))
-
-    val fullData = runBlocking { client.query("SELECT * FROM shares_owned", sharesOwnedRowMapper) }
 
     val result = runBlocking {
       sharesOwnedRepo
