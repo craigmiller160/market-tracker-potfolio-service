@@ -45,7 +45,7 @@ constructor(
           listOf(
               LocalDate.of(2023, 1, 22) to BigDecimal("5"),
               LocalDate.of(2023, 1, 29) to BigDecimal("5"),
-              LocalDate.of(2023, 2, 5) to BigDecimal("5"))
+              LocalDate.of(2023, 2, 5) to BigDecimal("10"))
 
       val oneMonth =
           listOf(
@@ -71,7 +71,44 @@ constructor(
               oneMonth))
     }
 
-    @JvmStatic fun sharesOwnedAtIntervalForUser(): Stream<SharesAtIntervalAttempt> = TODO()
+    @JvmStatic
+    fun sharesOwnedAtIntervalForUser(): Stream<SharesAtIntervalAttempt> {
+      val oneDay =
+          listOf(
+              LocalDate.of(2023, 1, 30) to BigDecimal("11"),
+              LocalDate.of(2023, 1, 31) to BigDecimal("11"),
+              LocalDate.of(2023, 2, 1) to BigDecimal("21"),
+              LocalDate.of(2023, 2, 2) to BigDecimal("21"))
+
+      val oneWeek =
+          listOf(
+              LocalDate.of(2023, 1, 22) to BigDecimal("11"),
+              LocalDate.of(2023, 1, 29) to BigDecimal("11"),
+              LocalDate.of(2023, 2, 5) to BigDecimal("21"))
+
+      val oneMonth =
+          listOf(
+              LocalDate.of(2023, 1, 1) to BigDecimal("11"),
+              LocalDate.of(2023, 2, 1) to BigDecimal("21"),
+              LocalDate.of(2023, 3, 1) to BigDecimal("31"))
+
+      return Stream.of(
+          SharesAtIntervalAttempt(
+              SharesOwnedInterval.DAILY,
+              LocalDate.of(2023, 1, 30),
+              LocalDate.of(2023, 2, 2),
+              oneDay),
+          SharesAtIntervalAttempt(
+              SharesOwnedInterval.WEEKLY,
+              LocalDate.of(2023, 1, 22),
+              LocalDate.of(2023, 2, 5),
+              oneWeek),
+          SharesAtIntervalAttempt(
+              SharesOwnedInterval.MONTHLY,
+              LocalDate.of(2023, 1, 1),
+              LocalDate.of(2023, 3, 1),
+              oneMonth))
+    }
   }
 
   private fun executeScript(name: String, params: Map<String, Any>) =
