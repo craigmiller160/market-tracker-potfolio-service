@@ -157,7 +157,7 @@ constructor(
   @ParameterizedTest
   @MethodSource("sharesOwnedAtIntervalForUser")
   fun `gets the shares owned at an interval for stock in all portfolios combined`(
-      attempt: SharesOwnedInterval
+      attempt: SharesAtIntervalAttempt
   ) {
     executeScript(
         "getsTheSharesOwnedAtAnIntervalForStockInAllPortfoliosCombined.sql",
@@ -167,7 +167,21 @@ constructor(
             "portfolio1Id" to PORTFOLIO_1_ID.value,
             "portfolio2Id" to PORTFOLIO_2_ID.value,
             "portfolio3Id" to PORTFOLIO_3_ID.value))
-    TODO()
+    val expected =
+        attempt.expected.map { (date, amount) ->
+          SharesOwnedOnDate(
+              userId = USER_1_ID,
+              date = date,
+              symbol = "VTI",
+              totalShares = amount,
+              portfolioId = null)
+        }
+
+    runBlocking {
+          sharesOwnedRepo.getSharesOwnedAtIntervalForUser(
+              USER_1_ID, "VTI", attempt.start, attempt.end, attempt.interval)
+        }
+        .shouldBeRight(expected)
   }
 }
 
