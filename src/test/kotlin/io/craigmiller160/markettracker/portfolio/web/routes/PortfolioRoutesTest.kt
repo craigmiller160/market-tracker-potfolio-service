@@ -4,6 +4,7 @@ import arrow.core.flatMap
 import arrow.core.getOrElse
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
+import io.craigmiller160.markettracker.portfolio.domain.DATE_RANGE_MAX
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioResponse
@@ -362,8 +363,9 @@ constructor(
         data.sharesOwned
             .asSequence()
             .filter { it.symbol == "VTI" }
-            .maxBy { it.dateRangeStart }
-            .totalShares
+            .filter { it.userId == defaultUsers.primaryUser.userTypedId }
+            .filter { it.dateRangeEnd == DATE_RANGE_MAX }
+            .sumOf { it.totalShares }
 
     val response = SharesOwnedResponse(date = LocalDate.now(), totalShares = totalShares)
 
