@@ -40,12 +40,34 @@ constructor(
               LocalDate.of(2023, 2, 1) to BigDecimal("10"),
               LocalDate.of(2023, 2, 2) to BigDecimal("10"))
 
+      val oneWeek =
+          listOf(
+              LocalDate.of(2023, 1, 22) to BigDecimal("5"),
+              LocalDate.of(2023, 1, 29) to BigDecimal("5"),
+              LocalDate.of(2023, 2, 5) to BigDecimal("5"))
+
+      val oneMonth =
+          listOf(
+              LocalDate.of(2023, 1, 1) to BigDecimal("5"),
+              LocalDate.of(2023, 2, 1) to BigDecimal("10"),
+              LocalDate.of(2023, 3, 1) to BigDecimal("15"))
+
       return Stream.of(
           SharesAtIntervalAttempt(
               SharesOwnedInterval.DAILY,
               LocalDate.of(2023, 1, 30),
               LocalDate.of(2023, 2, 2),
-              oneDay))
+              oneDay),
+          SharesAtIntervalAttempt(
+              SharesOwnedInterval.WEEKLY,
+              LocalDate.of(2023, 1, 22),
+              LocalDate.of(2023, 2, 5),
+              oneWeek),
+          SharesAtIntervalAttempt(
+              SharesOwnedInterval.MONTHLY,
+              LocalDate.of(2023, 1, 1),
+              LocalDate.of(2023, 3, 1),
+              oneMonth))
     }
 
     @JvmStatic fun sharesOwnedAtIntervalForUser(): Stream<SharesAtIntervalAttempt> = TODO()
