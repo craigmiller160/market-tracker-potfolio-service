@@ -31,7 +31,22 @@ constructor(
     private val PORTFOLIO_2_ID = TypedId<PortfolioId>()
     private val PORTFOLIO_3_ID = TypedId<PortfolioId>()
 
-    @JvmStatic fun sharesOwnedAtIntervalForPortfolio(): Stream<SharesAtIntervalAttempt> = TODO()
+    @JvmStatic
+    fun sharesOwnedAtIntervalForPortfolio(): Stream<SharesAtIntervalAttempt> {
+      val oneDay =
+          listOf(
+              LocalDate.of(2023, 1, 30) to BigDecimal("5"),
+              LocalDate.of(2023, 1, 31) to BigDecimal("5"),
+              LocalDate.of(2023, 2, 1) to BigDecimal("10"),
+              LocalDate.of(2023, 2, 2) to BigDecimal("10"))
+
+      return Stream.of(
+          SharesAtIntervalAttempt(
+              SharesOwnedInterval.DAILY,
+              LocalDate.of(2023, 1, 30),
+              LocalDate.of(2023, 2, 2),
+              oneDay))
+    }
 
     @JvmStatic fun sharesOwnedAtIntervalForUser(): Stream<SharesAtIntervalAttempt> = TODO()
   }
