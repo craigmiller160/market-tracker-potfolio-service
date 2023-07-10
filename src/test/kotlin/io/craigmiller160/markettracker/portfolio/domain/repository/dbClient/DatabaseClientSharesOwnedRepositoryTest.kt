@@ -5,6 +5,7 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.client.CoroutineDatabaseClient
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
+import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedOnDate
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.kotest.assertions.arrow.core.shouldBeRight
 import java.math.BigDecimal
@@ -128,7 +129,21 @@ constructor(
   fun `gets the shares owned at an interval for stock in portfolio`(
       attempt: SharesAtIntervalAttempt
   ) {
-    TODO()
+    val expected =
+        attempt.expected.map { (date, amount) ->
+          SharesOwnedOnDate(
+              userId = USER_1_ID,
+              date = date,
+              symbol = "VTI",
+              totalShares = amount,
+              portfolioId = PORTFOLIO_1_ID)
+        }
+
+    runBlocking {
+          sharesOwnedRepo.getSharesOwnedAtIntervalInPortfolio(
+              USER_1_ID, PORTFOLIO_1_ID, "VTI", attempt.start, attempt.end, attempt.interval)
+        }
+        .shouldBeRight(expected)
   }
 
   @ParameterizedTest
