@@ -4,12 +4,17 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.client.CoroutineDatabaseClient
+import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedInterval
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.kotest.assertions.arrow.core.shouldBeRight
 import java.math.BigDecimal
+import java.time.LocalDate
+import java.util.stream.Stream
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 
 @MarketTrackerPortfolioIntegrationTest
@@ -25,6 +30,10 @@ constructor(
     private val PORTFOLIO_1_ID = TypedId<PortfolioId>()
     private val PORTFOLIO_2_ID = TypedId<PortfolioId>()
     private val PORTFOLIO_3_ID = TypedId<PortfolioId>()
+
+    @JvmStatic fun sharesOwnedAtIntervalForPortfolio(): Stream<SharesAtIntervalAttempt> = TODO()
+
+    @JvmStatic fun sharesOwnedAtIntervalForUser(): Stream<SharesAtIntervalAttempt> = TODO()
   }
 
   private fun executeScript(name: String, params: Map<String, Any>) =
@@ -77,13 +86,26 @@ constructor(
         .shouldBeRight(BigDecimal("35"))
   }
 
-  @Test
-  fun `gets the shares owned at an interval for stock in portfolio`() {
+  @ParameterizedTest
+  @MethodSource("sharesOwnedAtIntervalForPortfolio")
+  fun `gets the shares owned at an interval for stock in portfolio`(
+      attempt: SharesAtIntervalAttempt
+  ) {
     TODO()
   }
 
-  @Test
-  fun `gets the shares owned at an interval for stock in all portfolios combined`() {
+  @ParameterizedTest
+  @MethodSource("sharesOwnedAtIntervalForUser")
+  fun `gets the shares owned at an interval for stock in all portfolios combined`(
+      attempt: SharesOwnedInterval
+  ) {
     TODO()
   }
 }
+
+data class SharesAtIntervalAttempt(
+    val interval: SharesOwnedInterval,
+    val start: LocalDate,
+    val end: LocalDate,
+    val expected: List<Pair<LocalDate, BigDecimal>>
+)
