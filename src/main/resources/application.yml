@@ -39,9 +39,9 @@ downloaders:
       - name: Roth IRA
         sheet-id: 18BK_urWmKH_m9bZFVOpDzRDgqQ66gTwdnYil-xtKZK4
         values-range: Transactions
-      - name: Rollover IRA
-        sheet-id: 1Kuj9Ky_DYh0IsUgXx48rMKgRD7oU7O5xqwylNwx1VN0
-        values-range: Transactions
+#      - name: Rollover IRA
+#        sheet-id: 1Kuj9Ky_DYh0IsUgXx48rMKgRD7oU7O5xqwylNwx1VN0
+#        values-range: Transactions
 
 logging:
   level:
