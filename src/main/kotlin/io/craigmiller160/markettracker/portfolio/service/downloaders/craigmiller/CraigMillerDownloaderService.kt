@@ -21,6 +21,7 @@ import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHist
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.awaitBodyResult
+import io.craigmiller160.markettracker.portfolio.extensions.bindToList
 import io.craigmiller160.markettracker.portfolio.extensions.decodePrivateKeyPem
 import io.craigmiller160.markettracker.portfolio.extensions.retrieveSuccess
 import io.craigmiller160.markettracker.portfolio.service.downloaders.DownloaderService
@@ -73,7 +74,7 @@ class CraigMillerDownloaderService(
               .map { (name, response) ->
                 response.awaitBodyResult<GoogleSpreadsheetValues>().map { name to it }
               }
-              .sequence()
+              .bindToList()
         }
         .flatMap { responsesToPortfolios(it) }
         .also { log.info("Completed download of Craig Miller portfolio data") }
@@ -94,7 +95,7 @@ class CraigMillerDownloaderService(
     return response.values
         .drop(1)
         .map { CraigMillerTransactionRecord.fromRaw(it) }
-        .sequence()
+        .bindToList()
         .map { recordsToSharesOwned(portfolioId, it) }
         .map { ownershipHistory ->
           PortfolioWithHistory(
