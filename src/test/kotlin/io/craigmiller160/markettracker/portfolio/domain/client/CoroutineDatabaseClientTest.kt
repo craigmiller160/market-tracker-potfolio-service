@@ -2,11 +2,11 @@ package io.craigmiller160.markettracker.portfolio.domain.client
 
 import arrow.core.flatMap
 import arrow.core.getOrElse
-import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.BasePortfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.domain.rowmappers.portfolioRowMapper
+import io.craigmiller160.markettracker.portfolio.extensions.bindToList
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.collections.shouldHaveSize
@@ -71,7 +71,7 @@ constructor(
     val result = runBlocking {
       coroutineClient
           .query("SELECT id FROM portfolios WHERE name = :name", mapOf("name" to "abc"))
-          .flatMap { list -> list.map { it.getRequired("id", UUID::class) }.sequence() }
+          .flatMap { list -> list.map { it.getRequired("id", UUID::class) }.bindToList() }
     }
     result.shouldBeRight(listOf(expectedId))
   }
@@ -95,7 +95,7 @@ constructor(
 
     val result = runBlocking {
       coroutineClient.query(sql, nullParams).flatMap { list ->
-        list.map { it.getRequired("id", UUID::class) }.sequence()
+        list.map { it.getRequired("id", UUID::class) }.bindToList()
       }
     }
 

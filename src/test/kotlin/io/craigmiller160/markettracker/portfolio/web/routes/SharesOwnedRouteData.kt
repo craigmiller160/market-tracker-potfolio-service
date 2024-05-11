@@ -1,7 +1,5 @@
 package io.craigmiller160.markettracker.portfolio.web.routes
 
-import arrow.core.fold
-import arrow.typeclasses.Monoid
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
@@ -66,17 +64,13 @@ fun createSharesOwnedRouteData(
         sharesOwned
             .filter { record -> date >= record.dateRangeStart && date < record.dateRangeEnd }
             .map { it.totalShares }
-            .fold(totalSharesMonoid)
+            .fold(BigDecimal("0"), ::totalSharesCombine)
 
     SharesOwnedResponse(date = date, totalShares = totalShares)
   }
 }
 
-private val totalSharesMonoid: Monoid<BigDecimal> =
-    object : Monoid<BigDecimal> {
-      override fun empty(): BigDecimal = BigDecimal("0")
-      override fun BigDecimal.combine(b: BigDecimal): BigDecimal = this.add(b)
-    }
+private fun totalSharesCombine(a: BigDecimal, b: BigDecimal): BigDecimal = a.add(b)
 
 private fun createResponseDates(params: SharesOwnedRouteParams): List<LocalDate> {
   val (intervalCount, modifier) = getValuesForInterval(params)
