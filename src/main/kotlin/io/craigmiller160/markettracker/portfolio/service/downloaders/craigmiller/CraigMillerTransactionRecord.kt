@@ -1,7 +1,7 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
 import arrow.core.Either
-import arrow.core.continuations.either
+import arrow.core.raise.either
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.leftIfNull
 import io.craigmiller160.markettracker.portfolio.service.downloaders.DownloadParsingException
@@ -55,8 +55,7 @@ fun CraigMillerTransactionRecord.Companion.fromRaw(
       if (rawValidFields.size >= 5) Either.catch { BigDecimal(rawValidFields[4]) }
       else Either.Right(BigDecimal("0"))
 
-  return either
-      .eager {
+  return either {
         CraigMillerTransactionRecord(
             date = dateResult.bind(),
             action = actionResult.bind(),
