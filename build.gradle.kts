@@ -5,18 +5,19 @@ val projectGroup: String by project
 val projectVersion: String by project
 
 plugins {
-    id("org.springframework.boot") version "3.0.4"
-    id("io.spring.dependency-management") version "1.1.0"
+    id("org.springframework.boot") version "3.2.4"
+    id("io.spring.dependency-management") version "1.1.4"
     kotlin("jvm")
     kotlin("plugin.spring")
-    id("io.craigmiller160.gradle.defaults") version "1.2.2"
+    id("io.craigmiller160.gradle.defaults") version "1.3.0"
     id("com.diffplug.spotless") version "6.17.0"
     `maven-publish`
 }
 
 dependencyManagement {
     imports {
-        mavenBom("org.springdoc:springdoc-openapi:2.0.3")
+        mavenBom("org.springdoc:springdoc-openapi:2.5.0")
+        mavenBom("com.fasterxml.jackson:jackson-bom:2.17.0")
     }
 }
 
