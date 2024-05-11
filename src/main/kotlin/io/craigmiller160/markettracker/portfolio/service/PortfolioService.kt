@@ -2,7 +2,6 @@ package io.craigmiller160.markettracker.portfolio.service
 
 import arrow.core.flatMap
 import arrow.core.raise.either
-import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
@@ -10,6 +9,7 @@ import io.craigmiller160.markettracker.portfolio.domain.models.toPortfolioRespon
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
+import io.craigmiller160.markettracker.portfolio.extensions.bindToList
 import io.craigmiller160.markettracker.portfolio.web.types.PortfolioResponse
 import java.time.LocalDate
 import kotlinx.coroutines.CoroutineScope
@@ -68,5 +68,5 @@ class PortfolioService(
             }
           }
           .awaitAll()
-          .sequence()
+          .bindToList()
 }

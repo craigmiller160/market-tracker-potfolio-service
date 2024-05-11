@@ -3,7 +3,6 @@ package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmille
 import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.fold
-import arrow.core.sequence
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
@@ -84,7 +83,7 @@ class CraigMillerDownloaderService(
       responses: List<Pair<String, GoogleSpreadsheetValues>>
   ): TryEither<List<PortfolioWithHistory>> {
     log.debug("Parsing and formatting google spreadsheet responses")
-    return responses.map { (name, response) -> transformResponse(name, response) }.sequence()
+    return responses.map { (name, response) -> transformResponse(name, response) }.bindToList()
   }
 
   private fun transformResponse(
