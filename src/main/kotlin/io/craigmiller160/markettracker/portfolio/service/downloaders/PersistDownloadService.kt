@@ -1,12 +1,12 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders
 
 import arrow.core.flatMap
-import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.domain.models.Portfolio
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.domain.repository.PortfolioRepository
 import io.craigmiller160.markettracker.portfolio.domain.repository.SharesOwnedRepository
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
+import io.craigmiller160.markettracker.portfolio.extensions.bindToList
 import io.github.craigmiller160.fpresultkt.transaction.extensions.executeAndAwaitEither
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -24,7 +24,7 @@ class PersistDownloadService(
   ): TryEither<List<PortfolioWithHistory>> {
     log.info("Persisting portfolio data")
     return transactionOperator.executeAndAwaitEither {
-      deletePortfolios(portfolios).flatMap { portfolios.map { createPortfolio(it) }.sequence() }
+      deletePortfolios(portfolios).flatMap { portfolios.map { createPortfolio(it) }.bindToList() }
     }
   }
 

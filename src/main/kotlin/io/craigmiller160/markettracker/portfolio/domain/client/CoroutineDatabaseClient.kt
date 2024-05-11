@@ -3,10 +3,9 @@ package io.craigmiller160.markettracker.portfolio.domain.client
 import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.fold
-import arrow.core.sequence
-import arrow.typeclasses.Monoid
 import io.craigmiller160.markettracker.portfolio.domain.rowmappers.RowMapper
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
+import io.craigmiller160.markettracker.portfolio.extensions.bindToList
 import io.r2dbc.spi.Statement
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
@@ -34,7 +33,7 @@ class CoroutineDatabaseClient(private val databaseClient: DatabaseClient) {
       sql: String,
       rowMapper: RowMapper<T>,
       params: Map<String, Any> = mapOf()
-  ): TryEither<List<T>> = query(sql, params).flatMap { list -> list.map(rowMapper).sequence() }
+  ): TryEither<List<T>> = query(sql, params).flatMap { list -> list.map(rowMapper).bindToList() }
 
   suspend fun update(sql: String, params: Map<String, Any> = mapOf()): TryEither<Long> =
       Either.catch {
@@ -46,7 +45,7 @@ class CoroutineDatabaseClient(private val databaseClient: DatabaseClient) {
             .awaitSingle()
       }
 
-  @OptIn(kotlinx.coroutines.FlowPreview::class)
+  @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
   suspend fun batchUpdate(
       sql: String,
       paramBatches: List<List<Any>> = listOf()
@@ -75,21 +74,15 @@ class CoroutineDatabaseClient(private val databaseClient: DatabaseClient) {
 
 private typealias StatementBinder = (Statement) -> Statement
 
-private val statementBinderMonoid =
-    object : Monoid<StatementBinder> {
-      override fun empty(): StatementBinder = { it }
-      override fun StatementBinder.combine(b: StatementBinder): StatementBinder = { stmt ->
-        this(stmt).let(b)
-      }
+private fun statementBinderCombine(a: StatementBinder, b: StatementBinder): StatementBinder =
+    { stmt ->
+      a(stmt).let(b)
     }
 
-private val statementBatchBinderMonoid =
-    object : Monoid<StatementBinder> {
-      override fun empty(): StatementBinder = { it }
-      override fun StatementBinder.combine(b: StatementBinder): StatementBinder = { stmt ->
-        this(stmt).add()
-        b(stmt)
-      }
+private fun statementBatchBinderCombine(a: StatementBinder, b: StatementBinder): StatementBinder =
+    { stmt ->
+      a(stmt).add()
+      b(stmt)
     }
 
 private fun paramsToStatementBinder(params: List<Any>): StatementBinder =
@@ -102,25 +95,21 @@ private fun paramsToStatementBinder(params: List<Any>): StatementBinder =
             }
           }
         }
-        .fold(statementBinderMonoid)
+        .fold({ it }, ::statementBinderCombine)
 
 private fun paramBatchesToStatementBinder(paramBatches: List<List<Any>>): StatementBinder =
     paramBatches
         .map { params ->
           { stmt: Statement -> paramsToStatementBinder(params).let { fn -> fn(stmt) } }
         }
-        .fold(statementBatchBinderMonoid)
+        .fold({ it }, ::statementBatchBinderCombine)
 
 private typealias ExecuteSpecBinder = (GenericExecuteSpec) -> GenericExecuteSpec
 
-private val executeSpecBinderMonoid =
-    object : Monoid<ExecuteSpecBinder> {
-      override fun empty(): ExecuteSpecBinder = { it }
-      override fun ExecuteSpecBinder.combine(b: ExecuteSpecBinder): ExecuteSpecBinder =
-          { executeSpec ->
-            this(executeSpec).let(b)
-          }
-    }
+private fun executeSpecBinderCombine(
+    a: ExecuteSpecBinder,
+    b: ExecuteSpecBinder
+): ExecuteSpecBinder = { executeSpec -> a(executeSpec).let(b) }
 
 private fun paramsToExecuteSpecBinder(params: Map<String, Any>): ExecuteSpecBinder =
     params.entries
@@ -132,4 +121,4 @@ private fun paramsToExecuteSpecBinder(params: Map<String, Any>): ExecuteSpecBind
             }
           }
         }
-        .fold(executeSpecBinderMonoid)
+        .fold({ it }, ::executeSpecBinderCombine)

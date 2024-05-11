@@ -1,6 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.domain.rowmappers
 
-import arrow.core.continuations.either
+import arrow.core.raise.either
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwnedOnDate
 import java.math.BigDecimal
@@ -8,7 +8,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 val sharesOwnedOnDateRowMapper: RowMapper<SharesOwnedOnDate> = { row ->
-  either.eager {
+  either {
     val userId = row.getRequired("user_id", UUID::class).bind()
     val date = row.getRequired("date", LocalDate::class).bind()
     val symbol = row.getRequired("symbol", String::class).bind()

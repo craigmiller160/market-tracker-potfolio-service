@@ -15,8 +15,7 @@ class WebSecurityConfig(private val keycloakProvider: KeycloakOAuth2ResourceServ
   @Bean
   fun securityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain =
       http
-          .csrf()
-          .disable()
+          .csrf { it.disable() }
           .oauth2ResourceServer(keycloakProvider.provideWebFlux())
           .authorizeExchange {
             it.pathMatchers(

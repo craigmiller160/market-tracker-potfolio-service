@@ -3,8 +3,6 @@ package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmille
 import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.fold
-import arrow.core.sequence
-import arrow.typeclasses.Monoid
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
@@ -22,6 +20,7 @@ import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHist
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.awaitBodyResult
+import io.craigmiller160.markettracker.portfolio.extensions.bindToList
 import io.craigmiller160.markettracker.portfolio.extensions.decodePrivateKeyPem
 import io.craigmiller160.markettracker.portfolio.extensions.retrieveSuccess
 import io.craigmiller160.markettracker.portfolio.service.downloaders.DownloaderService
@@ -74,7 +73,7 @@ class CraigMillerDownloaderService(
               .map { (name, response) ->
                 response.awaitBodyResult<GoogleSpreadsheetValues>().map { name to it }
               }
-              .sequence()
+              .bindToList()
         }
         .flatMap { responsesToPortfolios(it) }
         .also { log.info("Completed download of Craig Miller portfolio data") }
@@ -84,7 +83,7 @@ class CraigMillerDownloaderService(
       responses: List<Pair<String, GoogleSpreadsheetValues>>
   ): TryEither<List<PortfolioWithHistory>> {
     log.debug("Parsing and formatting google spreadsheet responses")
-    return responses.map { (name, response) -> transformResponse(name, response) }.sequence()
+    return responses.map { (name, response) -> transformResponse(name, response) }.bindToList()
   }
 
   private fun transformResponse(
@@ -95,7 +94,7 @@ class CraigMillerDownloaderService(
     return response.values
         .drop(1)
         .map { CraigMillerTransactionRecord.fromRaw(it) }
-        .sequence()
+        .bindToList()
         .map { recordsToSharesOwned(portfolioId, it) }
         .map { ownershipHistory ->
           PortfolioWithHistory(
@@ -116,7 +115,9 @@ class CraigMillerDownloaderService(
           .filter { record -> !SYMBOL_EXCLUSIONS.any { regex -> regex.matches(record.symbol) } }
           .sortedWith(CraigMillerTransactionRecord.comparator)
           .map(initialRecord(portfolioId))
-          .fold(ownershipContextMonoid(downloaderConfig.userId, portfolioId))
+          .fold(
+              OwnershipContext(sharesOwnedMap = persistentMapOf()),
+              ownershipContextCombine(downloaderConfig.userId, portfolioId))
           .sharesOwnedMap
           .values
           .flatten()
@@ -211,54 +212,48 @@ private data class OwnershipContext(
     val record: CraigMillerTransactionRecord? = null
 )
 
-private fun ownershipContextMonoid(
+private fun ownershipContextCombine(
     userId: TypedId<UserId>,
     portfolioId: TypedId<PortfolioId>
-): Monoid<OwnershipContext> =
-    object : Monoid<OwnershipContext> {
-      override fun empty(): OwnershipContext = OwnershipContext(sharesOwnedMap = persistentMapOf())
+): (OwnershipContext, OwnershipContext) -> OwnershipContext = { ctx1, ctx2 ->
+  val sharesOwnedList = ctx1.sharesOwnedMap[ctx2.record?.symbol] ?: persistentListOf()
+  val lastSharesOwned = sharesOwnedList.lastOrNull()
+  val lastTotalShares = lastSharesOwned?.totalShares ?: BigDecimal("0")
+  val replaceLastSharesOwned =
+      lastSharesOwned?.dateRangeStart == ctx2.record?.date ?: DATE_RANGE_MIN
 
-      override fun OwnershipContext.combine(b: OwnershipContext): OwnershipContext {
-        val sharesOwnedList = this.sharesOwnedMap[b.record?.symbol] ?: persistentListOf()
-        val lastSharesOwned = sharesOwnedList.lastOrNull()
-        val lastTotalShares = lastSharesOwned?.totalShares ?: BigDecimal("0")
-        val replaceLastSharesOwned =
-            lastSharesOwned?.dateRangeStart == b.record?.date ?: DATE_RANGE_MIN
-
-        val totalShares =
-            when (b.record?.action) {
-              Action.BUY,
-              Action.BONUS -> lastTotalShares + b.record.shares
-              Action.SELL -> lastTotalShares - b.record.shares
-              else -> BigDecimal("0")
-            }
-
-        val newSharesOwned =
-            SharesOwned(
-                id = TypedId(),
-                userId = userId,
-                portfolioId = portfolioId,
-                dateRangeStart = b.record?.date ?: DATE_RANGE_MIN,
-                dateRangeEnd = DATE_RANGE_MAX,
-                symbol = b.record?.symbol ?: "",
-                totalShares = totalShares)
-
-        val newMap =
-            this.sharesOwnedMap.mutate { map ->
-              map[b.record?.symbol ?: ""] =
-                  sharesOwnedList.mutate { list ->
-                    if (replaceLastSharesOwned) {
-                      list[list.size - 1] = newSharesOwned
-                    } else {
-                      lastSharesOwned?.let { lastSharesOwnedReal ->
-                        list[list.size - 1] =
-                            lastSharesOwnedReal.copy(
-                                dateRangeEnd = b.record?.date ?: DATE_RANGE_MAX)
-                      }
-                      list += newSharesOwned
-                    }
-                  }
-            }
-        return OwnershipContext(sharesOwnedMap = newMap)
+  val totalShares =
+      when (ctx2.record?.action) {
+        Action.BUY,
+        Action.BONUS -> lastTotalShares + ctx2.record.shares
+        Action.SELL -> lastTotalShares - ctx2.record.shares
+        else -> BigDecimal("0")
       }
-    }
+
+  val newSharesOwned =
+      SharesOwned(
+          id = TypedId(),
+          userId = userId,
+          portfolioId = portfolioId,
+          dateRangeStart = ctx2.record?.date ?: DATE_RANGE_MIN,
+          dateRangeEnd = DATE_RANGE_MAX,
+          symbol = ctx2.record?.symbol ?: "",
+          totalShares = totalShares)
+
+  val newMap =
+      ctx1.sharesOwnedMap.mutate { map ->
+        map[ctx2.record?.symbol ?: ""] =
+            sharesOwnedList.mutate { list ->
+              if (replaceLastSharesOwned) {
+                list[list.size - 1] = newSharesOwned
+              } else {
+                lastSharesOwned?.let { lastSharesOwnedReal ->
+                  list[list.size - 1] =
+                      lastSharesOwnedReal.copy(dateRangeEnd = ctx2.record?.date ?: DATE_RANGE_MAX)
+                }
+                list += newSharesOwned
+              }
+            }
+      }
+  OwnershipContext(sharesOwnedMap = newMap)
+}

@@ -1,7 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.domain.repository.dbClient
 
 import arrow.core.flatMap
-import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
@@ -17,6 +16,7 @@ import io.craigmiller160.markettracker.portfolio.domain.rowmappers.currentShares
 import io.craigmiller160.markettracker.portfolio.domain.rowmappers.sharesOwnedOnDateRowMapper
 import io.craigmiller160.markettracker.portfolio.domain.sql.SqlLoader
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
+import io.craigmiller160.markettracker.portfolio.extensions.bindToList
 import io.craigmiller160.markettracker.portfolio.extensions.coFlatMap
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -74,7 +74,7 @@ class DatabaseClientSharesOwnedRepository(
     return sqlLoader
         .loadSql(FIND_UNIQUE_STOCKS_SQL)
         .flatMap { sql -> databaseClient.query(sql, params) }
-        .flatMap { list -> list.map { it.getRequired("symbol", String::class) }.sequence() }
+        .flatMap { list -> list.map { it.getRequired("symbol", String::class) }.bindToList() }
   }
 
   override suspend fun findUniqueStocksForUser(
@@ -91,7 +91,7 @@ class DatabaseClientSharesOwnedRepository(
     return sqlLoader
         .loadSql(FIND_UNIQUE_STOCKS_SQL)
         .flatMap { sql -> databaseClient.query(sql, params) }
-        .flatMap { list -> list.map { it.getRequired("symbol", String::class) }.sequence() }
+        .flatMap { list -> list.map { it.getRequired("symbol", String::class) }.bindToList() }
   }
 
   override suspend fun getSharesOwnedAtIntervalInPortfolio(

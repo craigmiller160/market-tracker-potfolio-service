@@ -2,6 +2,7 @@ package io.craigmiller160.markettracker.portfolio.extensions
 
 import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.raise.either
 import java.util.Optional
 
 typealias TryEither<T> = Either<Throwable, T>
@@ -21,4 +22,8 @@ fun <T> Optional<T>.leftIfEmpty(message: String = ""): TryEither<T> =
 
 inline fun <B, C> TryEither<B>.mapCatch(block: (B) -> C): TryEither<C> = flatMap { value ->
   Either.catch { block(value) }
+}
+
+fun <E, A> List<Either<E, A>>.bindToList(): Either<E, List<A>> = either {
+  this@bindToList.bindAll()
 }

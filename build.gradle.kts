@@ -1,28 +1,31 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val projectGroup: String by project
 val projectVersion: String by project
 
 plugins {
-    id("org.springframework.boot") version "3.0.4"
-    id("io.spring.dependency-management") version "1.1.0"
+    id("org.springframework.boot") version "3.2.4"
+    id("io.spring.dependency-management") version "1.1.4"
     kotlin("jvm")
     kotlin("plugin.spring")
-    id("io.craigmiller160.gradle.defaults") version "1.2.2"
+    id("io.craigmiller160.gradle.defaults") version "1.3.0"
     id("com.diffplug.spotless") version "6.17.0"
     `maven-publish`
 }
 
 dependencyManagement {
     imports {
-        mavenBom("org.springdoc:springdoc-openapi:2.0.3")
+        mavenBom("org.springdoc:springdoc-openapi:2.5.0")
+        mavenBom("com.fasterxml.jackson:jackson-bom:2.17.0")
     }
 }
 
 group = projectGroup
 version = projectVersion
-java.sourceCompatibility = JavaVersion.VERSION_19
+java.sourceCompatibility = JavaVersion.VERSION_20
 
 dependencies {
     val kotlinResultVersion: String by project
@@ -48,19 +51,20 @@ dependencies {
     testImplementation("io.craigmiller160:testcontainers-common:1.2.0")
     implementation("org.flywaydb:flyway-core")
     implementation("io.github.craigmiller160:spring-fp-result-kt:2.0.0")
-    implementation("io.arrow-kt:arrow-core:1.1.5")
+    implementation("io.arrow-kt:arrow-core:1.2.4")
 
     testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
     testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.5")
-    testImplementation("io.mockk:mockk:1.13.4")
-    testImplementation("io.kotest.extensions:kotest-assertions-arrow:1.3.0")
+    testImplementation("io.mockk:mockk:1.13.10")
+    testImplementation("io.kotest.extensions:kotest-assertions-arrow:1.4.0")
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions {
+    compilerOptions {
+        apiVersion.set(KotlinVersion.KOTLIN_2_0)
         freeCompilerArgs = listOf("-Xjsr305=strict", "-Xcontext-receivers")
-        jvmTarget = "19"
+        jvmTarget.set(JvmTarget.JVM_20)
     }
 }
 

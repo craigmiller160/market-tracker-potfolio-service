@@ -1,7 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders
 
 import arrow.core.flatMap
-import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
@@ -12,6 +11,7 @@ import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHist
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.domain.rowmappers.portfolioRowMapper
 import io.craigmiller160.markettracker.portfolio.domain.rowmappers.sharesOwnedRowMapper
+import io.craigmiller160.markettracker.portfolio.extensions.bindToList
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.collections.shouldHaveSize
@@ -123,11 +123,11 @@ constructor(
   private suspend fun getPortfolios(): List<Portfolio> =
       databaseClient
           .query("SELECT * FROM portfolios")
-          .flatMap { list -> list.map(portfolioRowMapper).sequence() }
+          .flatMap { list -> list.map(portfolioRowMapper).bindToList() }
           .shouldBeRight()
   private suspend fun getSharesOwned(): List<SharesOwned> =
       databaseClient
           .query("SELECT * FROM shares_owned")
-          .flatMap { list -> list.map(sharesOwnedRowMapper).sequence() }
+          .flatMap { list -> list.map(sharesOwnedRowMapper).bindToList() }
           .shouldBeRight()
 }
