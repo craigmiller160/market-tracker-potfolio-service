@@ -113,14 +113,10 @@ private fun paramBatchesToStatementBinder(paramBatches: List<List<Any>>): Statem
 
 private typealias ExecuteSpecBinder = (GenericExecuteSpec) -> GenericExecuteSpec
 
-private val executeSpecBinderMonoid =
-    object : Monoid<ExecuteSpecBinder> {
-      override fun empty(): ExecuteSpecBinder = { it }
-      override fun ExecuteSpecBinder.combine(b: ExecuteSpecBinder): ExecuteSpecBinder =
-          { executeSpec ->
-            this(executeSpec).let(b)
-          }
-    }
+private fun executeSpecBinderCombine(
+    a: ExecuteSpecBinder,
+    b: ExecuteSpecBinder
+): ExecuteSpecBinder = { executeSpec -> a(executeSpec).let(b) }
 
 private fun paramsToExecuteSpecBinder(params: Map<String, Any>): ExecuteSpecBinder =
     params.entries
@@ -132,4 +128,4 @@ private fun paramsToExecuteSpecBinder(params: Map<String, Any>): ExecuteSpecBind
             }
           }
         }
-        .fold(executeSpecBinderMonoid)
+        .fold({ it }, ::executeSpecBinderCombine)
