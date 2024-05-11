@@ -3,9 +3,9 @@ package io.craigmiller160.markettracker.portfolio.domain.client
 import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.fold
-import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.domain.rowmappers.RowMapper
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
+import io.craigmiller160.markettracker.portfolio.extensions.bindToList
 import io.r2dbc.spi.Statement
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
@@ -33,7 +33,7 @@ class CoroutineDatabaseClient(private val databaseClient: DatabaseClient) {
       sql: String,
       rowMapper: RowMapper<T>,
       params: Map<String, Any> = mapOf()
-  ): TryEither<List<T>> = query(sql, params).flatMap { list -> list.map(rowMapper).sequence() }
+  ): TryEither<List<T>> = query(sql, params).flatMap { list -> list.map(rowMapper).bindToList() }
 
   suspend fun update(sql: String, params: Map<String, Any> = mapOf()): TryEither<Long> =
       Either.catch {
@@ -45,7 +45,7 @@ class CoroutineDatabaseClient(private val databaseClient: DatabaseClient) {
             .awaitSingle()
       }
 
-  @OptIn(kotlinx.coroutines.FlowPreview::class)
+  @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
   suspend fun batchUpdate(
       sql: String,
       paramBatches: List<List<Any>> = listOf()
