@@ -1,8 +1,8 @@
 package io.craigmiller160.markettracker.portfolio.extensions
 
 import arrow.core.Either
-import arrow.core.continuations.either
 import arrow.core.getOrElse
+import arrow.core.raise.either
 import io.craigmiller160.markettracker.portfolio.web.exceptions.BadRequestException
 import io.craigmiller160.markettracker.portfolio.web.exceptions.MissingParameterException
 import org.springframework.web.reactive.function.server.ServerRequest
@@ -12,8 +12,7 @@ fun <T> ServerRequest.pathVariable(name: String, parser: (String) -> T): T =
         .getOrElse { throw BadRequestException("Error parsing path variable $name", it) }
 
 fun <T> ServerRequest.requiredQueryParam(name: String, parser: (String) -> T): T =
-    either
-        .eager {
+    either {
           val paramString =
               queryParam(name).leftIfEmpty().mapLeft { MissingParameterException(name) }.bind()
           Either.catch { parser(paramString) }

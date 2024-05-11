@@ -1,13 +1,13 @@
 package io.craigmiller160.markettracker.portfolio.domain.rowmappers
 
-import arrow.core.continuations.either
+import arrow.core.raise.either
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import java.math.BigDecimal
 import java.util.UUID
 
 val sharesOwnedRowMapper: RowMapper<SharesOwned> = { row ->
-  either.eager {
+  either {
     val dateRangeString = row.getRequired("date_range", String::class).bind()
     val id = row.getRequired("id", UUID::class).bind()
     val userId = row.getRequired("user_id", UUID::class).bind()

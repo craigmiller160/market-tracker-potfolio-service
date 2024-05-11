@@ -1,7 +1,7 @@
 package io.craigmiller160.markettracker.portfolio.service
 
-import arrow.core.continuations.either
 import arrow.core.flatMap
+import arrow.core.raise.either
 import arrow.core.sequence
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
