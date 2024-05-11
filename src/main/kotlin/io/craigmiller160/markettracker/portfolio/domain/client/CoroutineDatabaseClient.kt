@@ -4,7 +4,6 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.fold
 import arrow.core.sequence
-import arrow.typeclasses.Monoid
 import io.craigmiller160.markettracker.portfolio.domain.rowmappers.RowMapper
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.r2dbc.spi.Statement
@@ -75,21 +74,15 @@ class CoroutineDatabaseClient(private val databaseClient: DatabaseClient) {
 
 private typealias StatementBinder = (Statement) -> Statement
 
-private val statementBinderMonoid =
-    object : Monoid<StatementBinder> {
-      override fun empty(): StatementBinder = { it }
-      override fun StatementBinder.combine(b: StatementBinder): StatementBinder = { stmt ->
-        this(stmt).let(b)
-      }
+private fun statementBinderCombine(a: StatementBinder, b: StatementBinder): StatementBinder =
+    { stmt ->
+      a(stmt).let(b)
     }
 
-private val statementBatchBinderMonoid =
-    object : Monoid<StatementBinder> {
-      override fun empty(): StatementBinder = { it }
-      override fun StatementBinder.combine(b: StatementBinder): StatementBinder = { stmt ->
-        this(stmt).add()
-        b(stmt)
-      }
+private fun statementBatchBinderCombine(a: StatementBinder, b: StatementBinder): StatementBinder =
+    { stmt ->
+      a(stmt).add()
+      b(stmt)
     }
 
 private fun paramsToStatementBinder(params: List<Any>): StatementBinder =
@@ -102,14 +95,14 @@ private fun paramsToStatementBinder(params: List<Any>): StatementBinder =
             }
           }
         }
-        .fold(statementBinderMonoid)
+        .fold({ it }, ::statementBinderCombine)
 
 private fun paramBatchesToStatementBinder(paramBatches: List<List<Any>>): StatementBinder =
     paramBatches
         .map { params ->
           { stmt: Statement -> paramsToStatementBinder(params).let { fn -> fn(stmt) } }
         }
-        .fold(statementBatchBinderMonoid)
+        .fold({ it }, ::statementBatchBinderCombine)
 
 private typealias ExecuteSpecBinder = (GenericExecuteSpec) -> GenericExecuteSpec
 
