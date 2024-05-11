@@ -25,7 +25,7 @@ dependencyManagement {
 
 group = projectGroup
 version = projectVersion
-java.sourceCompatibility = JavaVersion.VERSION_19
+java.sourceCompatibility = JavaVersion.VERSION_20
 
 dependencies {
     val kotlinResultVersion: String by project
@@ -51,13 +51,13 @@ dependencies {
     testImplementation("io.craigmiller160:testcontainers-common:1.2.0")
     implementation("org.flywaydb:flyway-core")
     implementation("io.github.craigmiller160:spring-fp-result-kt:2.0.0")
-    implementation("io.arrow-kt:arrow-core:1.1.5")
+    implementation("io.arrow-kt:arrow-core:1.2.4")
 
     testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
     testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.5")
-    testImplementation("io.mockk:mockk:1.13.4")
-    testImplementation("io.kotest.extensions:kotest-assertions-arrow:1.3.0")
+    testImplementation("io.mockk:mockk:1.13.10")
+    testImplementation("io.kotest.extensions:kotest-assertions-arrow:1.4.0")
 }
 
 tasks.withType<KotlinCompile> {
