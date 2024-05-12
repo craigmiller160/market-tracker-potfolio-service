@@ -95,7 +95,7 @@ constructor(
     val combinedPortfolio =
         PortfolioResponse(
             id = PortfolioConstants.COMBINED_PORTFOLIO_ID,
-            name = PortfolioConstants.COMBINED_PORTFOLIO_NAME,
+            name = PortfolioConstants.PORTFOLIO_TOTALS_INDIVIDUAL_STOCKS_TITLE,
             stockSymbols = combinedStocks)
     return baseExpectedResponse + combinedPortfolio
   }
