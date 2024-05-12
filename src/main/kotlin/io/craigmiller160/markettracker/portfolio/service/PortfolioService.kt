@@ -36,12 +36,13 @@ class PortfolioService(
               .flatMap { getStocksAndBuildResponse(userId, it, startDate, endDate) }
               .bind()
 
-      val combinedPortfolio = getCombinedPortfolio(userId, startDate, endDate).bind()
+      val combinedPortfolio =
+          getTotalsForIndividualStocksPortfolio(userId, startDate, endDate).bind()
       allPortfolios + combinedPortfolio
     }
   }
 
-  private suspend fun getCombinedPortfolio(
+  private suspend fun getTotalsForIndividualStocksPortfolio(
       userId: TypedId<UserId>,
       startDate: LocalDate?,
       endDate: LocalDate?
