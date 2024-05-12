@@ -155,6 +155,7 @@ constructor(
     val startDate = formatter.format(BASE_DATE)
     val endDate = formatter.format(maxDate.dateRangeStart.minusDays(1))
     doGetListOfPortfolios(expectedResponse, "startDate=$startDate&endDate=$endDate")
+    TODO("Needs the new totals portfolios")
   }
 
   @Test
@@ -277,7 +278,7 @@ constructor(
 
   @MethodSource("sharesOwnedForStock")
   @ParameterizedTest
-  fun `get shares owned for stock in all portfolios combined`(
+  fun `get shares owned for the portfolio totals for an individual stock`(
       coreParams: CoreSharesOwnedRouteParams
   ) {
     val numRecords = getNumRecordsForInterval(coreParams)
@@ -297,6 +298,11 @@ constructor(
         .is2xxSuccessful
         .expectBody()
         .json(objectMapper.writeValueAsString(expectedResponse))
+  }
+
+  @Test
+  fun `get shares owned for the portfolio totals`() {
+    TODO()
   }
 
   @Test
