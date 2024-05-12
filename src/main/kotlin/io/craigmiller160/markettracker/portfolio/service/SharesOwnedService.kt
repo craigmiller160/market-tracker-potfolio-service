@@ -25,7 +25,7 @@ class SharesOwnedService(
   ): TryEither<List<SharesOwnedResponse>> {
     val userId = authorizationService.getUserId()
     val sharesOwned =
-        if (PortfolioConstants.COMBINED_PORTFOLIO_ID == portfolioId) {
+        if (PortfolioConstants.PORTFOLIO_TOTALS_INDIVIDUAL_STOCKS_ID == portfolioId) {
           sharesOwnedRepository.getSharesOwnedAtIntervalForUser(
               userId, stockSymbol, startDate, endDate, interval)
         } else {
@@ -42,7 +42,7 @@ class SharesOwnedService(
   ): TryEither<SharesOwnedResponse> {
     val userId = authorizationService.getUserId()
     val total =
-        if (PortfolioConstants.COMBINED_PORTFOLIO_ID == portfolioId) {
+        if (PortfolioConstants.PORTFOLIO_TOTALS_INDIVIDUAL_STOCKS_ID == portfolioId) {
           sharesOwnedRepository.getCurrentSharesOwnedForStockForUser(userId, stockSymbol)
         } else {
           sharesOwnedRepository.getCurrentSharesOwnedForStockInPortfolio(

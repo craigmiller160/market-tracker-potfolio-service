@@ -94,7 +94,7 @@ constructor(
     val combinedStocks = sharesOwned.map { it.symbol }.distinct()
     val combinedPortfolio =
         PortfolioResponse(
-            id = PortfolioConstants.COMBINED_PORTFOLIO_ID,
+            id = PortfolioConstants.PORTFOLIO_TOTALS_INDIVIDUAL_STOCKS_ID,
             name = PortfolioConstants.PORTFOLIO_TOTALS_INDIVIDUAL_STOCKS_TITLE,
             stockSymbols = combinedStocks)
     return baseExpectedResponse + combinedPortfolio
@@ -190,7 +190,7 @@ constructor(
     webTestClient
         .get()
         .uri(
-            "/portfolios/${PortfolioConstants.COMBINED_PORTFOLIO_ID}/stocks/${params.stockSymbol}/history?${params.queryString}")
+            "/portfolios/${PortfolioConstants.PORTFOLIO_TOTALS_INDIVIDUAL_STOCKS_ID}/stocks/${params.stockSymbol}/history?${params.queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -290,7 +290,7 @@ constructor(
     webTestClient
         .get()
         .uri(
-            "/portfolios/${PortfolioConstants.COMBINED_PORTFOLIO_ID}/stocks/${params.stockSymbol}/history?${params.queryString}")
+            "/portfolios/${PortfolioConstants.PORTFOLIO_TOTALS_INDIVIDUAL_STOCKS_ID}/stocks/${params.stockSymbol}/history?${params.queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -371,7 +371,8 @@ constructor(
 
     webTestClient
         .get()
-        .uri("/portfolios/${PortfolioConstants.COMBINED_PORTFOLIO_ID}/stocks/VTI/current")
+        .uri(
+            "/portfolios/${PortfolioConstants.PORTFOLIO_TOTALS_INDIVIDUAL_STOCKS_ID}/stocks/VTI/current")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -387,7 +388,8 @@ constructor(
 
     webTestClient
         .get()
-        .uri("/portfolios/${PortfolioConstants.COMBINED_PORTFOLIO_ID}/stocks/ABC/current")
+        .uri(
+            "/portfolios/${PortfolioConstants.PORTFOLIO_TOTALS_INDIVIDUAL_STOCKS_ID}/stocks/ABC/current")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()
@@ -405,13 +407,13 @@ constructor(
         ErrorResponse(
             method = "GET",
             uri =
-                "/portfolios/${PortfolioConstants.COMBINED_PORTFOLIO_ID}/stocks/VTI/history?${params.queryString}",
+                "/portfolios/${PortfolioConstants.PORTFOLIO_TOTALS_INDIVIDUAL_STOCKS_ID}/stocks/VTI/history?${params.queryString}",
             message = "Bad Request: ${params.message}",
             status = 400)
     webTestClient
         .get()
         .uri(
-            "/portfolios/${PortfolioConstants.COMBINED_PORTFOLIO_ID}/stocks/VTI/history?${params.queryString}")
+            "/portfolios/${PortfolioConstants.PORTFOLIO_TOTALS_INDIVIDUAL_STOCKS_ID}/stocks/VTI/history?${params.queryString}")
         .header("Authorization", "Bearer ${defaultUsers.primaryUser.token}")
         .exchange()
         .expectStatus()

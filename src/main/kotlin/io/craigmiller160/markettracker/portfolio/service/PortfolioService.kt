@@ -48,7 +48,7 @@ class PortfolioService(
   ): TryEither<PortfolioResponse> =
       sharesOwnedRepository.findUniqueStocksForUser(userId, startDate, endDate).map { stocks ->
         PortfolioResponse(
-            id = PortfolioConstants.COMBINED_PORTFOLIO_ID,
+            id = PortfolioConstants.PORTFOLIO_TOTALS_INDIVIDUAL_STOCKS_ID,
             name = PortfolioConstants.PORTFOLIO_TOTALS_INDIVIDUAL_STOCKS_TITLE,
             stockSymbols = stocks)
       }
