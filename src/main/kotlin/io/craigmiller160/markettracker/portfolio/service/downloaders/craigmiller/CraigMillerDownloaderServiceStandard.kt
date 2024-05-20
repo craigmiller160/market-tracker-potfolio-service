@@ -38,13 +38,11 @@ class CraigMillerDownloaderServiceStandard(
   private val log = LoggerFactory.getLogger(javaClass)
 
   override suspend fun download(token: String): ChildDownloadServiceResult = coroutineScope {
-    async {
-      downloaderConfig.portfolioSpreadsheetsStandard
-          .map { config -> downloadSpreadsheetAsync(config, token) }
-          .awaitAll()
-          .bindToList()
-          .flatMap { responsesToPortfolios(it) }
-    }
+    downloaderConfig.portfolioSpreadsheetsStandard
+        .map { config -> async { downloadSpreadsheet(config, token) } }
+        .awaitAll()
+        .bindToList()
+        .flatMap { responsesToPortfolios(it) }
   }
 
   private fun responsesToPortfolios(
