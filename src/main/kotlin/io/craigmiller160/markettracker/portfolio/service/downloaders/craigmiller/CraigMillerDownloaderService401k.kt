@@ -11,8 +11,14 @@ import org.springframework.web.reactive.function.client.WebClient
 class CraigMillerDownloaderService401k(
     private val downloaderConfig: CraigMillerDownloaderConfig,
     webClient: WebClient
-) : AbstractChildDownloaderService() {
+) : AbstractChildDownloaderService(downloaderConfig, webClient) {
   override suspend fun download(token: String): ChildDownloadServiceResult = coroutineScope {
-    async { Either.Right(listOf()) }
+    async {
+      downloaderConfig.portfolioSpreadsheets401k.map { config ->
+        downloadSpreadsheetAsync(config, token)
+        // TODO need to integrate full config for each one
+      }
+      Either.Right(listOf())
+    }
   }
 }
