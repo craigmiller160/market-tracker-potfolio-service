@@ -2,7 +2,6 @@ package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmille
 
 import arrow.core.Either
 import arrow.core.flatMap
-import arrow.core.fold
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
@@ -68,7 +67,7 @@ class CraigMillerDownloaderService(
     return createJwt(serviceAccount)
         .flatMap { jwt -> getAccessToken(serviceAccount, jwt) }
         .flatMap { token ->
-          downloaderConfig.portfolioSpreadsheets
+          downloaderConfig.portfolioSpreadsheetsStandard
               .map { config -> config.name to getTransactionDataFromSpreadsheet(config, token) }
               .map { (name, response) ->
                 response.awaitBodyResult<GoogleSpreadsheetValues>().map { name to it }

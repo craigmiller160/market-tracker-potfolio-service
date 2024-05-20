@@ -9,7 +9,24 @@ data class CraigMillerDownloaderConfig(
     val userId: TypedId<UserId>,
     val googleSheetsApiBaseUrl: String,
     val serviceAccountJsonPath: String,
-    val portfolioSpreadsheets: List<PortfolioConfig>
+    val portfolioSpreadsheetsStandard: List<PortfolioConfigStandard>,
+    val portfolioSpreadsheets401k: List<PortfolioConfig401k>
 )
 
-data class PortfolioConfig(val name: String, val sheetId: String, val valuesRange: String)
+sealed interface PortfolioConfig {
+  val name: String
+  val sheetId: String
+  val valuesRange: String
+}
+
+data class PortfolioConfigStandard(
+    override val name: String,
+    override val sheetId: String,
+    override val valuesRange: String
+) : PortfolioConfig
+
+data class PortfolioConfig401k(
+    override val name: String,
+    override val sheetId: String,
+    override val valuesRange: String
+) : PortfolioConfig
