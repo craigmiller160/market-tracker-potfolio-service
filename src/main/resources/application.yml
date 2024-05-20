@@ -46,11 +46,11 @@ downloaders:
         allocations:
           - start-date: 2015-01-01
             end-date: 2022-11-30
-            percent-us: 100%
-            percent-ex-us: 0%
+            percent-us: 100
+            percent-ex-us: 0
           - start-date: 2022-12-01
-            percent-us: 80%
-            percent-ex-us: 20%
+            percent-us: 80
+            percent-ex-us: 20
 #      - name: Rollover IRA
 #        sheet-id: 1Kuj9Ky_DYh0IsUgXx48rMKgRD7oU7O5xqwylNwx1VN0
 #        values-range: Transactions
