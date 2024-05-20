@@ -11,7 +11,7 @@ import kotlinx.coroutines.coroutineScope
 import org.slf4j.LoggerFactory
 import org.springframework.web.reactive.function.client.WebClient
 
-typealias DownloadSpreadsheetResult = TryEither<Pair<String, GoogleSpreadsheetValues>>
+typealias DownloadSpreadsheetResult = TryEither<Pair<PortfolioConfig, GoogleSpreadsheetValues>>
 
 abstract class AbstractChildDownloaderService(
     private val downloaderConfig: CraigMillerDownloaderConfig,
@@ -32,7 +32,7 @@ abstract class AbstractChildDownloaderService(
         .header("Authorization", "Bearer $accessToken")
         .retrieveSuccess()
         .awaitBodyResult<GoogleSpreadsheetValues>()
-        .map { config.name to it }
+        .map { config to it }
   }
 
   protected suspend fun downloadSpreadsheetAsync(

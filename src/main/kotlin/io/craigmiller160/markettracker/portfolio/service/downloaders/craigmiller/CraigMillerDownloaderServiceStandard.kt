@@ -5,6 +5,7 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
+import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig
 import io.craigmiller160.markettracker.portfolio.domain.DATE_RANGE_MAX
 import io.craigmiller160.markettracker.portfolio.domain.DATE_RANGE_MIN
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
@@ -47,10 +48,12 @@ class CraigMillerDownloaderServiceStandard(
   }
 
   private fun responsesToPortfolios(
-      responses: List<Pair<String, GoogleSpreadsheetValues>>
+      responses: List<Pair<PortfolioConfig, GoogleSpreadsheetValues>>
   ): TryEither<List<PortfolioWithHistory>> {
     log.debug("Parsing and formatting google spreadsheet responses")
-    return responses.map { (name, response) -> transformResponse(name, response) }.bindToList()
+    return responses
+        .map { (config, response) -> transformResponse(config.name, response) }
+        .bindToList()
   }
 
   private fun transformResponse(
