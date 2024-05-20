@@ -31,10 +31,10 @@ import org.springframework.web.reactive.function.client.WebClient.ResponseSpec
 class CraigMillerDownloaderServiceStandard(
     private val downloaderConfig: CraigMillerDownloaderConfig,
     private val webClient: WebClient
-) {
+) : ChildDownloaderService {
   private val log = LoggerFactory.getLogger(javaClass)
 
-  suspend fun download(token: String): TryEither<List<PortfolioWithHistory>> =
+  override suspend fun download(token: String): TryEither<List<PortfolioWithHistory>> =
       downloaderConfig.portfolioSpreadsheetsStandard
           .map { config -> config.name to getTransactionDataFromSpreadsheet(config, token) }
           .map { (name, response) ->
