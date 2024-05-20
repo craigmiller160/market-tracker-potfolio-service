@@ -22,6 +22,8 @@ import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
@@ -34,7 +36,8 @@ class CraigMillerDownloaderServiceStandard(
 ) : ChildDownloaderService {
   private val log = LoggerFactory.getLogger(javaClass)
 
-  override suspend fun download(token: String): TryEither<List<PortfolioWithHistory>> =
+  override suspend fun download(token: String): ChildDownloadServiceResult = coroutineScope {
+    async {
       downloaderConfig.portfolioSpreadsheetsStandard
           .map { config -> config.name to getTransactionDataFromSpreadsheet(config, token) }
           .map { (name, response) ->
@@ -42,6 +45,8 @@ class CraigMillerDownloaderServiceStandard(
           }
           .bindToList()
           .flatMap { responsesToPortfolios(it) }
+    }
+  }
 
   private fun responsesToPortfolios(
       responses: List<Pair<String, GoogleSpreadsheetValues>>

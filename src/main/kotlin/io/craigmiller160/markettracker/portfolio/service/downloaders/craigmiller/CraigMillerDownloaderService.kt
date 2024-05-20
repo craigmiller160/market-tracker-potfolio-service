@@ -12,6 +12,7 @@ import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderCon
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.awaitBodyResult
+import io.craigmiller160.markettracker.portfolio.extensions.bindToList
 import io.craigmiller160.markettracker.portfolio.extensions.decodePrivateKeyPem
 import io.craigmiller160.markettracker.portfolio.extensions.retrieveSuccess
 import io.craigmiller160.markettracker.portfolio.service.downloaders.DownloaderService
@@ -22,6 +23,7 @@ import java.security.spec.PKCS8EncodedKeySpec
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -34,7 +36,8 @@ class CraigMillerDownloaderService(
     private val downloaderConfig: CraigMillerDownloaderConfig,
     private val webClient: WebClient,
     private val objectMapper: ObjectMapper,
-    private val downloaderServiceStandard: CraigMillerDownloaderServiceStandard
+    private val downloaderServiceStandard: CraigMillerDownloaderServiceStandard,
+    private val downloaderService401k: CraigMillerDownloaderService401k
 ) : DownloaderService {
   companion object {
     const val SPREADSHEET_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly"
@@ -52,7 +55,12 @@ class CraigMillerDownloaderService(
 
     return createJwt(serviceAccount)
         .flatMap { jwt -> getAccessToken(serviceAccount, jwt) }
-        .flatMap { token -> downloaderServiceStandard.download(token) }
+        .flatMap { token ->
+          listOf(downloaderServiceStandard.download(token), downloaderService401k.download(token))
+              .awaitAll()
+              .bindToList()
+              .map { list -> list.flatten() }
+        }
         .also { log.info("Completed download of Craig Miller portfolio data") }
   }
 
