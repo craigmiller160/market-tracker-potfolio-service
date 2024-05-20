@@ -6,6 +6,7 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig
+import io.craigmiller160.markettracker.portfolio.config.PortfolioConfigStandard
 import io.craigmiller160.markettracker.portfolio.domain.DATE_RANGE_MAX
 import io.craigmiller160.markettracker.portfolio.domain.DATE_RANGE_MIN
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
@@ -20,12 +21,17 @@ import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.ResponseSpec
+
+private typealias DownloadSpreadsheetResult =
+    Deferred<TryEither<Pair<String, GoogleSpreadsheetValues>>>
 
 @Service
 class CraigMillerDownloaderServiceStandard(
@@ -42,12 +48,21 @@ class CraigMillerDownloaderServiceStandard(
   override suspend fun download(token: String): ChildDownloadServiceResult = coroutineScope {
     async {
       downloaderConfig.portfolioSpreadsheetsStandard
-          .map { config -> config.name to getTransactionDataFromSpreadsheet(config, token) }
-          .map { (name, response) ->
-            response.awaitBodyResult<GoogleSpreadsheetValues>().map { name to it }
-          }
+          .map { config -> doDownloadSpreadsheet(config, token) }
+          .awaitAll()
           .bindToList()
           .flatMap { responsesToPortfolios(it) }
+    }
+  }
+
+  private suspend fun doDownloadSpreadsheet(
+      config: PortfolioConfigStandard,
+      token: String
+  ): DownloadSpreadsheetResult = coroutineScope {
+    async {
+      getTransactionDataFromSpreadsheet(config, token)
+          .awaitBodyResult<GoogleSpreadsheetValues>()
+          .map { config.name to it }
     }
   }
 
