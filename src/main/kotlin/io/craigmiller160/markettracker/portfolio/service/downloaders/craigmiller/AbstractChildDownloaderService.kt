@@ -8,6 +8,8 @@ import io.craigmiller160.markettracker.portfolio.extensions.retrieveSuccess
 import org.slf4j.LoggerFactory
 import org.springframework.web.reactive.function.client.WebClient
 
+typealias DownloadSpreadsheetResult = TryEither<Pair<String, GoogleSpreadsheetValues>>
+
 abstract class AbstractChildDownloaderService(
     private val downloaderConfig: CraigMillerDownloaderConfig,
     private val webClient: WebClient
@@ -17,7 +19,7 @@ abstract class AbstractChildDownloaderService(
   protected suspend fun downloadSpreadsheet(
       config: PortfolioConfig,
       accessToken: String
-  ): TryEither<Pair<String, GoogleSpreadsheetValues>> {
+  ): DownloadSpreadsheetResult {
     log.debug(
         "Downloading data from spreadsheet. Sheet: ${config.sheetId} Values: ${config.valuesRange}")
     return webClient

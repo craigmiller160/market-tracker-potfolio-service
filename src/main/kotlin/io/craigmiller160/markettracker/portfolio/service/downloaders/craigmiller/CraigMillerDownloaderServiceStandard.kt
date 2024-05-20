@@ -29,9 +29,6 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.ResponseSpec
 
-private typealias DownloadSpreadsheetResult =
-    Deferred<TryEither<Pair<String, GoogleSpreadsheetValues>>>
-
 @Service
 class CraigMillerDownloaderServiceStandard(
     private val downloaderConfig: CraigMillerDownloaderConfig,
@@ -57,7 +54,9 @@ class CraigMillerDownloaderServiceStandard(
   private suspend fun doDownloadSpreadsheet(
       config: PortfolioConfigStandard,
       token: String
-  ): DownloadSpreadsheetResult = coroutineScope { async { downloadSpreadsheet(config, token) } }
+  ): Deferred<DownloadSpreadsheetResult> = coroutineScope {
+    async { downloadSpreadsheet(config, token) }
+  }
 
   private fun responsesToPortfolios(
       responses: List<Pair<String, GoogleSpreadsheetValues>>
