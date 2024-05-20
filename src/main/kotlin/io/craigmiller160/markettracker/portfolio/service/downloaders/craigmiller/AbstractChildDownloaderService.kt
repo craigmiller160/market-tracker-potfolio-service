@@ -5,6 +5,9 @@ import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.awaitBodyResult
 import io.craigmiller160.markettracker.portfolio.extensions.retrieveSuccess
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import org.slf4j.LoggerFactory
 import org.springframework.web.reactive.function.client.WebClient
 
@@ -30,5 +33,12 @@ abstract class AbstractChildDownloaderService(
         .retrieveSuccess()
         .awaitBodyResult<GoogleSpreadsheetValues>()
         .map { config.name to it }
+  }
+
+  protected suspend fun downloadSpreadsheetAsync(
+      config: PortfolioConfig,
+      token: String
+  ): Deferred<DownloadSpreadsheetResult> = coroutineScope {
+    async { downloadSpreadsheet(config, token) }
   }
 }
