@@ -5,14 +5,12 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
-import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig
 import io.craigmiller160.markettracker.portfolio.domain.DATE_RANGE_MAX
 import io.craigmiller160.markettracker.portfolio.domain.DATE_RANGE_MIN
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.bindToList
-import io.craigmiller160.markettracker.portfolio.extensions.retrieveSuccess
 import java.math.BigDecimal
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
@@ -25,12 +23,11 @@ import kotlinx.coroutines.coroutineScope
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClient.ResponseSpec
 
 @Service
 class CraigMillerDownloaderServiceStandard(
     private val downloaderConfig: CraigMillerDownloaderConfig,
-    private val webClient: WebClient
+    webClient: WebClient
 ) : AbstractChildDownloaderService(downloaderConfig, webClient) {
   companion object {
     private val RELEVANT_ACTIONS = listOf(Action.BONUS, Action.BUY, Action.SELL)
@@ -107,20 +104,6 @@ class CraigMillerDownloaderServiceStandard(
     OwnershipContext(
         sharesOwnedMap = persistentMapOf(record.symbol to persistentListOf(sharesOwned)),
         record = record)
-  }
-
-  private fun getTransactionDataFromSpreadsheet(
-      config: PortfolioConfig,
-      accessToken: String
-  ): ResponseSpec {
-    log.debug(
-        "Downloading data from spreadsheet. Sheet: ${config.sheetId} Values: ${config.valuesRange}")
-    return webClient
-        .get()
-        .uri(
-            "${downloaderConfig.googleSheetsApiBaseUrl}/spreadsheets/${config.sheetId}/values/${config.valuesRange}")
-        .header("Authorization", "Bearer $accessToken")
-        .retrieveSuccess()
   }
 }
 
