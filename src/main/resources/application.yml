@@ -9,6 +9,7 @@ spring:
           host: https://auth.craigmiller160.us
           realm: apps-dev
           client-id: market-tracker-portfolio-service
+          client-secret: k1WhYTvZwvUb1rpo0cL4VBmo5P8hRVVp
   db:
     baseUrl: postgresql://localhost:5432/market_tracker_portfolio_dev
     username: postgres
