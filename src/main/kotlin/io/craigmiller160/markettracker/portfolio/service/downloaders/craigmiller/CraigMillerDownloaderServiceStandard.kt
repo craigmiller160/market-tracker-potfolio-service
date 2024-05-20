@@ -14,8 +14,6 @@ import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.awaitBodyResult
 import io.craigmiller160.markettracker.portfolio.extensions.bindToList
 import io.craigmiller160.markettracker.portfolio.extensions.retrieveSuccess
-import io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller.CraigMillerDownloaderService.Companion.RELEVANT_ACTIONS
-import io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller.CraigMillerDownloaderService.Companion.SYMBOL_EXCLUSIONS
 import java.math.BigDecimal
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
@@ -34,6 +32,11 @@ class CraigMillerDownloaderServiceStandard(
     private val downloaderConfig: CraigMillerDownloaderConfig,
     private val webClient: WebClient
 ) : ChildDownloaderService {
+  companion object {
+    val RELEVANT_ACTIONS = listOf(Action.BONUS, Action.BUY, Action.SELL)
+    val SYMBOL_EXCLUSIONS = listOf(Regex("^TBILL.*$"))
+  }
+
   private val log = LoggerFactory.getLogger(javaClass)
 
   override suspend fun download(token: String): ChildDownloadServiceResult = coroutineScope {

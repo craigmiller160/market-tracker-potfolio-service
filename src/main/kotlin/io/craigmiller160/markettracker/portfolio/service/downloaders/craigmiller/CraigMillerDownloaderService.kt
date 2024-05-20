@@ -44,8 +44,6 @@ class CraigMillerDownloaderService(
     const val TOKEN_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:jwt-bearer"
     const val GRANT_TYPE_KEY = "grant_type"
     const val ASSERTION_KEY = "assertion"
-    val RELEVANT_ACTIONS = listOf(Action.BONUS, Action.BUY, Action.SELL)
-    val SYMBOL_EXCLUSIONS = listOf(Regex("^TBILL.*$"))
   }
 
   private val log = LoggerFactory.getLogger(javaClass)
