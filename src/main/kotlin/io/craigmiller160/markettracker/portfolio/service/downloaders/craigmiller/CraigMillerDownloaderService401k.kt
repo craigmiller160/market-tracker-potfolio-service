@@ -30,14 +30,11 @@ class CraigMillerDownloaderService401k(
   private val log = LoggerFactory.getLogger(javaClass)
 
   override suspend fun download(token: String): ChildDownloadServiceResult = coroutineScope {
-    async {
-      // TODO download the tradier data
-      downloaderConfig.portfolioSpreadsheets401k
-          .map { config -> downloadSpreadsheetAsync(config, token) }
-          .awaitAll()
-          .bindToList()
-          .flatMap { responsesToPortfolios(it) }
-    }
+    downloaderConfig.portfolioSpreadsheets401k
+        .map { config -> async { downloadSpreadsheet(config, token) } }
+        .awaitAll()
+        .bindToList()
+        .flatMap { responsesToPortfolios(it) }
   }
 
   private suspend fun downloadTradierData(symbol: String) {
@@ -55,7 +52,6 @@ class CraigMillerDownloaderService401k(
       responses: List<Pair<PortfolioConfig, GoogleSpreadsheetValues>>
   ): TryEither<List<PortfolioWithHistory>> {
     log.debug("Parsing and formatting google spreadsheet responses")
-    println(responses.first().second)
     TODO()
   }
 

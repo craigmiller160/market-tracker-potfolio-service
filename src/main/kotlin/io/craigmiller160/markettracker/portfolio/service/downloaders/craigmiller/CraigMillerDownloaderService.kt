@@ -23,7 +23,9 @@ import java.security.spec.PKCS8EncodedKeySpec
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -54,10 +56,13 @@ class CraigMillerDownloaderService(
     return createJwt(serviceAccount)
         .flatMap { jwt -> getAccessToken(serviceAccount, jwt) }
         .flatMap { token ->
-          listOf(downloaderServiceStandard.download(token), downloaderService401k.download(token))
-              .awaitAll()
-              .bindToList()
-              .map { list -> list.flatten() }
+          coroutineScope {
+            listOf(downloaderServiceStandard::download, downloaderService401k::download)
+                .map { download -> async { download(token) } }
+                .awaitAll()
+                .bindToList()
+                .map { list -> list.flatten() }
+          }
         }
         .also { log.info("Completed download of Craig Miller portfolio data") }
   }
