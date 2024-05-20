@@ -33,8 +33,8 @@ class CraigMillerDownloaderServiceStandard(
     private val webClient: WebClient
 ) : ChildDownloaderService {
   companion object {
-    val RELEVANT_ACTIONS = listOf(Action.BONUS, Action.BUY, Action.SELL)
-    val SYMBOL_EXCLUSIONS = listOf(Regex("^TBILL.*$"))
+    private val RELEVANT_ACTIONS = listOf(Action.BONUS, Action.BUY, Action.SELL)
+    private val SYMBOL_EXCLUSIONS = listOf(Regex("^TBILL.*$"))
   }
 
   private val log = LoggerFactory.getLogger(javaClass)
