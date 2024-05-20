@@ -12,7 +12,6 @@ import io.craigmiller160.markettracker.portfolio.domain.DATE_RANGE_MIN
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
-import io.craigmiller160.markettracker.portfolio.extensions.awaitBodyResult
 import io.craigmiller160.markettracker.portfolio.extensions.bindToList
 import io.craigmiller160.markettracker.portfolio.extensions.retrieveSuccess
 import java.math.BigDecimal
@@ -37,7 +36,7 @@ private typealias DownloadSpreadsheetResult =
 class CraigMillerDownloaderServiceStandard(
     private val downloaderConfig: CraigMillerDownloaderConfig,
     private val webClient: WebClient
-) : ChildDownloaderService {
+) : AbstractChildDownloaderService(downloaderConfig, webClient) {
   companion object {
     private val RELEVANT_ACTIONS = listOf(Action.BONUS, Action.BUY, Action.SELL)
     private val SYMBOL_EXCLUSIONS = listOf(Regex("^TBILL.*$"))
@@ -58,13 +57,7 @@ class CraigMillerDownloaderServiceStandard(
   private suspend fun doDownloadSpreadsheet(
       config: PortfolioConfigStandard,
       token: String
-  ): DownloadSpreadsheetResult = coroutineScope {
-    async {
-      getTransactionDataFromSpreadsheet(config, token)
-          .awaitBodyResult<GoogleSpreadsheetValues>()
-          .map { config.name to it }
-    }
-  }
+  ): DownloadSpreadsheetResult = coroutineScope { async { downloadSpreadsheet(config, token) } }
 
   private fun responsesToPortfolios(
       responses: List<Pair<String, GoogleSpreadsheetValues>>
