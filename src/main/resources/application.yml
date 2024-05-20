@@ -40,6 +40,9 @@ downloaders:
       - name: Roth IRA
         sheet-id: 18BK_urWmKH_m9bZFVOpDzRDgqQ66gTwdnYil-xtKZK4
         values-range: Transactions
+#      - name: Rollover IRA
+#        sheet-id: 1Kuj9Ky_DYh0IsUgXx48rMKgRD7oU7O5xqwylNwx1VN0
+#        values-range: Transactions
     portfolio-spreadsheets-401k:
       - name: 401k
         sheet-id: 14ICDVPp6LPhoUDEgsA5ZP7bopr7GTzdFf1jbcxEhouE
@@ -52,9 +55,6 @@ downloaders:
           - start-date: 2022-12-01
             percent-us: 80
             percent-ex-us: 20
-#      - name: Rollover IRA
-#        sheet-id: 1Kuj9Ky_DYh0IsUgXx48rMKgRD7oU7O5xqwylNwx1VN0
-#        values-range: Transactions
 
 logging:
   level:
