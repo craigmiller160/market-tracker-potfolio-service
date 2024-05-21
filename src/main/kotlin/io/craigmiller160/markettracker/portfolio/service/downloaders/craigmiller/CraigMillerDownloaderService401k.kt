@@ -72,6 +72,7 @@ class CraigMillerDownloaderService401k(
     return response.values
         .asSequence()
         .drop(1)
+        .filter { it.size >= 7 }
         .map { cols -> cols[0] to cols[7] }
         .filter { (_, amount) -> amount.trim().isNotEmpty() }
         .map { (date, amount) -> date.toDate() to amount.toAmount() }
