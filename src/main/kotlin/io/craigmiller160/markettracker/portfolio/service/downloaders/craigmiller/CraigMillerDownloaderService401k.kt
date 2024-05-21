@@ -98,7 +98,7 @@ class CraigMillerDownloaderService401k(
               symbol = EX_US_SYMBOL,
               totalShares = exUsShares)
 
-      listOf(usSharesOwned, exUsSharesOwned)
+      listOf(usSharesOwned, exUsSharesOwned).filter { it.totalShares > BigDecimal.ZERO }
     }
   }
 
