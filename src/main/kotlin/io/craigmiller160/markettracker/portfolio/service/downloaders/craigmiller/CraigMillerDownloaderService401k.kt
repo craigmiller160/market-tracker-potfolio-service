@@ -91,13 +91,13 @@ class CraigMillerDownloaderService401k(
         tradierHistory[US_SYMBOL]
             ?.history
             ?.day
-            ?.find { it.date.month.value == date.month.value }
+            ?.find { it.date.monthValue == date.monthValue }
             .leftIfNull("Unable to find matching US history for date $date")
     val exUsHistoryEither =
         tradierHistory[EX_US_SYMBOL]
             ?.history
             ?.day
-            ?.find { it.date.month.value == date.month.value }
+            ?.find { it.date.monthValue == date.monthValue }
             .leftIfNull("Unable to find matching EX-US history for date $date")
 
     return either {
