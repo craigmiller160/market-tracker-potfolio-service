@@ -1,6 +1,7 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
 import arrow.core.raise.either
+import io.craigmiller160.markettracker.portfolio.common.typedid.PortfolioId
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.config.Allocation401k
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
@@ -48,9 +49,11 @@ class CraigMillerDownloaderService401k(
               .bind()
 
       log.debug("Parsing and formatting google spreadsheet responses")
-      spreadsheets.map { (config, response) ->
-        responseToPortfolio(config as PortfolioConfig401k, response, tradierHistory)
-      }
+      spreadsheets
+          .map { (config, response) ->
+            responseToPortfolio(config as PortfolioConfig401k, response, tradierHistory)
+          }
+          .bindAll()
     }
   }
 
@@ -58,20 +61,28 @@ class CraigMillerDownloaderService401k(
       config: PortfolioConfig401k,
       response: GoogleSpreadsheetValues,
       tradierHistory: Map<String, TradierHistory>
-  ): PortfolioWithHistory {
-    val doConvertToSharesOwned = convertToSharesOwned(config, tradierHistory)
-    response.values
+  ): TryEither<PortfolioWithHistory> {
+    val portfolioId = TypedId<PortfolioId>()
+    val doConvertToSharesOwned = convertToSharesOwned(config, tradierHistory, portfolioId)
+    return response.values
         .drop(1)
         .map { cols -> cols[0].toDate() to cols[7].toAmount() }
         .map { (date, amount) -> doConvertToSharesOwned(date, amount) }
         .bindToList()
-        .map { list -> list.flatten() }
-    TODO()
+        .map { list ->
+          val sharesOwned = list.flatten()
+          PortfolioWithHistory(
+              id = portfolioId,
+              userId = downloaderConfig.userId,
+              name = config.name,
+              ownershipHistory = sharesOwned)
+        }
   }
 
   private fun convertToSharesOwned(
       config: PortfolioConfig401k,
-      tradierHistory: Map<String, TradierHistory>
+      tradierHistory: Map<String, TradierHistory>,
+      portfolioId: TypedId<PortfolioId>
   ): (LocalDate, BigDecimal) -> TryEither<List<SharesOwned>> = { date, amount ->
     getConversionValues(config, tradierHistory, date).map { values ->
       val totalAmountUs = amount.times(values.allocation.percentUs.toBigDecimal())
@@ -82,8 +93,8 @@ class CraigMillerDownloaderService401k(
       val usSharesOwned =
           SharesOwned(
               id = TypedId(),
-              userId = TODO(),
-              portfolioId = TODO(),
+              userId = downloaderConfig.userId,
+              portfolioId = portfolioId,
               dateRangeStart = TODO(),
               dateRangeEnd = TODO(),
               symbol = US_SYMBOL,
@@ -91,8 +102,8 @@ class CraigMillerDownloaderService401k(
       val exUsSharesOwned =
           SharesOwned(
               id = TypedId(),
-              userId = TODO(),
-              portfolioId = TODO(),
+              userId = downloaderConfig.userId,
+              portfolioId = portfolioId,
               dateRangeStart = TODO(),
               dateRangeEnd = TODO(),
               symbol = EX_US_SYMBOL,
