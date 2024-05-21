@@ -4,6 +4,7 @@ import arrow.core.raise.either
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig401k
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
+import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.extensions.bindToList
 import io.craigmiller160.markettracker.portfolio.web.types.tradier.TradierHistory
 import java.math.BigDecimal
@@ -52,10 +53,18 @@ class CraigMillerDownloaderService401k(
       response: GoogleSpreadsheetValues,
       tradierHistory: Map<String, TradierHistory>
   ): PortfolioWithHistory {
-    val spreadsheetValues =
-        response.values.drop(1).map { cols -> cols[0].toDate() to cols[7].toAmount() }
+    val doConvertToSharesOwned = convertToSharesOwned(config, tradierHistory)
+    response.values
+        .drop(1)
+        .map { cols -> cols[0].toDate() to cols[7].toAmount() }
+        .map { (date, amount) -> doConvertToSharesOwned(date, amount) }
     TODO()
   }
+
+  private fun convertToSharesOwned(
+      config: PortfolioConfig401k,
+      tradierHistory: Map<String, TradierHistory>
+  ): (LocalDate, BigDecimal) -> SharesOwned = { date, amount -> TODO() }
 }
 
 private val SPREADSHEET_DATE_FORMAT = DateTimeFormatter.ofPattern("MMM yyyy")
