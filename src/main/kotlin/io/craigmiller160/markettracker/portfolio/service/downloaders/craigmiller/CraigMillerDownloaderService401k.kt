@@ -92,9 +92,8 @@ class CraigMillerDownloaderService401k(
       val exUsShares = totalAmountExUs.divide(values.exUsHistory.close.toBigDecimal())
 
       val startDate = date.with(TemporalAdjusters.firstDayOfMonth())
-      val endDate = date.with(TemporalAdjusters.lastDayOfMonth())
+      val endDate = startDate.plusMonths(1)
 
-      // TODO should the dates be exclusive or inclusive?
       val usSharesOwned =
           SharesOwned(
               id = TypedId(),
