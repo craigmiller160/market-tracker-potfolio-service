@@ -66,8 +66,11 @@ class CraigMillerDownloaderService401k(
     val portfolioId = TypedId<PortfolioId>()
     val doConvertToSharesOwned = convertToSharesOwned(config, tradierHistory, portfolioId)
     return response.values
+        .asSequence()
         .drop(1)
-        .map { cols -> cols[0].toDate() to cols[7].toAmount() }
+        .map { cols -> cols[0] to cols[7] }
+        .filter { (_, amount) -> amount.trim().isNotEmpty() }
+        .map { (date, amount) -> date.toDate() to amount.toAmount() }
         .map { (date, amount) -> doConvertToSharesOwned(date, amount) }
         .bindToList()
         .map { cleanupSharesOwnedList(it) }
