@@ -1,14 +1,12 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
-import arrow.core.flatMap
+import arrow.core.raise.either
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
-import io.craigmiller160.markettracker.portfolio.config.MarketTrackerApiConfig
 import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
-import io.craigmiller160.markettracker.portfolio.extensions.awaitBodyResult
 import io.craigmiller160.markettracker.portfolio.extensions.bindToList
-import io.craigmiller160.markettracker.portfolio.extensions.retrieveSuccess
+import io.craigmiller160.markettracker.portfolio.web.types.tradier.TradierHistory
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
@@ -23,33 +21,33 @@ import org.springframework.web.reactive.function.client.WebClient
 @Service
 class CraigMillerDownloaderService401k(
     private val downloaderConfig: CraigMillerDownloaderConfig,
-    private val webClient: WebClient,
-    private val marketTrackerApiConfig: MarketTrackerApiConfig
+    private val tradierService: TradierService,
+    webClient: WebClient
 ) : AbstractChildDownloaderService(downloaderConfig, webClient) {
+  companion object {
+    const val US_SYMBOL = "VTI"
+    const val EX_US_SYMBOL = "VXUS"
+  }
 
   private val log = LoggerFactory.getLogger(javaClass)
 
   override suspend fun download(token: String): ChildDownloadServiceResult = coroutineScope {
-    downloaderConfig.portfolioSpreadsheets401k
-        .map { config -> async { downloadSpreadsheet(config, token) } }
-        .awaitAll()
-        .bindToList()
-        .flatMap { responsesToPortfolios(it) }
-  }
+    either {
+      val tradierHistory = tradierService.getTradierHistory(listOf(US_SYMBOL, EX_US_SYMBOL)).bind()
+      val spreadsheets =
+          downloaderConfig.portfolioSpreadsheets401k
+              .map { config -> async { downloadSpreadsheet(config, token) } }
+              .awaitAll()
+              .bindToList()
+              .bind()
 
-  private suspend fun downloadTradierData(symbol: String) {
-    val today = LocalDate.now().format(TRADIER_DATE_FORMAT)
-    webClient
-        .get()
-        .uri(
-            "${marketTrackerApiConfig.host}/tradier/markets/history?symbol=${symbol}&start=2015-01-01&end=$today&interval=monthly")
-        .header("Authorization", "Bearer XYZ")
-        .retrieveSuccess()
-        .awaitBodyResult<Any>() // TODO fix this
+      responsesToPortfolios(spreadsheets, tradierHistory).bind()
+    }
   }
 
   private fun responsesToPortfolios(
-      responses: List<Pair<PortfolioConfig, GoogleSpreadsheetValues>>
+      responses: List<Pair<PortfolioConfig, GoogleSpreadsheetValues>>,
+      tradierHistory: Map<String, TradierHistory>
   ): TryEither<List<PortfolioWithHistory>> {
     log.debug("Parsing and formatting google spreadsheet responses")
     TODO()
