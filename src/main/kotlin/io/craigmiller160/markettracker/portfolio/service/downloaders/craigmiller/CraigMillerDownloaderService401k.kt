@@ -18,6 +18,8 @@ import io.craigmiller160.markettracker.portfolio.extensions.leftIfNull
 import io.craigmiller160.markettracker.portfolio.web.types.tradier.TradierDay
 import io.craigmiller160.markettracker.portfolio.web.types.tradier.TradierHistory
 import java.math.BigDecimal
+import java.math.MathContext
+import java.math.RoundingMode
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -115,14 +117,8 @@ class CraigMillerDownloaderService401k(
       val totalAmountUs = amount.times(values.allocation.percentUsAsFraction)
       val totalAmountExUs = amount.times(values.allocation.percentExUsAsFraction)
 
-      println(
-          "NUMS: $amount ${values.allocation.percentUs} ${values.allocation.percentExUs}") // TODO
-      // delete
-      // this
-      println("NUMS 2: $totalAmountUs $totalAmountExUs") // TODO delete this
-
-      val usShares = totalAmountUs.divide(values.usHistory.close.toBigDecimal())
-      val exUsShares = totalAmountExUs.divide(values.exUsHistory.close.toBigDecimal())
+      val usShares = totalAmountUs.divide(values.usHistory.close.toBigDecimal(), MATH_CONTEXT)
+      val exUsShares = totalAmountExUs.divide(values.exUsHistory.close.toBigDecimal(), MATH_CONTEXT)
 
       val startDate = date.with(TemporalAdjusters.firstDayOfMonth())
       val endDate = startDate.plusMonths(1)
@@ -184,6 +180,8 @@ class CraigMillerDownloaderService401k(
     }
   }
 }
+
+private val MATH_CONTEXT = MathContext(4, RoundingMode.HALF_UP)
 
 private data class ConversionValues(
     val allocation: Allocation401k,
