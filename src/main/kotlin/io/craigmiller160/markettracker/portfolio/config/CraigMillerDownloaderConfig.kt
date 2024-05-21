@@ -2,6 +2,7 @@ package io.craigmiller160.markettracker.portfolio.config
 
 import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.common.typedid.UserId
+import java.math.BigDecimal
 import java.time.LocalDate
 import org.springframework.boot.context.properties.ConfigurationProperties
 
@@ -39,3 +40,9 @@ data class Allocation401k(
     val percentUs: Double,
     val percentExUs: Double
 )
+
+val Allocation401k.percentUsAsFraction: BigDecimal
+  get() = percentUs.toBigDecimal().divide(BigDecimal("100"))
+
+val Allocation401k.percentExUsAsFraction: BigDecimal
+  get() = percentExUs.toBigDecimal().divide(BigDecimal("100"))

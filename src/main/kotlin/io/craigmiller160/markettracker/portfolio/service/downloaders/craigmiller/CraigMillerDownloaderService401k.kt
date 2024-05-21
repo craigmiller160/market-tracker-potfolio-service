@@ -6,6 +6,8 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.config.Allocation401k
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig401k
+import io.craigmiller160.markettracker.portfolio.config.percentExUsAsFraction
+import io.craigmiller160.markettracker.portfolio.config.percentUsAsFraction
 import io.craigmiller160.markettracker.portfolio.domain.DATE_RANGE_MAX
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
@@ -110,8 +112,15 @@ class CraigMillerDownloaderService401k(
       portfolioId: TypedId<PortfolioId>
   ): (LocalDate, BigDecimal) -> TryEither<List<SharesOwned>> = { date, amount ->
     getConversionValues(config, tradierHistory, date).map { values ->
-      val totalAmountUs = amount.times(values.allocation.percentUs.toBigDecimal())
-      val totalAmountExUs = amount.times(values.allocation.percentExUs.toBigDecimal())
+      val totalAmountUs = amount.times(values.allocation.percentUsAsFraction)
+      val totalAmountExUs = amount.times(values.allocation.percentExUsAsFraction)
+
+      println(
+          "NUMS: $amount ${values.allocation.percentUs} ${values.allocation.percentExUs}") // TODO
+      // delete
+      // this
+      println("NUMS 2: $totalAmountUs $totalAmountExUs") // TODO delete this
+
       val usShares = totalAmountUs.divide(values.usHistory.close.toBigDecimal())
       val exUsShares = totalAmountExUs.divide(values.exUsHistory.close.toBigDecimal())
 
