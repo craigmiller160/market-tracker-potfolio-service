@@ -69,14 +69,18 @@ class CraigMillerDownloaderService401k(
         .map { cols -> cols[0].toDate() to cols[7].toAmount() }
         .map { (date, amount) -> doConvertToSharesOwned(date, amount) }
         .bindToList()
+        .map { cleanupSharesOwnedList(it) }
         .map { list ->
-          val sharesOwned = list.flatten()
           PortfolioWithHistory(
               id = portfolioId,
               userId = downloaderConfig.userId,
               name = config.name,
-              ownershipHistory = sharesOwned)
+              ownershipHistory = list)
         }
+  }
+
+  private fun cleanupSharesOwnedList(list: List<List<SharesOwned>>): List<SharesOwned> {
+    TODO("Flatten and add MAX_DATE end items")
   }
 
   private fun convertToSharesOwned(
