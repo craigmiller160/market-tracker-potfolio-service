@@ -183,4 +183,5 @@ private val SPREADSHEET_DATE_FORMAT = DateTimeFormatter.ofPattern("MMM yyyy")
 
 private fun String.toDate(): LocalDate = YearMonth.parse(this, SPREADSHEET_DATE_FORMAT).atDay(1)
 
-private fun String.toAmount(): BigDecimal = this.replace(Regex("^\\$"), "").let { BigDecimal(it) }
+private fun String.toAmount(): BigDecimal =
+    this.replace(Regex("^\\$"), "").replace(Regex(","), "").let { BigDecimal(it) }
