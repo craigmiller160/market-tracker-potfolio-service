@@ -46,8 +46,7 @@ class CraigMillerDownloaderService401k(
           downloaderConfig.portfolioSpreadsheets401k
               .map { config -> async { downloadSpreadsheet(config, token) } }
               .awaitAll()
-              .bindToList()
-              .bind()
+              .bindAll()
 
       log.debug("Parsing and formatting google spreadsheet responses")
       spreadsheets
