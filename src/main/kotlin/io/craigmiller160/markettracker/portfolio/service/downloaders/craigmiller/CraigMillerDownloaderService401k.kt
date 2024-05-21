@@ -2,9 +2,8 @@ package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmille
 
 import arrow.core.raise.either
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
-import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig
+import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig401k
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
-import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.bindToList
 import io.craigmiller160.markettracker.portfolio.web.types.tradier.TradierHistory
 import java.math.BigDecimal
@@ -41,28 +40,23 @@ class CraigMillerDownloaderService401k(
               .bindToList()
               .bind()
 
-      responsesToPortfolios(spreadsheets, tradierHistory).bind()
+      log.debug("Parsing and formatting google spreadsheet responses")
+      spreadsheets.map { (config, response) ->
+        responseToPortfolio(config as PortfolioConfig401k, response, tradierHistory)
+      }
     }
   }
 
-  private fun responsesToPortfolios(
-      responses: List<Pair<PortfolioConfig, GoogleSpreadsheetValues>>,
+  private fun responseToPortfolio(
+      config: PortfolioConfig401k,
+      response: GoogleSpreadsheetValues,
       tradierHistory: Map<String, TradierHistory>
-  ): TryEither<List<PortfolioWithHistory>> {
-    log.debug("Parsing and formatting google spreadsheet responses")
-    TODO()
-  }
-
-  private fun transformResponse(
-      portfolioName: String,
-      response: GoogleSpreadsheetValues
-  ): TryEither<Any> {
+  ): PortfolioWithHistory {
     response.values.drop(1).map { cols -> cols[0].toDate() to cols[7].toAmount() }
     TODO()
   }
 }
 
-private val TRADIER_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 private val SPREADSHEET_DATE_FORMAT = DateTimeFormatter.ofPattern("MMM yyyy")
 
 private fun String.toDate(): LocalDate = YearMonth.parse(this, SPREADSHEET_DATE_FORMAT).atDay(1)

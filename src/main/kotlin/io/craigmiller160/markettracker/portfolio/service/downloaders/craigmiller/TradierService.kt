@@ -9,6 +9,8 @@ import io.craigmiller160.markettracker.portfolio.extensions.bindToList
 import io.craigmiller160.markettracker.portfolio.extensions.retrieveSuccess
 import io.craigmiller160.markettracker.portfolio.web.types.keycloak.TokenResponse
 import io.craigmiller160.markettracker.portfolio.web.types.tradier.TradierHistory
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -24,6 +26,10 @@ class TradierService(
     private val marketTrackerApiConfig: MarketTrackerApiConfig,
     private val oauth2Config: OAuth2Config
 ) {
+  companion object {
+    val TRADIER_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+  }
+
   suspend fun getTradierHistory(symbols: List<String>): TryEither<Map<String, TradierHistory>> =
       coroutineScope {
         getAccessToken().flatMap { token ->
@@ -40,14 +46,16 @@ class TradierService(
   private suspend fun downloadTradierHistory(
       symbol: String,
       token: String
-  ): TryEither<TradierHistory> =
-      webClient
-          .get()
-          .uri(
-              "${marketTrackerApiConfig.host}/tradier/markets/history?symbol=${symbol}&start=2015-01-01&end=$today&interval=monthly")
-          .header("Authorization", "Bearer $token")
-          .retrieveSuccess()
-          .awaitBodyResult<TradierHistory>()
+  ): TryEither<TradierHistory> {
+    val today = LocalDate.now().format(TRADIER_DATE_FORMAT)
+    return webClient
+        .get()
+        .uri(
+            "${marketTrackerApiConfig.host}/tradier/markets/history?symbol=${symbol}&start=2015-01-01&end=$today&interval=monthly")
+        .header("Authorization", "Bearer $token")
+        .retrieveSuccess()
+        .awaitBodyResult<TradierHistory>()
+  }
 
   private suspend fun getAccessToken(): TryEither<String> {
     val body =
