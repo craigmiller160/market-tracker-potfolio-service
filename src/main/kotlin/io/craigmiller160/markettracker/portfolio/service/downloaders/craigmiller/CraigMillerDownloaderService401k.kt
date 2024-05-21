@@ -1,6 +1,7 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
 import arrow.core.raise.either
+import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.config.Allocation401k
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig401k
@@ -63,16 +64,42 @@ class CraigMillerDownloaderService401k(
         .drop(1)
         .map { cols -> cols[0].toDate() to cols[7].toAmount() }
         .map { (date, amount) -> doConvertToSharesOwned(date, amount) }
+        .bindToList()
+        .map { list -> list.flatten() }
     TODO()
   }
 
   private fun convertToSharesOwned(
       config: PortfolioConfig401k,
       tradierHistory: Map<String, TradierHistory>
-  ): (LocalDate, BigDecimal) -> SharesOwned = { date, amount ->
-    getConversionValues(config, tradierHistory, date)
+  ): (LocalDate, BigDecimal) -> TryEither<List<SharesOwned>> = { date, amount ->
+    getConversionValues(config, tradierHistory, date).map { values ->
+      val totalAmountUs = amount.times(values.allocation.percentUs.toBigDecimal())
+      val totalAmountExUs = amount.times(values.allocation.percentExUs.toBigDecimal())
+      val usShares = totalAmountUs.divide(values.usHistory.close.toBigDecimal())
+      val exUsShares = totalAmountExUs.divide(values.exUsHistory.close.toBigDecimal())
 
-    TODO()
+      val usSharesOwned =
+          SharesOwned(
+              id = TypedId(),
+              userId = TODO(),
+              portfolioId = TODO(),
+              dateRangeStart = TODO(),
+              dateRangeEnd = TODO(),
+              symbol = US_SYMBOL,
+              totalShares = usShares)
+      val exUsSharesOwned =
+          SharesOwned(
+              id = TypedId(),
+              userId = TODO(),
+              portfolioId = TODO(),
+              dateRangeStart = TODO(),
+              dateRangeEnd = TODO(),
+              symbol = EX_US_SYMBOL,
+              totalShares = exUsShares)
+
+      listOf(usSharesOwned, exUsSharesOwned)
+    }
   }
 
   private fun getConversionValues(
