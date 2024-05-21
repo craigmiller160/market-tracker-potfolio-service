@@ -18,6 +18,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -90,13 +91,17 @@ class CraigMillerDownloaderService401k(
       val usShares = totalAmountUs.divide(values.usHistory.close.toBigDecimal())
       val exUsShares = totalAmountExUs.divide(values.exUsHistory.close.toBigDecimal())
 
+      val startDate = date.with(TemporalAdjusters.firstDayOfMonth())
+      val endDate = date.with(TemporalAdjusters.lastDayOfMonth())
+
+      // TODO should the dates be exclusive or inclusive?
       val usSharesOwned =
           SharesOwned(
               id = TypedId(),
               userId = downloaderConfig.userId,
               portfolioId = portfolioId,
-              dateRangeStart = TODO(),
-              dateRangeEnd = TODO(),
+              dateRangeStart = startDate,
+              dateRangeEnd = endDate,
               symbol = US_SYMBOL,
               totalShares = usShares)
       val exUsSharesOwned =
@@ -104,8 +109,8 @@ class CraigMillerDownloaderService401k(
               id = TypedId(),
               userId = downloaderConfig.userId,
               portfolioId = portfolioId,
-              dateRangeStart = TODO(),
-              dateRangeEnd = TODO(),
+              dateRangeStart = startDate,
+              dateRangeEnd = endDate,
               symbol = EX_US_SYMBOL,
               totalShares = exUsShares)
 
