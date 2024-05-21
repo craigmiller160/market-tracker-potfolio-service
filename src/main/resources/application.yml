@@ -27,7 +27,7 @@ http-client:
   timeout-millis: 30000
 
 market-tracker-api:
-  host: https://localhost:8080
+  host: http://localhost:8080
 
 downloaders:
   enable-schedule: false
