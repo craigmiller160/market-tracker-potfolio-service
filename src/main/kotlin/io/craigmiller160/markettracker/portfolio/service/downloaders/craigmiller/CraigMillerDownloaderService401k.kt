@@ -52,7 +52,8 @@ class CraigMillerDownloaderService401k(
       response: GoogleSpreadsheetValues,
       tradierHistory: Map<String, TradierHistory>
   ): PortfolioWithHistory {
-    response.values.drop(1).map { cols -> cols[0].toDate() to cols[7].toAmount() }
+    val spreadsheetValues =
+        response.values.drop(1).map { cols -> cols[0].toDate() to cols[7].toAmount() }
     TODO()
   }
 }

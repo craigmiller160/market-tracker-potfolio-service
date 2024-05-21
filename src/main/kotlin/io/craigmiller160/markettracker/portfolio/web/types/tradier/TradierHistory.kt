@@ -1,7 +1,9 @@
 package io.craigmiller160.markettracker.portfolio.web.types.tradier
 
+import java.time.LocalDate
+
 data class TradierDay(
-    val date: String,
+    val date: LocalDate,
     val open: Double,
     val high: Double,
     val low: Double,
