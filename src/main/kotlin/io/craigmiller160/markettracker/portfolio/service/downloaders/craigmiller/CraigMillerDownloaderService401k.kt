@@ -6,6 +6,7 @@ import io.craigmiller160.markettracker.portfolio.common.typedid.TypedId
 import io.craigmiller160.markettracker.portfolio.config.Allocation401k
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig401k
+import io.craigmiller160.markettracker.portfolio.domain.DATE_RANGE_MAX
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
@@ -80,8 +81,25 @@ class CraigMillerDownloaderService401k(
   }
 
   private fun cleanupSharesOwnedList(list: List<List<SharesOwned>>): List<SharesOwned> {
-    TODO("Flatten and add MAX_DATE end items")
+    val flattenedList = list.flatten()
+    val sharesBySymbol = flattenedList.groupBy { it.symbol }
+    val maxUs =
+        sharesBySymbol[US_SYMBOL]?.maxBy { it.dateRangeEnd }?.let { createMaxSharesOwned(it) }
+    val maxExUs =
+        sharesBySymbol[EX_US_SYMBOL]?.maxBy { it.dateRangeEnd }?.let { createMaxSharesOwned(it) }
+
+    return flattenedList + listOfNotNull(maxExUs, maxUs)
   }
+
+  private fun createMaxSharesOwned(existingMaxSharesOwned: SharesOwned): SharesOwned =
+      SharesOwned(
+          id = TypedId(),
+          userId = downloaderConfig.userId,
+          portfolioId = existingMaxSharesOwned.portfolioId,
+          symbol = existingMaxSharesOwned.symbol,
+          totalShares = existingMaxSharesOwned.totalShares,
+          dateRangeStart = existingMaxSharesOwned.dateRangeEnd,
+          dateRangeEnd = DATE_RANGE_MAX)
 
   private fun convertToSharesOwned(
       config: PortfolioConfig401k,
