@@ -6,6 +6,7 @@ import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig401k
 import io.craigmiller160.markettracker.portfolio.domain.models.PortfolioWithHistory
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.extensions.bindToList
+import io.craigmiller160.markettracker.portfolio.extensions.isBetween
 import io.craigmiller160.markettracker.portfolio.web.types.tradier.TradierHistory
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -64,7 +65,23 @@ class CraigMillerDownloaderService401k(
   private fun convertToSharesOwned(
       config: PortfolioConfig401k,
       tradierHistory: Map<String, TradierHistory>
-  ): (LocalDate, BigDecimal) -> SharesOwned = { date, amount -> TODO() }
+  ): (LocalDate, BigDecimal) -> SharesOwned = { date, amount ->
+    val matchingAllocation =
+        config.allocations.find { allocation ->
+          date.isBetween(allocation.startDate, allocation.endDate ?: LocalDate.MAX)
+        }
+            ?: throw IllegalStateException(
+                "Unable to find matching allocation for date $date") // TODO probably should make
+    // this an either
+
+    val usHistory =
+        tradierHistory[US_SYMBOL]?.history?.day?.find { it.date.month.value == date.month.value }
+            ?: throw IllegalStateException("Unable to find matching US history for date $date")
+    val exUsHistory =
+        tradierHistory[EX_US_SYMBOL]?.history?.day?.find { it.date.month.value == date.month.value }
+            ?: throw IllegalStateException("Unable to find matching EX-US history for date $date")
+    TODO()
+  }
 }
 
 private val SPREADSHEET_DATE_FORMAT = DateTimeFormatter.ofPattern("MMM yyyy")
