@@ -75,7 +75,6 @@ constructor(
 
   @Test
   fun `downloads and formats google sheet data`() {
-
     val result = runBlocking { service.download(googleApiAccessToken.accessToken) }.shouldBeRight()
 
     result.shouldHaveSize(3)
@@ -114,39 +113,45 @@ private class TestDispatcher(
     private val transactions: String
 ) : Dispatcher() {
   override fun dispatch(request: RecordedRequest): MockResponse {
-    val authHeader = request.headers["Authorization"] ?: return MockResponse().setResponseCode(401)
-    if (authHeader != "Bearer $expectedToken") {
-      println("Missing expected authorization header")
-      return MockResponse().setResponseCode(401).setBody("Missing expected authorization header")
+    try {
+      val authHeader =
+          request.headers["Authorization"] ?: return MockResponse().setResponseCode(401)
+      if (authHeader != "Bearer $expectedToken") {
+        val errorMessage = "Missing expected authorization header"
+        System.err.println(errorMessage)
+        return MockResponse().setResponseCode(401).setBody(errorMessage)
+      }
+
+      val url = request.requestUrl?.toString() ?: ""
+      val expectedUrlRegex =
+          Regex("^${baseUrl}/spreadsheets/(?<sheedId>.+)/values/(?<valuesRange>.+)\$")
+      val matchResult = expectedUrlRegex.find(url)
+
+      if (matchResult == null) {
+        val errorMessage = "Request URL does not match regex: $url"
+        System.err.println(errorMessage)
+        return MockResponse().setResponseCode(404).setBody(errorMessage)
+      }
+
+      val sheetId = matchResult.groups["sheetId"] ?: ""
+      val valuesRange = matchResult.groups["valuesRange"] ?: ""
+      val matchingUrlValues =
+          spreadsheetUrlValues.find { values ->
+            values.sheetId == sheetId && values.valuesRange == valuesRange
+          }
+
+      if (matchingUrlValues == null) {
+        val errorMessage =
+            "Request URL does not have required path elements: SheetId=$sheetId ValuesRange=$valuesRange"
+        System.err.println(errorMessage)
+        return MockResponse().setResponseCode(404).setBody(errorMessage)
+      }
+
+      return MockResponse().setResponseCode(200).setBody(transactions)
+    } catch (ex: Exception) {
+      ex.printStackTrace()
+      return MockResponse().setResponseCode(500).setBody(ex.toString())
     }
-
-    val url = request.requestUrl?.toString() ?: ""
-    val expectedUrlRegex =
-        Regex("^https://${baseUrl}/spreadsheets/(?<sheedId>.+)/values/(?<valuesRange>.+)\$")
-    val matchResult = expectedUrlRegex.find(url)
-
-    if (matchResult == null) {
-      println("Request URL does not match regex: $url")
-      return MockResponse().setResponseCode(404).setBody("Request URL does not match regex: $url")
-    }
-
-    val sheetId = matchResult.groups["sheetId"] ?: ""
-    val valuesRange = matchResult.groups["valuesRange"] ?: ""
-    val matchingUrlValues =
-        spreadsheetUrlValues.find { values ->
-          values.sheetId == sheetId && values.valuesRange == valuesRange
-        }
-
-    if (matchingUrlValues == null) {
-      println(
-          "Request URL does not have required path elements: SheetId=$sheetId ValuesRange=$valuesRange")
-      return MockResponse()
-          .setResponseCode(404)
-          .setBody(
-              "Request URL does not have required path elements: SheetId=$sheetId ValuesRange=$valuesRange")
-    }
-
-    return MockResponse().setResponseCode(200).setBody(transactions)
   }
 }
 
