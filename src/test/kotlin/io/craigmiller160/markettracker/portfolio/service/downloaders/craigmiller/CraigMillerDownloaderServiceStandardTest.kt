@@ -22,7 +22,6 @@ import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 
@@ -37,12 +36,20 @@ constructor(
 ) {
   companion object {
     private val transactions1: String = DataLoader.load("data/craigmiller/Transactions1.json")
+    private val googleApiAccessToken =
+        GoogleApiAccessToken(accessToken = "TOKEN", expiresIn = 100000, tokenType = "Bearer")
   }
 
   private val mockServer = MockWebServer()
 
   @BeforeEach
   fun setup() {
+    mockServer.dispatcher =
+        TestDispatcher(
+            baseUrl = downloaderConfig.googleSheetsApiBaseUrl,
+            expectedToken = googleApiAccessToken.accessToken,
+            spreadsheetUrlValues = downloaderConfig.portfolioSpreadsheetsStandard,
+            transactions = transactions1)
     mockServer.start(testPort)
   }
 
@@ -68,15 +75,6 @@ constructor(
 
   @Test
   fun `downloads and formats google sheet data`() {
-    val googleApiAccessToken =
-        GoogleApiAccessToken(accessToken = "TOKEN", expiresIn = 100000, tokenType = "Bearer")
-
-    mockServer.dispatcher =
-        TestDispatcher(
-            baseUrl = downloaderConfig.googleSheetsApiBaseUrl,
-            expectedToken = googleApiAccessToken.accessToken,
-            spreadsheetUrlValues = downloaderConfig.portfolioSpreadsheetsStandard,
-            transactions = transactions1)
 
     val result = runBlocking { service.download(googleApiAccessToken.accessToken) }.shouldBeRight()
 
@@ -115,12 +113,11 @@ private class TestDispatcher(
     private val expectedToken: String,
     private val transactions: String
 ) : Dispatcher() {
-  private val log = LoggerFactory.getLogger(javaClass)
   override fun dispatch(request: RecordedRequest): MockResponse {
     val authHeader = request.headers["Authorization"] ?: return MockResponse().setResponseCode(401)
     if (authHeader != "Bearer $expectedToken") {
-      log.error("Missing expected authorization header")
-      return MockResponse().setResponseCode(401)
+      println("Missing expected authorization header")
+      return MockResponse().setResponseCode(401).setBody("Missing expected authorization header")
     }
 
     val url = request.requestUrl?.toString() ?: ""
@@ -129,8 +126,8 @@ private class TestDispatcher(
     val matchResult = expectedUrlRegex.find(url)
 
     if (matchResult == null) {
-      log.error("Request URL does not match regex: $url")
-      return MockResponse().setResponseCode(404)
+      println("Request URL does not match regex: $url")
+      return MockResponse().setResponseCode(404).setBody("Request URL does not match regex: $url")
     }
 
     val sheetId = matchResult.groups["sheetId"] ?: ""
@@ -141,9 +138,12 @@ private class TestDispatcher(
         }
 
     if (matchingUrlValues == null) {
-      log.error(
+      println(
           "Request URL does not have required path elements: SheetId=$sheetId ValuesRange=$valuesRange")
-      return MockResponse().setResponseCode(404)
+      return MockResponse()
+          .setResponseCode(404)
+          .setBody(
+              "Request URL does not have required path elements: SheetId=$sheetId ValuesRange=$valuesRange")
     }
 
     return MockResponse().setResponseCode(200).setBody(transactions)
