@@ -23,11 +23,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 
 @MarketTrackerPortfolioIntegrationTest
-class CraigMillerDownloaderServiceTest
+class CraigMillerDownloaderServiceStandardTest
 @Autowired
 constructor(
     @Value("\${downloaders.craigmiller.test-port}") private val testPort: Int,
-    private val service: CraigMillerDownloaderService,
+    private val service: CraigMillerDownloaderServiceStandard,
     private val objectMapper: ObjectMapper,
     private val downloaderConfig: CraigMillerDownloaderConfig,
 ) {
@@ -66,12 +66,6 @@ constructor(
   fun `downloads and formats google sheet data`() {
     val googleApiAccessToken =
         GoogleApiAccessToken(accessToken = "TOKEN", expiresIn = 100000, tokenType = "Bearer")
-    mockServer.enqueue(
-        MockResponse().apply {
-          status = "HTTP/1.1 200 OK"
-          setBody(objectMapper.writeValueAsString(googleApiAccessToken))
-          addHeader("Content-Type", "application/json")
-        })
 
     repeat(3) {
       mockServer.enqueue(
@@ -82,7 +76,7 @@ constructor(
           })
     }
 
-    val result = runBlocking { service.download() }.shouldBeRight()
+    val result = runBlocking { service.download(googleApiAccessToken.accessToken) }.shouldBeRight()
 
     result.shouldHaveSize(3)
 
