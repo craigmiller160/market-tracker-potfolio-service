@@ -80,6 +80,7 @@ constructor(
     val result = runBlocking { service.download(googleApiAccessToken.accessToken) }.shouldBeRight()
 
     result.shouldHaveSize(3)
+    mockServer.requestCount.shouldBe(3)
 
     result.forEachIndexed { index, portfolio ->
       portfolio.name.shouldBeIn("Brokerage", "Roth IRA", "Rollover IRA")
