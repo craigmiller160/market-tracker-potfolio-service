@@ -169,13 +169,13 @@ class CraigMillerDownloaderService401k(
         tradierHistory[downloaderConfig.etfEquivalents.us]
             ?.history
             ?.day
-            ?.find { it.date.monthValue == date.monthValue }
+            ?.find { it.date.monthValue == date.monthValue && it.date.year == date.year }
             .leftIfNull("Unable to find matching US history for date $date")
     val exUsHistoryEither =
         tradierHistory[downloaderConfig.etfEquivalents.exUs]
             ?.history
             ?.day
-            ?.find { it.date.monthValue == date.monthValue }
+            ?.find { it.date.monthValue == date.monthValue && it.date.year == date.year }
             .leftIfNull("Unable to find matching EX-US history for date $date")
 
     return either {
