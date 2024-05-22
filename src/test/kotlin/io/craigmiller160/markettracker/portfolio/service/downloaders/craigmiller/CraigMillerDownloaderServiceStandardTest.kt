@@ -22,6 +22,7 @@ import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 
@@ -114,17 +115,21 @@ private class TestDispatcher(
     private val expectedToken: String,
     private val transactions: String
 ) : Dispatcher() {
+  private val log = LoggerFactory.getLogger(javaClass)
   override fun dispatch(request: RecordedRequest): MockResponse {
     val authHeader = request.headers["Authorization"] ?: return MockResponse().setResponseCode(401)
     if (authHeader != "Bearer $expectedToken") {
+      log.error("Missing expected authorization header")
       return MockResponse().setResponseCode(401)
     }
 
+    val url = request.requestUrl?.toString() ?: ""
     val expectedUrlRegex =
         Regex("^https://${baseUrl}/spreadsheets/(?<sheedId>.+)/values/(?<valuesRange>.+)\$")
-    val matchResult = expectedUrlRegex.find(request.requestUrl?.toString() ?: "")
+    val matchResult = expectedUrlRegex.find(url)
 
     if (matchResult == null) {
+      log.error("Request URL does not match regex: $url")
       return MockResponse().setResponseCode(404)
     }
 
@@ -136,6 +141,8 @@ private class TestDispatcher(
         }
 
     if (matchingUrlValues == null) {
+      log.error(
+          "Request URL does not have required path elements: SheetId=$sheetId ValuesRange=$valuesRange")
       return MockResponse().setResponseCode(404)
     }
 
