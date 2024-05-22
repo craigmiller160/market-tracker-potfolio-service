@@ -124,6 +124,9 @@ class CraigMillerDownloaderService401k(
       val usShares = totalAmountUs.divide(values.usHistory.close.toBigDecimal(), MATH_CONTEXT)
       val exUsShares = totalAmountExUs.divide(values.exUsHistory.close.toBigDecimal(), MATH_CONTEXT)
 
+      log.trace(
+          "401k Conversion. Date=$date Amount=$amount US-Price=${values.usHistory.close} US-Mine=$totalAmountUs/$usShares Ex-US-Price=${values.exUsHistory.close} Ex-US-Mine=$totalAmountExUs/$exUsShares")
+
       val startDate = date.with(TemporalAdjusters.firstDayOfMonth())
       val endDate = startDate.plusMonths(1)
 

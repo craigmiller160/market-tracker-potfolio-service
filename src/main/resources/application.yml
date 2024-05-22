@@ -65,5 +65,6 @@ downloaders:
 logging:
   level:
     io.craigmiller160: DEBUG
+    io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller.CraigMillerDownloaderService401k: TRACE
     org.springframework.data.r2dbc: DEBUG
 #    io.r2dbc.postgresql.QUERY: DEBUG

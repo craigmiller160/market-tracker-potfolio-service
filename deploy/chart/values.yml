@@ -13,6 +13,7 @@ app_deployment:
     downloaders.craigmiller.service-account-json-path: /gcloud-service-account/market-tracker-service-account.json
     market-tracker-api.host: http://market-tracker-api:8080
     logging.level.org.springframework.data.r2dbc: INFO
+    io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller.CraigMillerDownloaderService401k: DEBUG
   onepassworditems:
     - name: market-tracker-portfolio-postgres
       itemPath: vaults/Home Server (Prod)/items/Postgres Root Account
