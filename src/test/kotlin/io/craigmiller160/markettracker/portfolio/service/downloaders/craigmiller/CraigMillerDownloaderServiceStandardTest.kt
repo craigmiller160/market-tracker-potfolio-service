@@ -3,7 +3,6 @@ package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmille
 import arrow.core.Either
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
-import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DataLoader
@@ -15,10 +14,7 @@ import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlinx.coroutines.runBlocking
-import okhttp3.mockwebserver.Dispatcher
-import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -45,11 +41,11 @@ constructor(
   @BeforeEach
   fun setup() {
     mockServer.dispatcher =
-        TestDispatcher(
+        GoogleSheetsDispatcher(
             baseUrl = downloaderConfig.googleSheetsApiBaseUrl,
             expectedToken = googleApiAccessToken.accessToken,
             spreadsheetUrlValues = downloaderConfig.portfolioSpreadsheetsStandard,
-            transactions = transactions1)
+            response = transactions1)
     mockServer.start(testPort)
   }
 
@@ -102,72 +98,6 @@ constructor(
             }
             .shouldBeRight { ex -> "Error validating record $innerIndex: ${ex.message}" }
       }
-    }
-  }
-}
-
-private class TestDispatcher(
-    private val baseUrl: String,
-    private val spreadsheetUrlValues: List<PortfolioConfig>,
-    private val expectedToken: String,
-    private val transactions: String
-) : Dispatcher() {
-  override fun dispatch(request: RecordedRequest): MockResponse {
-    try {
-      println("Received request: ${request.method ?: ""} ${request.requestUrl?.toString() ?: ""}")
-
-      val authHeader =
-          request.headers["Authorization"] ?: return MockResponse().setResponseCode(401)
-      if (authHeader != "Bearer $expectedToken") {
-        val errorMessage = "Missing expected authorization header"
-        System.err.println(errorMessage)
-        return MockResponse()
-            .setResponseCode(401)
-            .setHeader("Content-Type", "text/plain")
-            .setBody(errorMessage)
-      }
-
-      val url = request.requestUrl?.toString() ?: ""
-      val expectedUrlRegex =
-          Regex("^${baseUrl}/spreadsheets/(?<sheetId>.+)/values/(?<valuesRange>.+)\$")
-      val matchResult = expectedUrlRegex.find(url)
-
-      if (matchResult == null) {
-        val errorMessage = "Request URL does not match regex: $url"
-        System.err.println(errorMessage)
-        return MockResponse()
-            .setResponseCode(404)
-            .setHeader("Content-Type", "text/plain")
-            .setBody(errorMessage)
-      }
-
-      val sheetId = matchResult.groups["sheetId"]?.value ?: ""
-      val valuesRange = matchResult.groups["valuesRange"]?.value ?: ""
-      val matchingUrlValues =
-          spreadsheetUrlValues.find { values ->
-            values.sheetId == sheetId && values.valuesRange == valuesRange
-          }
-
-      if (matchingUrlValues == null) {
-        val errorMessage =
-            "Request URL does not have required path elements: SheetId=$sheetId ValuesRange=$valuesRange"
-        System.err.println(errorMessage)
-        return MockResponse()
-            .setResponseCode(404)
-            .setHeader("Content-Type", "text/plain")
-            .setBody(errorMessage)
-      }
-
-      return MockResponse()
-          .setResponseCode(200)
-          .setHeader("Content-Type", "application/json")
-          .setBody(transactions)
-    } catch (ex: Exception) {
-      ex.printStackTrace()
-      return MockResponse()
-          .setResponseCode(500)
-          .setHeader("Content-Type", "text/plain")
-          .setBody(ex.toString())
     }
   }
 }
