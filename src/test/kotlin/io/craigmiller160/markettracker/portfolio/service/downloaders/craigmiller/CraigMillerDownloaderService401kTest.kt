@@ -2,6 +2,7 @@ package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmille
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
+import io.craigmiller160.markettracker.portfolio.config.MarketTrackerApiConfig
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DataLoader
 import io.kotest.assertions.arrow.core.shouldBeRight
@@ -27,6 +28,7 @@ constructor(
     private val service: CraigMillerDownloaderService401k,
     private val objectMapper: ObjectMapper,
     private val downloaderConfig: CraigMillerDownloaderConfig,
+    private val marketTrackerApiConfig: MarketTrackerApiConfig
 ) {
   companion object {
     private val data401k: String = DataLoader.load("data/craigmiller/Data401k.json")
@@ -49,7 +51,7 @@ constructor(
             response = data401k)
     mockGoogleServer.start(testGooglePort)
 
-    mockMarketTrackerServer.dispatcher = MarketTrackerDispatcher()
+    mockMarketTrackerServer.dispatcher = MarketTrackerDispatcher(host = marketTrackerApiConfig.host)
     mockMarketTrackerServer.start(testMarketTrackerPort)
   }
 
@@ -69,7 +71,7 @@ constructor(
   }
 }
 
-private class MarketTrackerDispatcher : Dispatcher() {
+private class MarketTrackerDispatcher(private val host: String) : Dispatcher() {
   override fun dispatch(request: RecordedRequest): MockResponse {
     TODO("Not yet implemented")
   }
