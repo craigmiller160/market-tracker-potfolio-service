@@ -27,6 +27,8 @@ constructor(
 ) {
   companion object {
     private val data401k: String = DataLoader.load("data/craigmiller/Data401k.json")
+    private val tradierHistory401k: String =
+        DataLoader.load("data/craigmiller/TradierHistoryFor401k.json")
     private val googleApiAccessToken =
         GoogleApiAccessToken(accessToken = "TOKEN", expiresIn = 100000, tokenType = "Bearer")
   }
