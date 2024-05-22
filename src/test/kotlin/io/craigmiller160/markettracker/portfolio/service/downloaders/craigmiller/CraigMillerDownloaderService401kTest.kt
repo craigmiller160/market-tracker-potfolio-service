@@ -19,7 +19,8 @@ import org.springframework.beans.factory.annotation.Value
 class CraigMillerDownloaderService401kTest
 @Autowired
 constructor(
-    @Value("\${downloaders.craigmiller.test-port}") private val testPort: Int,
+    @Value("\${downloaders.craigmiller.test-port}") private val testGooglePort: Int,
+    @Value("\${market-tracker-api.test-port}") private val testMarketTrackerPort: Int,
     private val service: CraigMillerDownloaderService401k,
     private val objectMapper: ObjectMapper,
     private val downloaderConfig: CraigMillerDownloaderConfig,
@@ -30,22 +31,22 @@ constructor(
         GoogleApiAccessToken(accessToken = "TOKEN", expiresIn = 100000, tokenType = "Bearer")
   }
 
-  private val mockServer = MockWebServer()
+  private val mockGoogleServer = MockWebServer()
 
   @BeforeEach
   fun setup() {
-    mockServer.dispatcher =
+    mockGoogleServer.dispatcher =
         GoogleSheetsDispatcher(
             baseUrl = downloaderConfig.googleSheetsApiBaseUrl,
             expectedToken = googleApiAccessToken.accessToken,
             spreadsheetUrlValues = downloaderConfig.portfolioSpreadsheetsStandard,
             response = data401k)
-    mockServer.start(testPort)
+    mockGoogleServer.start(testGooglePort)
   }
 
   @AfterEach
   fun cleanup() {
-    mockServer.shutdown()
+    mockGoogleServer.shutdown()
   }
 
   @Test
@@ -53,7 +54,7 @@ constructor(
     val result = runBlocking { service.download(googleApiAccessToken.accessToken) }.shouldBeRight()
 
     result.shouldHaveSize(1)
-    mockServer.requestCount.shouldBe(1)
+    mockGoogleServer.requestCount.shouldBe(1)
     TODO()
   }
 }

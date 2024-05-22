@@ -17,6 +17,7 @@ spring:
           host: ${testcontainers.common.keycloak.url}
           client-id: ${testcontainers.common.keycloak.client.id}
 
+
 downloaders:
   craigmiller:
     test-port: 1234
@@ -29,3 +30,7 @@ logging:
     org.springframework.data.r2dbc: DEBUG
     io.r2dbc.postgresql.QUERY: DEBUG
     io.r2dbc.postgresql.PARAM: DEBUG
+
+market-tracker-api:
+  test-port: 1235
+  host: http://localhost:${market-tracker-api.test-port}
