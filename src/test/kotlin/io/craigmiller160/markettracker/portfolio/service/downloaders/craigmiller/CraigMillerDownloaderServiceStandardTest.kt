@@ -121,7 +121,10 @@ private class TestDispatcher(
       if (authHeader != "Bearer $expectedToken") {
         val errorMessage = "Missing expected authorization header"
         System.err.println(errorMessage)
-        return MockResponse().setResponseCode(401).setBody(errorMessage)
+        return MockResponse()
+            .setResponseCode(401)
+            .setHeader("Content-Type", "text/plain")
+            .setBody(errorMessage)
       }
 
       val url = request.requestUrl?.toString() ?: ""
@@ -132,7 +135,10 @@ private class TestDispatcher(
       if (matchResult == null) {
         val errorMessage = "Request URL does not match regex: $url"
         System.err.println(errorMessage)
-        return MockResponse().setResponseCode(404).setBody(errorMessage)
+        return MockResponse()
+            .setResponseCode(404)
+            .setHeader("Content-Type", "text/plain")
+            .setBody(errorMessage)
       }
 
       val sheetId = matchResult.groups["sheetId"]?.value ?: ""
@@ -146,13 +152,22 @@ private class TestDispatcher(
         val errorMessage =
             "Request URL does not have required path elements: SheetId=$sheetId ValuesRange=$valuesRange"
         System.err.println(errorMessage)
-        return MockResponse().setResponseCode(404).setBody(errorMessage)
+        return MockResponse()
+            .setResponseCode(404)
+            .setHeader("Content-Type", "text/plain")
+            .setBody(errorMessage)
       }
 
-      return MockResponse().setResponseCode(200).setBody(transactions)
+      return MockResponse()
+          .setResponseCode(200)
+          .setHeader("Content-Type", "application/json")
+          .setBody(transactions)
     } catch (ex: Exception) {
       ex.printStackTrace()
-      return MockResponse().setResponseCode(500).setBody(ex.toString())
+      return MockResponse()
+          .setResponseCode(500)
+          .setHeader("Content-Type", "text/plain")
+          .setBody(ex.toString())
     }
   }
 }
