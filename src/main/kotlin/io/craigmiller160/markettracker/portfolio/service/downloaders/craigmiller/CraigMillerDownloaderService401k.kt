@@ -37,16 +37,15 @@ class CraigMillerDownloaderService401k(
     private val tradierService: TradierService,
     webClient: WebClient
 ) : AbstractChildDownloaderService(downloaderConfig, webClient) {
-  companion object {
-    const val US_SYMBOL = "VTI"
-    const val EX_US_SYMBOL = "VXUS"
-  }
-
   private val log = LoggerFactory.getLogger(javaClass)
 
   override suspend fun download(token: String): ChildDownloadServiceResult = coroutineScope {
     either {
-      val tradierHistory = tradierService.getTradierHistory(listOf(US_SYMBOL, EX_US_SYMBOL)).bind()
+      val tradierHistory =
+          tradierService
+              .getTradierHistory(
+                  listOf(downloaderConfig.etfEquivalents.us, downloaderConfig.etfEquivalents.exUs))
+              .bind()
       val spreadsheets =
           downloaderConfig.portfolioSpreadsheets401k
               .map { config -> async { downloadSpreadsheet(config, token) } }
@@ -92,9 +91,13 @@ class CraigMillerDownloaderService401k(
     val flattenedList = list.flatten()
     val sharesBySymbol = flattenedList.groupBy { it.symbol }
     val maxUs =
-        sharesBySymbol[US_SYMBOL]?.maxBy { it.dateRangeEnd }?.let { createMaxSharesOwned(it) }
+        sharesBySymbol[downloaderConfig.etfEquivalents.us]
+            ?.maxBy { it.dateRangeEnd }
+            ?.let { createMaxSharesOwned(it) }
     val maxExUs =
-        sharesBySymbol[EX_US_SYMBOL]?.maxBy { it.dateRangeEnd }?.let { createMaxSharesOwned(it) }
+        sharesBySymbol[downloaderConfig.etfEquivalents.exUs]
+            ?.maxBy { it.dateRangeEnd }
+            ?.let { createMaxSharesOwned(it) }
 
     return flattenedList + listOfNotNull(maxExUs, maxUs)
   }
@@ -131,7 +134,7 @@ class CraigMillerDownloaderService401k(
               portfolioId = portfolioId,
               dateRangeStart = startDate,
               dateRangeEnd = endDate,
-              symbol = US_SYMBOL,
+              symbol = downloaderConfig.etfEquivalents.us,
               totalShares = usShares)
       val exUsSharesOwned =
           SharesOwned(
@@ -140,7 +143,7 @@ class CraigMillerDownloaderService401k(
               portfolioId = portfolioId,
               dateRangeStart = startDate,
               dateRangeEnd = endDate,
-              symbol = EX_US_SYMBOL,
+              symbol = downloaderConfig.etfEquivalents.exUs,
               totalShares = exUsShares)
 
       listOf(usSharesOwned, exUsSharesOwned).filter { it.totalShares > BigDecimal.ZERO }
@@ -160,13 +163,13 @@ class CraigMillerDownloaderService401k(
             .leftIfNull("Unable to find matching allocation for date $date")
 
     val usHistoryEither =
-        tradierHistory[US_SYMBOL]
+        tradierHistory[downloaderConfig.etfEquivalents.us]
             ?.history
             ?.day
             ?.find { it.date.monthValue == date.monthValue }
             .leftIfNull("Unable to find matching US history for date $date")
     val exUsHistoryEither =
-        tradierHistory[EX_US_SYMBOL]
+        tradierHistory[downloaderConfig.etfEquivalents.exUs]
             ?.history
             ?.day
             ?.find { it.date.monthValue == date.monthValue }

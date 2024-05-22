@@ -12,8 +12,11 @@ data class CraigMillerDownloaderConfig(
     val googleSheetsApiBaseUrl: String,
     val serviceAccountJsonPath: String,
     val portfolioSpreadsheetsStandard: List<PortfolioConfigStandard>,
-    val portfolioSpreadsheets401k: List<PortfolioConfig401k>
+    val portfolioSpreadsheets401k: List<PortfolioConfig401k>,
+    val etfEquivalents: EtfEquivalents
 )
+
+data class EtfEquivalents(val us: String, val exUs: String)
 
 sealed interface PortfolioConfig {
   val name: String

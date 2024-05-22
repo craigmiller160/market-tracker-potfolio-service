@@ -36,6 +36,9 @@ downloaders:
     user-id: 2e0eccce-1f64-4d13-a269-fda027f5ddee
     google-sheets-api-base-url: https://sheets.googleapis.com/v4
     service-account-json-path: ${user.dir}/market-tracker-service-account.json
+    etf-equivalents:
+      us: VTI
+      ex-us: VXUS
     portfolio-spreadsheets-standard:
       - name: Brokerage
         sheet-id: 1E2U1DR7i3xG3Kvi_AH9Zp_uYRYR2sSobcjQ5Di1a_t0
