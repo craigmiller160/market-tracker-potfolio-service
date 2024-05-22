@@ -32,6 +32,7 @@ constructor(
   }
 
   private val mockGoogleServer = MockWebServer()
+  private val mockMarketTrackerServer = MockWebServer()
 
   @BeforeEach
   fun setup() {
@@ -42,11 +43,14 @@ constructor(
             spreadsheetUrlValues = downloaderConfig.portfolioSpreadsheetsStandard,
             response = data401k)
     mockGoogleServer.start(testGooglePort)
+
+    mockMarketTrackerServer.start(testMarketTrackerPort)
   }
 
   @AfterEach
   fun cleanup() {
     mockGoogleServer.shutdown()
+    mockMarketTrackerServer.shutdown()
   }
 
   @Test
