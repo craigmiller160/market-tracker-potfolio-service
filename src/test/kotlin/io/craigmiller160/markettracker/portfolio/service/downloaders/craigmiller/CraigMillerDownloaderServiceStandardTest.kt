@@ -126,7 +126,7 @@ private class TestDispatcher(
 
       val url = request.requestUrl?.toString() ?: ""
       val expectedUrlRegex =
-          Regex("^${baseUrl}/spreadsheets/(?<sheedId>.+)/values/(?<valuesRange>.+)\$")
+          Regex("^${baseUrl}/spreadsheets/(?<sheetId>.+)/values/(?<valuesRange>.+)\$")
       val matchResult = expectedUrlRegex.find(url)
 
       if (matchResult == null) {
