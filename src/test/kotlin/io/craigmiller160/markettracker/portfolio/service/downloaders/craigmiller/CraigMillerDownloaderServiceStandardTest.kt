@@ -71,14 +71,12 @@ constructor(
 
     mockServer.requireClientAuth()
 
-    repeat(3) {
-      mockServer.enqueue(
-          MockResponse().apply {
-            status = "HTTP/1.1 200 OK"
-            setBody(transactions1)
-            addHeader("Content-Type", "application/json")
-          })
-    }
+    mockServer.dispatcher =
+        TestDispatcher(
+            baseUrl = downloaderConfig.googleSheetsApiBaseUrl,
+            expectedToken = googleApiAccessToken.accessToken,
+            spreadsheetUrlValues = TODO(),
+            transactions = transactions1)
 
     val result = runBlocking { service.download(googleApiAccessToken.accessToken) }.shouldBeRight()
 
