@@ -8,7 +8,10 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
+import okhttp3.mockwebserver.Dispatcher
+import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -46,6 +49,7 @@ constructor(
             response = data401k)
     mockGoogleServer.start(testGooglePort)
 
+    mockMarketTrackerServer.dispatcher = MarketTrackerDispatcher()
     mockMarketTrackerServer.start(testMarketTrackerPort)
   }
 
@@ -57,11 +61,16 @@ constructor(
 
   @Test
   fun `downloads and formats google sheet data with special conversion for 401k`() {
-
     val result = runBlocking { service.download(googleApiAccessToken.accessToken) }.shouldBeRight()
 
     result.shouldHaveSize(1)
     mockGoogleServer.requestCount.shouldBe(1)
     TODO()
+  }
+}
+
+private class MarketTrackerDispatcher : Dispatcher() {
+  override fun dispatch(request: RecordedRequest): MockResponse {
+    TODO("Not yet implemented")
   }
 }
