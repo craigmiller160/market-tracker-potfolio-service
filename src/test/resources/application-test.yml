@@ -16,6 +16,7 @@ spring:
         resourceserver:
           host: ${testcontainers.common.keycloak.url}
           client-id: ${testcontainers.common.keycloak.client.id}
+          client-secret: ${testcontainers.common.keycloak.client.secret}
 
 
 downloaders:
