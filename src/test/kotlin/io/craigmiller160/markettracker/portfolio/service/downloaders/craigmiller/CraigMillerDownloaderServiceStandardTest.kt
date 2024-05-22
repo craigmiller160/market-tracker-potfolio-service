@@ -70,7 +70,7 @@ constructor(
   }
 
   @Test
-  fun `downloads and formats google sheet data`() {
+  fun `downloads and formats standard transactional google sheet data`() {
     val result = runBlocking { service.download(googleApiAccessToken.accessToken) }.shouldBeRight()
 
     result.shouldHaveSize(3)
