@@ -132,6 +132,17 @@ private class TestDispatcher(
       return MockResponse().setResponseCode(404)
     }
 
+    val sheetId = matchResult.groups["sheetId"] ?: ""
+    val valuesRange = matchResult.groups["valuesRange"] ?: ""
+    val matchingUrlValues =
+        spreadsheetUrlValues.find { values ->
+          values.sheedId == sheetId && values.valuesRange == valuesRange
+        }
+
+    if (matchingUrlValues == null) {
+      return MockResponse().setResponseCode(404)
+    }
+
     return MockResponse().setResponseCode(200).setBody(transactions)
   }
 }
