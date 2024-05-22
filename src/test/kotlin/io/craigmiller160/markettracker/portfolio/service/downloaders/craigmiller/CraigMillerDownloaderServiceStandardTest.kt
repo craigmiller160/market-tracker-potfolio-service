@@ -14,8 +14,10 @@ import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlinx.coroutines.runBlocking
+import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -67,6 +69,8 @@ constructor(
     val googleApiAccessToken =
         GoogleApiAccessToken(accessToken = "TOKEN", expiresIn = 100000, tokenType = "Bearer")
 
+    mockServer.requireClientAuth()
+
     repeat(3) {
       mockServer.enqueue(
           MockResponse().apply {
@@ -103,6 +107,30 @@ constructor(
             .shouldBeRight { ex -> "Error validating record $innerIndex: ${ex.message}" }
       }
     }
+  }
+}
+
+private data class SpreadsheetUrlValues(val sheedId: String, val valuesRange: String)
+
+private class TestDispatcher(
+    private val baseUrl: String,
+    private val spreadsheetUrlValues: List<SpreadsheetUrlValues>,
+    private val expectedToken: String,
+    private val transactions: String
+) : Dispatcher() {
+  override fun dispatch(request: RecordedRequest): MockResponse {
+    val authHeader = request.headers["Authorization"] ?: return MockResponse().setResponseCode(401)
+    if (authHeader != "Bearer $expectedToken") {
+      return MockResponse().setResponseCode(401)
+    }
+
+    val expectedUrlRegex =
+        Regex("^https://${baseUrl}/spreadsheets/(?<sheedId>.+/values/(?<valuesRange>.+)\$")
+    if (!expectedUrlRegex.matches(request.requestUrl?.toString() ?: "")) {
+      return MockResponse().setResponseCode(404)
+    }
+
+    return MockResponse().setResponseCode(200).setBody(transactions)
   }
 }
 
