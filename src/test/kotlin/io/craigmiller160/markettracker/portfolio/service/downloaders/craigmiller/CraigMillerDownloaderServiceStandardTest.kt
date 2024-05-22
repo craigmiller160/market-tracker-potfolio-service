@@ -3,6 +3,7 @@ package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmille
 import arrow.core.Either
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
+import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DataLoader
@@ -69,13 +70,11 @@ constructor(
     val googleApiAccessToken =
         GoogleApiAccessToken(accessToken = "TOKEN", expiresIn = 100000, tokenType = "Bearer")
 
-    mockServer.requireClientAuth()
-
     mockServer.dispatcher =
         TestDispatcher(
             baseUrl = downloaderConfig.googleSheetsApiBaseUrl,
             expectedToken = googleApiAccessToken.accessToken,
-            spreadsheetUrlValues = TODO(),
+            spreadsheetUrlValues = downloaderConfig.portfolioSpreadsheetsStandard,
             transactions = transactions1)
 
     val result = runBlocking { service.download(googleApiAccessToken.accessToken) }.shouldBeRight()
@@ -108,11 +107,9 @@ constructor(
   }
 }
 
-private data class SpreadsheetUrlValues(val sheedId: String, val valuesRange: String)
-
 private class TestDispatcher(
     private val baseUrl: String,
-    private val spreadsheetUrlValues: List<SpreadsheetUrlValues>,
+    private val spreadsheetUrlValues: List<PortfolioConfig>,
     private val expectedToken: String,
     private val transactions: String
 ) : Dispatcher() {
@@ -134,7 +131,7 @@ private class TestDispatcher(
     val valuesRange = matchResult.groups["valuesRange"] ?: ""
     val matchingUrlValues =
         spreadsheetUrlValues.find { values ->
-          values.sheedId == sheetId && values.valuesRange == valuesRange
+          values.sheetId == sheetId && values.valuesRange == valuesRange
         }
 
     if (matchingUrlValues == null) {
