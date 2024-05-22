@@ -114,6 +114,8 @@ private class TestDispatcher(
 ) : Dispatcher() {
   override fun dispatch(request: RecordedRequest): MockResponse {
     try {
+      println("Received request: ${request.method ?: ""} ${request.requestUrl?.toString() ?: ""}")
+
       val authHeader =
           request.headers["Authorization"] ?: return MockResponse().setResponseCode(401)
       if (authHeader != "Bearer $expectedToken") {
@@ -133,8 +135,8 @@ private class TestDispatcher(
         return MockResponse().setResponseCode(404).setBody(errorMessage)
       }
 
-      val sheetId = matchResult.groups["sheetId"] ?: ""
-      val valuesRange = matchResult.groups["valuesRange"] ?: ""
+      val sheetId = matchResult.groups["sheetId"]?.value ?: ""
+      val valuesRange = matchResult.groups["valuesRange"]?.value ?: ""
       val matchingUrlValues =
           spreadsheetUrlValues.find { values ->
             values.sheetId == sheetId && values.valuesRange == valuesRange
