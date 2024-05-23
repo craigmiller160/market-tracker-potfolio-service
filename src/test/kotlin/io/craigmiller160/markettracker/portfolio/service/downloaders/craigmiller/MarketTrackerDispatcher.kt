@@ -23,7 +23,8 @@ class MarketTrackerDispatcher(private val host: String) : Dispatcher() {
       val end = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
       val expectedUrlRegex =
           Regex(
-              "^$host/tradier/markets/history?symbol=(?<symbol>.+)&start=2016-01-01&today=$end&interval=monthly$")
+              "^$host/tradier/markets/history\\?symbol=(?<symbol>.+)&start=2016-01-01&end=$end&interval=monthly$")
+      println("URL Regex: $expectedUrlRegex")
       val matchResult = expectedUrlRegex.find(url)
 
       if (matchResult == null) {

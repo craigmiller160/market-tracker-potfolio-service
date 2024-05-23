@@ -29,6 +29,7 @@ class GoogleSheetsDispatcher(
 
       val expectedUrlRegex =
           Regex("^${baseUrl}/spreadsheets/(?<sheetId>.+)/values/(?<valuesRange>.+)\$")
+      println("URL Regex: $expectedUrlRegex")
       val matchResult = expectedUrlRegex.find(url)
 
       if (matchResult == null) {
