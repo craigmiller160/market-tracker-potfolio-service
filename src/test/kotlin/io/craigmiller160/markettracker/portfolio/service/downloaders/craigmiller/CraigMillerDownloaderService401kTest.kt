@@ -9,10 +9,7 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import okhttp3.mockwebserver.Dispatcher
-import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.RecordedRequest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -32,8 +29,7 @@ constructor(
 ) {
   companion object {
     private val data401k: String = DataLoader.load("data/craigmiller/Data401k.json")
-    private val tradierHistory401k: String =
-        DataLoader.load("data/craigmiller/TradierHistoryFor401k.json")
+
     private val googleApiAccessToken =
         GoogleApiAccessToken(accessToken = "TOKEN", expiresIn = 100000, tokenType = "Bearer")
   }
@@ -68,11 +64,5 @@ constructor(
     result.shouldHaveSize(1)
     mockGoogleServer.requestCount.shouldBe(1)
     TODO()
-  }
-}
-
-private class MarketTrackerDispatcher(private val host: String) : Dispatcher() {
-  override fun dispatch(request: RecordedRequest): MockResponse {
-    TODO("Not yet implemented")
   }
 }

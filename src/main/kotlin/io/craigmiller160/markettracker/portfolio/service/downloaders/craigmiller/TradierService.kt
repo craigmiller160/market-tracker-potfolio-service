@@ -51,7 +51,7 @@ class TradierService(
     return webClient
         .get()
         .uri(
-            "${marketTrackerApiConfig.host}/tradier/markets/history?symbol=${symbol}&start=2015-01-01&end=$today&interval=monthly")
+            "${marketTrackerApiConfig.host}/tradier/markets/history?symbol=${symbol}&start=2016-01-01&end=$today&interval=monthly")
         .header("Authorization", "Bearer $token")
         .retrieveSuccess()
         .awaitBodyResult<TradierHistory>()

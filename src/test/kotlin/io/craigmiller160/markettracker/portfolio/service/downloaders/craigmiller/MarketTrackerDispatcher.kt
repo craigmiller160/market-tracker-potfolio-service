@@ -1,34 +1,29 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
-import io.craigmiller160.markettracker.portfolio.config.PortfolioConfig
+import io.craigmiller160.markettracker.portfolio.testutils.DataLoader
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
 
-class GoogleSheetsDispatcher(
-    private val baseUrl: String,
-    private val spreadsheetUrlValues: List<PortfolioConfig>,
-    private val expectedToken: String,
-    private val response: String
-) : Dispatcher() {
+class MarketTrackerDispatcher(private val host: String) : Dispatcher() {
+  private val vtiHistory: String =
+      DataLoader.load("data/craigmiller/TradierHistoryFor401k_VTI.json")
+  private val vxusHistory: String =
+      DataLoader.load("data/craigmiller/TradierHistoryFor401k_VXUS.json")
+
   override fun dispatch(request: RecordedRequest): MockResponse {
     try {
       val url = request.requestUrl?.toString() ?: ""
       println("Received request: ${request.method ?: ""} $url")
 
-      val authHeader =
-          request.headers["Authorization"] ?: return MockResponse().setResponseCode(401)
-      if (authHeader != "Bearer $expectedToken") {
-        val errorMessage = "Missing expected authorization header"
-        System.err.println(errorMessage)
-        return MockResponse()
-            .setResponseCode(401)
-            .setHeader("Content-Type", "text/plain")
-            .setBody(errorMessage)
-      }
+      // TODO validate authorization
 
+      val end = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
       val expectedUrlRegex =
-          Regex("^${baseUrl}/spreadsheets/(?<sheetId>.+)/values/(?<valuesRange>.+)\$")
+          Regex(
+              "^$host/tradier/markets/history?symbol=(?<symbol>.+)&start=2016-01-01&today=$end&interval=monthly$")
       val matchResult = expectedUrlRegex.find(url)
 
       if (matchResult == null) {
@@ -40,19 +35,19 @@ class GoogleSheetsDispatcher(
             .setBody(errorMessage)
       }
 
-      val sheetId = matchResult.groups["sheetId"]?.value ?: ""
-      val valuesRange = matchResult.groups["valuesRange"]?.value ?: ""
-      val matchingUrlValues =
-          spreadsheetUrlValues.find { values ->
-            values.sheetId == sheetId && values.valuesRange == valuesRange
+      val symbol = matchResult.groups["symbol"]?.value ?: ""
+      val response =
+          when (symbol) {
+            "VTI" -> vtiHistory
+            "VXUS" -> vxusHistory
+            else -> null
           }
 
-      if (matchingUrlValues == null) {
-        val errorMessage =
-            "Request URL does not have required path elements: SheetId=$sheetId ValuesRange=$valuesRange"
+      if (response == null) {
+        val errorMessage = "Unknown symbol: $symbol"
         System.err.println(errorMessage)
         return MockResponse()
-            .setResponseCode(404)
+            .setResponseCode(400)
             .setHeader("Content-Type", "text/plain")
             .setBody(errorMessage)
       }
