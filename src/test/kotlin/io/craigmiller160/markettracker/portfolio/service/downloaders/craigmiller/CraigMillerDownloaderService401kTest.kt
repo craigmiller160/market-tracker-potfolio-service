@@ -5,8 +5,11 @@ import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderCon
 import io.craigmiller160.markettracker.portfolio.config.MarketTrackerApiConfig
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DataLoader
+import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
+import io.craigmiller160.markettracker.portfolio.testutils.userTypedId
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockWebServer
@@ -25,7 +28,8 @@ constructor(
     private val service: CraigMillerDownloaderService401k,
     private val objectMapper: ObjectMapper,
     private val downloaderConfig: CraigMillerDownloaderConfig,
-    private val marketTrackerApiConfig: MarketTrackerApiConfig
+    private val marketTrackerApiConfig: MarketTrackerApiConfig,
+    private val users: DefaultUsers
 ) {
   companion object {
     private val data401k: String = DataLoader.load("data/craigmiller/Data401k.json")
@@ -63,6 +67,14 @@ constructor(
 
     result.shouldHaveSize(1)
     mockGoogleServer.requestCount.shouldBe(1)
-    TODO()
+
+    val portfolio = result.first()
+    portfolio.name.shouldBe("401k")
+    portfolio.userId.shouldBe(users.primaryUser.userTypedId)
+
+    val sharesOwnedGroups = portfolio.ownershipHistory.groupBy { it.symbol }
+    sharesOwnedGroups["VTI"].shouldNotBeNull().shouldBe(TEST_DATA_VTI_401K)
+
+    sharesOwnedGroups["VXUS"].shouldNotBeNull().shouldBe(TEST_DATA_VXUS_4O1K)
   }
 }
