@@ -8,8 +8,6 @@ import io.craigmiller160.markettracker.portfolio.web.types.tradier.TradierHistor
 import java.math.BigDecimal
 import java.time.LocalDate
 
-// 12/2022 is when VXUS starts
-
 private val objectMapper = jacksonObjectMapper()
 
 private val data401k =
@@ -30,6 +28,89 @@ val TEST_DATA_401K: List<SharesOwned> = createTestData {
     start = LocalDate.of(2022, 2, 1)
     end = LocalDate.of(2022, 3, 1)
     symbol = "VTI"
-    amount = BigDecimal("228.0236")
+    amount = BigDecimal("371.7")
+  }
+  shares {
+    start = LocalDate.of(2022, 3, 1)
+    end = LocalDate.of(2022, 4, 1)
+    symbol = "VTI"
+    amount = BigDecimal("403.8")
+  }
+
+  shares {
+    start = LocalDate.of(2022, 4, 1)
+    end = LocalDate.of(2022, 5, 1)
+    symbol = "VTI"
+    amount = TODO()
+  }
+
+  shares {
+    start = LocalDate.of(2022, 5, 1)
+    end = LocalDate.of(2022, 6, 1)
+    symbol = "VTI"
+    amount = TODO()
+  }
+
+  shares {
+    start = LocalDate.of(2022, 7, 1)
+    end = LocalDate.of(2022, 8, 1)
+    symbol = "VTI"
+    amount = TODO()
+  }
+
+  shares {
+    start = LocalDate.of(2022, 8, 1)
+    end = LocalDate.of(2022, 9, 1)
+    symbol = "VTI"
+    amount = TODO()
+  }
+
+  shares {
+    start = LocalDate.of(2022, 9, 1)
+    end = LocalDate.of(2022, 10, 1)
+    symbol = "VTI"
+    amount = TODO()
+  }
+
+  shares {
+    start = LocalDate.of(2022, 10, 1)
+    end = LocalDate.of(2022, 11, 1)
+    symbol = "VTI"
+    amount = TODO()
+  }
+
+  shares {
+    start = LocalDate.of(2022, 11, 1)
+    end = LocalDate.of(2022, 12, 1)
+    symbol = "VTI"
+    amount = TODO()
+  }
+
+  shares {
+    start = LocalDate.of(2023, 1, 1)
+    end = LocalDate.of(2023, 2, 1)
+    symbol = "VTI"
+    amount = TODO()
+  }
+
+  shares {
+    start = LocalDate.of(2023, 2, 1)
+    end = LocalDate.of(2023, 3, 1)
+    symbol = "VTI"
+    amount = TODO()
+  }
+
+  shares {
+    start = LocalDate.of(2023, 3, 1)
+    end = LocalDate.of(2023, 4, 1)
+    symbol = "VTI"
+    amount = TODO()
+  }
+
+  shares {
+    start = LocalDate.of(2023, 4, 1)
+    end = LocalDate.of(2023, 5, 1)
+    symbol = "VTI"
+    amount = TODO()
   }
 }
