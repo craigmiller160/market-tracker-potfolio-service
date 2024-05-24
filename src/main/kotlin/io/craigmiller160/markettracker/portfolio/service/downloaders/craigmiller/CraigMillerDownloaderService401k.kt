@@ -149,7 +149,7 @@ class CraigMillerDownloaderService401k(
               symbol = downloaderConfig.etfEquivalents.exUs,
               totalShares = exUsShares)
 
-      listOf(usSharesOwned, exUsSharesOwned).filter { it.totalShares > BigDecimal.ZERO }
+      listOf(usSharesOwned, exUsSharesOwned)
     }
   }
 
