@@ -1,5 +1,7 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.testutils.DataLoader
@@ -7,7 +9,10 @@ import io.craigmiller160.markettracker.portfolio.web.types.tradier.TradierHistor
 import java.math.BigDecimal
 import java.time.LocalDate
 
-private val objectMapper = jacksonObjectMapper()
+private val objectMapper =
+    jacksonObjectMapper()
+        .registerModule(JavaTimeModule())
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
 private val data401k =
     DataLoader.load("data/craigmiller/Data401k.json").let {
