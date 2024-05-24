@@ -43,7 +43,7 @@ constructor(
         GoogleSheetsDispatcher(
             baseUrl = downloaderConfig.googleSheetsApiBaseUrl,
             expectedToken = googleApiAccessToken.accessToken,
-            spreadsheetUrlValues = downloaderConfig.portfolioSpreadsheetsStandard,
+            spreadsheetUrlValues = downloaderConfig.portfolioSpreadsheets401k,
             response = data401k)
     mockGoogleServer.start(testGooglePort)
 
