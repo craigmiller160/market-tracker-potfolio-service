@@ -69,6 +69,7 @@ constructor(
 
     val portfolio = result.first()
     portfolio.name.shouldBe("401k")
+    portfolio.userId.shouldBe(downloaderConfig.userId)
 
     val sharesOwnedGroups = portfolio.ownershipHistory.groupBy { it.symbol }
 
