@@ -41,76 +41,76 @@ val TEST_DATA_401K: List<SharesOwned> = createTestData {
     start = LocalDate.of(2022, 4, 1)
     end = LocalDate.of(2022, 5, 1)
     symbol = "VTI"
-    amount = TODO()
+    amount = BigDecimal("412.7")
   }
 
   shares {
-    start = LocalDate.of(2022, 5, 1)
-    end = LocalDate.of(2022, 6, 1)
+    start = LocalDate.of(2022, 6, 1)
+    end = LocalDate.of(2022, 7, 1)
     symbol = "VTI"
-    amount = TODO()
-  }
-
-  shares {
-    start = LocalDate.of(2022, 7, 1)
-    end = LocalDate.of(2022, 8, 1)
-    symbol = "VTI"
-    amount = TODO()
+    amount = BigDecimal("5.108")
   }
 
   shares {
     start = LocalDate.of(2022, 8, 1)
     end = LocalDate.of(2022, 9, 1)
     symbol = "VTI"
-    amount = TODO()
+    amount = BigDecimal("7.458")
   }
 
   shares {
     start = LocalDate.of(2022, 9, 1)
     end = LocalDate.of(2022, 10, 1)
     symbol = "VTI"
-    amount = TODO()
+    amount = BigDecimal("28.31")
   }
 
   shares {
     start = LocalDate.of(2022, 10, 1)
     end = LocalDate.of(2022, 11, 1)
     symbol = "VTI"
-    amount = TODO()
+    amount = BigDecimal("40.8")
   }
 
   shares {
     start = LocalDate.of(2022, 11, 1)
     end = LocalDate.of(2022, 12, 1)
     symbol = "VTI"
-    amount = TODO()
+    amount = BigDecimal("54.41")
+  }
+
+  shares {
+    start = LocalDate.of(2022, 12, 1)
+    end = LocalDate.of(2023, 1, 1)
+    symbol = "VTI"
+    amount = BigDecimal("47.47")
   }
 
   shares {
     start = LocalDate.of(2023, 1, 1)
     end = LocalDate.of(2023, 2, 1)
     symbol = "VTI"
-    amount = TODO()
+    amount = BigDecimal("5.825")
   }
 
   shares {
     start = LocalDate.of(2023, 2, 1)
     end = LocalDate.of(2023, 3, 1)
     symbol = "VTI"
-    amount = TODO()
+    amount = BigDecimal("15.14")
   }
 
   shares {
     start = LocalDate.of(2023, 3, 1)
     end = LocalDate.of(2023, 4, 1)
     symbol = "VTI"
-    amount = TODO()
+    amount = BigDecimal("28.19")
   }
 
   shares {
     start = LocalDate.of(2023, 4, 1)
     end = LocalDate.of(2023, 5, 1)
     symbol = "VTI"
-    amount = TODO()
+    amount = BigDecimal("38.44")
   }
 }
