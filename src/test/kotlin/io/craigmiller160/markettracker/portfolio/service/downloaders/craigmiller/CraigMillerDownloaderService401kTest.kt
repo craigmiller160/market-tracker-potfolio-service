@@ -84,7 +84,7 @@ constructor(
         TEST_DATA_VXUS_4O1K.map {
           it.copy(portfolioId = portfolio.id, userId = downloaderConfig.userId)
         }
-    writeDataForDebugging(objectMapper, "401k", 1, expectedVxus, vtiShares)
+    writeDataForDebugging(objectMapper, "401k", 1, expectedVxus, vxusShares)
     validateSharesOwned(expectedVxus, vxusShares)
   }
 }
