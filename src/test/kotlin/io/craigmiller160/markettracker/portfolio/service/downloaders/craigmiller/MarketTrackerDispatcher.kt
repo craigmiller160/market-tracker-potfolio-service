@@ -37,6 +37,7 @@ class MarketTrackerDispatcher(private val host: String) : Dispatcher() {
       }
 
       val symbol = matchResult.groups["symbol"]?.value ?: ""
+      println("Symbol in Request: $symbol")
       val response =
           when (symbol) {
             "VTI" -> vtiHistory
