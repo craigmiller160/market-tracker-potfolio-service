@@ -79,7 +79,9 @@ constructor(
     result.forEachIndexed { index, portfolio ->
       portfolio.name.shouldBeIn("Brokerage", "Roth IRA", "Rollover IRA")
       val expectedSharesOwned =
-          TEST_DATA.map { it.copy(portfolioId = portfolio.id, userId = downloaderConfig.userId) }
+          STANDARD_TEST_DATA.map {
+                it.copy(portfolioId = portfolio.id, userId = downloaderConfig.userId)
+              }
               .sortedWith(::sort)
       val actualSharesOwned = portfolio.ownershipHistory.sortedWith(::sort)
 

@@ -6,7 +6,7 @@ import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import java.math.BigDecimal
 import java.time.LocalDate
 
-val TEST_DATA: List<SharesOwned> = createTestData {
+val STANDARD_TEST_DATA: List<SharesOwned> = createTestData {
   shares {
     start = LocalDate.of(2020, 6, 4)
     end = LocalDate.of(2020, 6, 19)
