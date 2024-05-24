@@ -5,7 +5,6 @@ import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderCon
 import io.craigmiller160.markettracker.portfolio.config.MarketTrackerApiConfig
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DataLoader
-import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -27,8 +26,7 @@ constructor(
     private val service: CraigMillerDownloaderService401k,
     private val objectMapper: ObjectMapper,
     private val downloaderConfig: CraigMillerDownloaderConfig,
-    private val marketTrackerApiConfig: MarketTrackerApiConfig,
-    private val users: DefaultUsers
+    private val marketTrackerApiConfig: MarketTrackerApiConfig
 ) {
   companion object {
     private val data401k: String = DataLoader.load("data/craigmiller/Data401k.json")
