@@ -18,7 +18,15 @@ class MarketTrackerDispatcher(private val host: String) : Dispatcher() {
       val url = request.requestUrl?.toString() ?: ""
       println("Received request: ${request.method ?: ""} $url")
 
-      // TODO validate authorization
+      val auth = request.headers["Authorization"] ?: ""
+      if (!Regex("^Bearer .+$").matches(auth)) {
+        val errorMessage = "Missing authorization token"
+        System.err.println(errorMessage)
+        return MockResponse()
+            .setResponseCode(401)
+            .setHeader("Content-Type", "text/plain")
+            .setBody(errorMessage)
+      }
 
       val end = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
       val expectedUrlRegex =
