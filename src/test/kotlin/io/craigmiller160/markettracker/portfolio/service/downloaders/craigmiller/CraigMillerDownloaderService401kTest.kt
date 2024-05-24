@@ -72,11 +72,19 @@ constructor(
     val sharesOwnedGroups = portfolio.ownershipHistory.groupBy { it.symbol }
 
     val vtiShares = sharesOwnedGroups["VTI"].shouldNotBeNull()
-    writeDataForDebugging(objectMapper, "401k", 0, TEST_DATA_VTI_401K, vtiShares)
-    validateSharesOwned(TEST_DATA_VTI_401K, vtiShares)
+    val expectedVti =
+        TEST_DATA_VTI_401K.map {
+          it.copy(portfolioId = portfolio.id, userId = downloaderConfig.userId)
+        }
+    writeDataForDebugging(objectMapper, "401k", 0, expectedVti, vtiShares)
+    validateSharesOwned(expectedVti, vtiShares)
 
     val vxusShares = sharesOwnedGroups["VXUS"].shouldNotBeNull()
-    writeDataForDebugging(objectMapper, "401k", 1, TEST_DATA_VXUS_4O1K, vtiShares)
-    validateSharesOwned(TEST_DATA_VXUS_4O1K, vxusShares)
+    val expectedVxus =
+        TEST_DATA_VXUS_4O1K.map {
+          it.copy(portfolioId = portfolio.id, userId = downloaderConfig.userId)
+        }
+    writeDataForDebugging(objectMapper, "401k", 1, expectedVxus, vtiShares)
+    validateSharesOwned(expectedVxus, vxusShares)
   }
 }
