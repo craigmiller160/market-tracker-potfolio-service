@@ -76,10 +76,10 @@ constructor(
 
     val vtiShares = sharesOwnedGroups["VTI"].shouldNotBeNull()
     writeDataForDebugging(objectMapper, "401k", 0, TEST_DATA_VTI_401K, vtiShares)
-    vtiShares.shouldBe(TEST_DATA_VTI_401K)
+    validateSharesOwned(TEST_DATA_VTI_401K, vtiShares)
 
     val vxusShares = sharesOwnedGroups["VXUS"].shouldNotBeNull()
     writeDataForDebugging(objectMapper, "401k", 1, TEST_DATA_VXUS_4O1K, vtiShares)
-    vxusShares.shouldBe(TEST_DATA_VXUS_4O1K)
+    validateSharesOwned(TEST_DATA_VXUS_4O1K, vxusShares)
   }
 }
