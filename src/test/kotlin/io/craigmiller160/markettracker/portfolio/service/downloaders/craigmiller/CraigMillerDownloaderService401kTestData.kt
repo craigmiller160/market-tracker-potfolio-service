@@ -151,19 +151,19 @@ val TEST_DATA_VXUS_4O1K: List<SharesOwned> = createTestData {
     start = LocalDate.of(2023, 3, 1)
     end = LocalDate.of(2023, 4, 1)
     symbol = "VXUS"
-    amount = BigDecimal("14.03")
+    amount = BigDecimal("26.05")
   }
 
   shares {
     start = LocalDate.of(2023, 4, 1)
     end = LocalDate.of(2023, 5, 1)
     symbol = "VXUS"
-    amount = BigDecimal("26.05")
+    amount = BigDecimal("35.25")
   }
 
   shares {
     start = LocalDate.of(2023, 5, 1)
     symbol = "VXUS"
-    amount = BigDecimal("26.05")
+    amount = BigDecimal("35.25")
   }
 }
