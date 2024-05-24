@@ -79,7 +79,7 @@ constructor(
     result.forEachIndexed { index, portfolio ->
       portfolio.name.shouldBeIn("Brokerage", "Roth IRA", "Rollover IRA")
       val expectedSharesOwned =
-          STANDARD_TEST_DATA.map {
+          TEST_DATA_STANDARD.map {
                 it.copy(portfolioId = portfolio.id, userId = downloaderConfig.userId)
               }
               .sortedWith(::sort)
