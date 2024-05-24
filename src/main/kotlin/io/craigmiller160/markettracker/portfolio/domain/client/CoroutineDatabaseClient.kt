@@ -2,7 +2,6 @@ package io.craigmiller160.markettracker.portfolio.domain.client
 
 import arrow.core.Either
 import arrow.core.flatMap
-import arrow.core.fold
 import io.craigmiller160.markettracker.portfolio.domain.rowmappers.RowMapper
 import io.craigmiller160.markettracker.portfolio.extensions.TryEither
 import io.craigmiller160.markettracker.portfolio.extensions.bindToList

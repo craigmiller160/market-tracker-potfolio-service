@@ -27,3 +27,5 @@ inline fun <B, C> TryEither<B>.mapCatch(block: (B) -> C): TryEither<C> = flatMap
 fun <E, A> List<Either<E, A>>.bindToList(): Either<E, List<A>> = either {
   this@bindToList.bindAll()
 }
+
+fun <E, A> Sequence<Either<E, A>>.bindToList(): Either<E, List<A>> = toList().bindToList()

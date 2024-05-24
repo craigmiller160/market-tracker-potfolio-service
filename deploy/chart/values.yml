@@ -11,12 +11,16 @@ app_deployment:
     downloaders.enable-schedule: "true"
     downloaders.craigmiller.user-id: 7a8e0603-dca6-474c-a0f7-34a748567aee
     downloaders.craigmiller.service-account-json-path: /gcloud-service-account/market-tracker-service-account.json
+    market-tracker-api.host: http://market-tracker-api:8080
     logging.level.org.springframework.data.r2dbc: INFO
+    io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller.CraigMillerDownloaderService401k: DEBUG
   onepassworditems:
     - name: market-tracker-portfolio-postgres
       itemPath: vaults/Home Server (Prod)/items/Postgres Root Account
     - name: market-tracker-portfolio-gcloud-service-account
       itemPath: vaults/Home Server (Prod)/items/Market Tracker Google Cloud Service Account
+    - name: market-tracker-portfolio-service-oauth2-keys
+      itemPath: vaults/Home Server (Prod)/items/Market Tracker Portfolio Service OAuth2 Keys
   ports:
     - containerPort: 8080
   secrets:
@@ -26,6 +30,12 @@ app_deployment:
     - envVariable: spring.db.password
       secretName: market-tracker-portfolio-postgres
       secretKey: password
+    - envVariable: spring.security.keycloak.oauth2.resourceserver.client-id
+      secretName: market-tracker-portfolio-service-oauth2-keys
+      secretKey: kcClientId
+    - envVariable: spring.security.keycloak.oauth2.resourceserver.client-secret
+      secretName: market-tracker-portfolio-service-oauth2-keys
+      secretKey: kcClientSecret
   volumes:
     - name: gcloud-service-account
       type: Secret

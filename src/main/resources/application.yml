@@ -9,6 +9,7 @@ spring:
           host: https://auth.craigmiller160.us
           realm: apps-dev
           client-id: market-tracker-portfolio-service
+          client-secret: k1WhYTvZwvUb1rpo0cL4VBmo5P8hRVVp
   db:
     baseUrl: postgresql://localhost:5432/market_tracker_portfolio_dev
     username: postgres
@@ -25,6 +26,9 @@ spring:
 http-client:
   timeout-millis: 30000
 
+market-tracker-api:
+  host: http://localhost:8080
+
 downloaders:
   enable-schedule: false
   interval-rate-hours: 3
@@ -32,19 +36,35 @@ downloaders:
     user-id: 2e0eccce-1f64-4d13-a269-fda027f5ddee
     google-sheets-api-base-url: https://sheets.googleapis.com/v4
     service-account-json-path: ${user.dir}/market-tracker-service-account.json
-    portfolio-spreadsheets:
+    etf-equivalents:
+      us: VTI
+      ex-us: VXUS
+    portfolio-spreadsheets-standard:
       - name: Brokerage
         sheet-id: 1E2U1DR7i3xG3Kvi_AH9Zp_uYRYR2sSobcjQ5Di1a_t0
         values-range: Transactions
       - name: Roth IRA
         sheet-id: 18BK_urWmKH_m9bZFVOpDzRDgqQ66gTwdnYil-xtKZK4
         values-range: Transactions
-#      - name: Rollover IRA
-#        sheet-id: 1Kuj9Ky_DYh0IsUgXx48rMKgRD7oU7O5xqwylNwx1VN0
-#        values-range: Transactions
+      - name: Rollover IRA
+        sheet-id: 1Kuj9Ky_DYh0IsUgXx48rMKgRD7oU7O5xqwylNwx1VN0
+        values-range: Transactions
+    portfolio-spreadsheets-401k:
+      - name: 401k
+        sheet-id: 14ICDVPp6LPhoUDEgsA5ZP7bopr7GTzdFf1jbcxEhouE
+        values-range: 401k
+        allocations:
+          - start-date: 2015-01-01
+            end-date: 2022-11-30
+            percent-us: 100
+            percent-ex-us: 0
+          - start-date: 2022-12-01
+            percent-us: 80
+            percent-ex-us: 20
 
 logging:
   level:
     io.craigmiller160: DEBUG
+    io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller.CraigMillerDownloaderService401k: TRACE
     org.springframework.data.r2dbc: DEBUG
 #    io.r2dbc.postgresql.QUERY: DEBUG
