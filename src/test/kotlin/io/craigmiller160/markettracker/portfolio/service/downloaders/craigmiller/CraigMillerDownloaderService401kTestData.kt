@@ -141,6 +141,75 @@ val TEST_DATA_VTI_401K: List<SharesOwned> = createTestData {
 
 val TEST_DATA_VXUS_4O1K: List<SharesOwned> = createTestData {
   shares {
+    start = LocalDate.of(2022, 2, 1)
+    end = LocalDate.of(2022, 3, 1)
+    symbol = "VXUS"
+    amount = BigDecimal("0")
+  }
+  shares {
+    start = LocalDate.of(2022, 3, 1)
+    end = LocalDate.of(2022, 4, 1)
+    symbol = "VXUS"
+    amount = BigDecimal("0")
+  }
+
+  shares {
+    start = LocalDate.of(2022, 4, 1)
+    end = LocalDate.of(2022, 5, 1)
+    symbol = "VXUS"
+    amount = BigDecimal("0")
+  }
+
+  shares {
+    start = LocalDate.of(2022, 5, 1)
+    end = LocalDate.of(2022, 6, 1)
+    symbol = "VXUS"
+    amount = BigDecimal("0")
+  }
+
+  shares {
+    start = LocalDate.of(2022, 6, 1)
+    end = LocalDate.of(2022, 7, 1)
+    symbol = "VXUS"
+    amount = BigDecimal("0")
+  }
+
+  shares {
+    start = LocalDate.of(2022, 7, 1)
+    end = LocalDate.of(2022, 8, 1)
+    symbol = "VXUS"
+    amount = BigDecimal("0")
+  }
+
+  shares {
+    start = LocalDate.of(2022, 8, 1)
+    end = LocalDate.of(2022, 9, 1)
+    symbol = "VXUS"
+    amount = BigDecimal("0")
+  }
+
+  shares {
+    start = LocalDate.of(2022, 9, 1)
+    end = LocalDate.of(2022, 10, 1)
+    symbol = "VXUS"
+    amount = BigDecimal("0")
+  }
+
+  shares {
+    start = LocalDate.of(2022, 10, 1)
+    end = LocalDate.of(2022, 11, 1)
+    symbol = "VXUS"
+    amount = BigDecimal("0")
+  }
+
+  shares {
+    start = LocalDate.of(2022, 11, 1)
+    end = LocalDate.of(2022, 12, 1)
+    symbol = "VXUS"
+    amount = BigDecimal("0")
+  }
+
+  shares {
     start = LocalDate.of(2022, 12, 1)
     end = LocalDate.of(2023, 1, 1)
     symbol = "VXUS"
