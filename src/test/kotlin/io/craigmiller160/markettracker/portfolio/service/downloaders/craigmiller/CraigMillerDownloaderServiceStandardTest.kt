@@ -11,8 +11,6 @@ import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.shouldBe
-import java.nio.file.Files
-import java.nio.file.Paths
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.AfterEach
@@ -54,21 +52,6 @@ constructor(
     mockServer.shutdown()
   }
 
-  private fun writeDataForDebugging(
-      index: Int,
-      expected: List<SharesOwned>,
-      actual: List<SharesOwned>
-  ) {
-    val outputPath = Paths.get(System.getProperty("user.dir"), "build", "craigmiller_download")
-    Files.createDirectories(outputPath)
-    Files.write(
-        outputPath.resolve("expected$index.json"),
-        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(expected))
-    Files.write(
-        outputPath.resolve("actual$index.json"),
-        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(actual))
-  }
-
   @Test
   fun `downloads and formats standard transactional google sheet data`() {
     val result = runBlocking { service.download(googleApiAccessToken.accessToken) }.shouldBeRight()
@@ -85,7 +68,7 @@ constructor(
               .sortedWith(::sort)
       val actualSharesOwned = portfolio.ownershipHistory.sortedWith(::sort)
 
-      writeDataForDebugging(index, expectedSharesOwned, actualSharesOwned)
+      writeDataForDebugging("standard", index, expectedSharesOwned, actualSharesOwned)
 
       actualSharesOwned.shouldHaveSize(expectedSharesOwned.size).forEachIndexed { innerIndex, actual
         ->
