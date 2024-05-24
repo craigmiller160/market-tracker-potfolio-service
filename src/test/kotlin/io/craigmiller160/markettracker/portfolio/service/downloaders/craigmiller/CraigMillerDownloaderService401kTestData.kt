@@ -113,4 +113,39 @@ val TEST_DATA_401K: List<SharesOwned> = createTestData {
     symbol = "VTI"
     amount = BigDecimal("38.44")
   }
+
+  shares {
+    start = LocalDate.of(2022, 12, 1)
+    end = LocalDate.of(2023, 1, 1)
+    symbol = "VXUS"
+    amount = BigDecimal("43.87")
+  }
+
+  shares {
+    start = LocalDate.of(2023, 1, 1)
+    end = LocalDate.of(2023, 2, 1)
+    symbol = "VXUS"
+    amount = BigDecimal("5.296")
+  }
+
+  shares {
+    start = LocalDate.of(2023, 2, 1)
+    end = LocalDate.of(2023, 3, 1)
+    symbol = "VXUS"
+    amount = BigDecimal("14.03")
+  }
+
+  shares {
+    start = LocalDate.of(2023, 3, 1)
+    end = LocalDate.of(2023, 4, 1)
+    symbol = "VXUS"
+    amount = BigDecimal("14.03")
+  }
+
+  shares {
+    start = LocalDate.of(2023, 4, 1)
+    end = LocalDate.of(2023, 5, 1)
+    symbol = "VXUS"
+    amount = BigDecimal("26.05")
+  }
 }
