@@ -38,6 +38,9 @@ fun validateSharesOwned(expected: List<SharesOwned>, actual: List<SharesOwned>) 
           actual.symbol.shouldBe(expected.symbol)
           actual.totalShares.shouldBeEqualComparingTo(expected.totalShares)
         }
-        .shouldBeRight { ex -> "Error validating record $index: ${ex.message}" }
+        .shouldBeRight { ex ->
+          ex.printStackTrace()
+          "Error validating record $index: ${ex.message}"
+        }
   }
 }
