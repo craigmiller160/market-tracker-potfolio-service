@@ -1,6 +1,5 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
-import arrow.core.Either
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.craigmiller160.markettracker.portfolio.config.CraigMillerDownloaderConfig
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
@@ -9,7 +8,6 @@ import io.craigmiller160.markettracker.portfolio.testutils.DataLoader
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockWebServer
@@ -68,21 +66,9 @@ constructor(
               .sortedWith(::sort)
       val actualSharesOwned = portfolio.ownershipHistory.sortedWith(::sort)
 
-      writeDataForDebugging("standard", index, expectedSharesOwned, actualSharesOwned)
+      writeDataForDebugging(objectMapper, "standard", index, expectedSharesOwned, actualSharesOwned)
 
-      actualSharesOwned.shouldHaveSize(expectedSharesOwned.size).forEachIndexed { innerIndex, actual
-        ->
-        Either.catch {
-              val expected = expectedSharesOwned[innerIndex]
-              actual.userId.shouldBe(expected.userId)
-              actual.portfolioId.shouldBe(expected.portfolioId)
-              actual.dateRangeStart.shouldBe(expected.dateRangeStart)
-              actual.dateRangeEnd.shouldBe(expected.dateRangeEnd)
-              actual.symbol.shouldBe(expected.symbol)
-              actual.totalShares.shouldBeEqualComparingTo(expected.totalShares)
-            }
-            .shouldBeRight { ex -> "Error validating record $innerIndex: ${ex.message}" }
-      }
+      validateSharesOwned(expectedSharesOwned, actualSharesOwned)
     }
   }
 }

@@ -75,11 +75,11 @@ constructor(
     val sharesOwnedGroups = portfolio.ownershipHistory.groupBy { it.symbol }
 
     val vtiShares = sharesOwnedGroups["VTI"].shouldNotBeNull()
-    writeDataForDebugging("401k", 0, TEST_DATA_VTI_401K, vtiShares)
+    writeDataForDebugging(objectMapper, "401k", 0, TEST_DATA_VTI_401K, vtiShares)
     vtiShares.shouldBe(TEST_DATA_VTI_401K)
 
     val vxusShares = sharesOwnedGroups["VXUS"].shouldNotBeNull()
-    writeDataForDebugging("401k", 1, TEST_DATA_VXUS_4O1K, vtiShares)
+    writeDataForDebugging(objectMapper, "401k", 1, TEST_DATA_VXUS_4O1K, vtiShares)
     vxusShares.shouldBe(TEST_DATA_VXUS_4O1K)
   }
 }
