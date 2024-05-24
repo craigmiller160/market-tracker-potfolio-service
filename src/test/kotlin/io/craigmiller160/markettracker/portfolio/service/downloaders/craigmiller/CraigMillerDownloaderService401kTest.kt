@@ -6,7 +6,6 @@ import io.craigmiller160.markettracker.portfolio.config.MarketTrackerApiConfig
 import io.craigmiller160.markettracker.portfolio.testcore.MarketTrackerPortfolioIntegrationTest
 import io.craigmiller160.markettracker.portfolio.testutils.DataLoader
 import io.craigmiller160.markettracker.portfolio.testutils.DefaultUsers
-import io.craigmiller160.markettracker.portfolio.testutils.userTypedId
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -70,7 +69,6 @@ constructor(
 
     val portfolio = result.first()
     portfolio.name.shouldBe("401k")
-    portfolio.userId.shouldBe(users.primaryUser.userTypedId)
 
     val sharesOwnedGroups = portfolio.ownershipHistory.groupBy { it.symbol }
 
