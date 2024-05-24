@@ -1,7 +1,6 @@
 package io.craigmiller160.markettracker.portfolio.service.downloaders.craigmiller
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.craigmiller160.markettracker.portfolio.domain.models.SharesOwned
 import io.craigmiller160.markettracker.portfolio.testutils.DataLoader
 import io.craigmiller160.markettracker.portfolio.web.types.tradier.TradierHistory
@@ -23,7 +22,7 @@ private val vxusHistory =
       objectMapper.readValue(it, TradierHistory::class.java)
     }
 
-val TEST_DATA_401K: List<SharesOwned> = createTestData {
+val TEST_DATA_VTI_401K: List<SharesOwned> = createTestData {
   shares {
     start = LocalDate.of(2022, 2, 1)
     end = LocalDate.of(2022, 3, 1)
@@ -113,7 +112,9 @@ val TEST_DATA_401K: List<SharesOwned> = createTestData {
     symbol = "VTI"
     amount = BigDecimal("38.44")
   }
+}
 
+val TEST_DATA_VXUS_4O1K: List<SharesOwned> = createTestData {
   shares {
     start = LocalDate.of(2022, 12, 1)
     end = LocalDate.of(2023, 1, 1)
